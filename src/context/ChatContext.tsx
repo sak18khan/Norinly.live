@@ -6,8 +6,9 @@ import { auth, db as fdb } from '@/lib/firebase';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
 import AuthModal from '@/components/AuthModal';
+import toast from 'react-hot-toast';
 
-export type ConnectionStatus = 'idle' | 'searching' | 'connected' | 'error' | 'disconnected';
+export type ConnectionStatus = 'idle' | 'initializing' | 'requesting_mic' | 'searching' | 'connecting' | 'connected' | 'error' | 'disconnected';
 
 export interface Message {
     id: string;
@@ -37,17 +38,19 @@ interface ChatContextProps {
     partnerId: string | null;
     partnerCountry: { countryName: string, countryCode: string } | null;
     lastPartnerId: string | null;
+    errorDetail: string | null;
 
     connectionStartTime: number | null;
     messages: Message[];
     isStrangerTyping: boolean;
     isRemoteSpeaking: boolean;
+    isLocalSpeaking: boolean;
     activeReactions: Array<{ id: string, emoji: string }>;
     activeFilter: string;
     canvasRef: React.RefObject<HTMLCanvasElement | null>;
     localAudioRef: React.RefObject<HTMLAudioElement | null>;
     remoteAudioRef: React.RefObject<HTMLAudioElement | null>;
-    requestMicrophoneAndJoin: (interests: string[], country: string) => Promise<void>;
+    requestMicrophoneAndJoin: (interests: string[], country: string, mode?: 'normal' | 'debate') => Promise<void>;
     handleMute: () => void;
     handleNext: () => void;
     handleEnd: () => void;
@@ -64,10 +67,21 @@ interface ChatContextProps {
     logout: () => Promise<void>;
     sendFriendRequest: () => void;
     acceptFriendRequest: (fromUserId: string) => void;
+    declineFriendRequest: () => void;
     friends: any[];
     showAuthModal: boolean;
     setShowAuthModal: (show: boolean) => void;
+    showProfileModal: boolean;
+    setShowProfileModal: (show: boolean) => void;
+    showProfileSetupModal: boolean;
+    setShowProfileSetupModal: (show: boolean) => void;
     joinPrivateRoom: (inviteCode: string) => Promise<void>;
+    pendingFriendRequest: any;
+
+    // Session Metrics
+    timeLeft: number;
+    isSessionFinished: boolean;
+    selectedMode: string;
 
     // Debate Mode
     debateData: DebateData;
@@ -81,11 +95,15 @@ interface ChatContextProps {
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
-const ICE_SERVERS = {
+const ICE_SERVERS: RTCConfiguration = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
     ],
+    iceCandidatePoolSize: 10,
 };
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -93,10 +111,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [liveUsers, setLiveUsers] = useState<number>(0);
     const [isMuted, setIsMuted] = useState(false);
     const [micDenied, setMicDenied] = useState(false);
+    const [chatMode, setChatMode] = useState<'normal' | 'debate'>('normal');
 
     const [partnerId, setPartnerId] = useState<string | null>(null);
     const [partnerCountry, setPartnerCountry] = useState<{ countryName: string, countryCode: string } | null>(null);
     const [lastPartnerId, setLastPartnerId] = useState<string | null>(null);
+    const [errorDetail, setErrorDetail] = useState<string | null>(null);
 
     const [connectionStartTime, setConnectionStartTime] = useState<number | null>(null);
 
@@ -104,12 +124,20 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [messages, setMessages] = useState<Message[]>([]);
     const [isStrangerTyping, setIsStrangerTyping] = useState(false);
     const [isRemoteSpeaking, setIsRemoteSpeaking] = useState(false);
+    const [isLocalSpeaking, setIsLocalSpeaking] = useState(false);
     const [activeReactions, setActiveReactions] = useState<Array<{ id: string, emoji: string }>>([]);
     const [activeFilter, setActiveFilter] = useState<string>('none');
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [friends, setFriends] = useState<any[]>([]);
     const [showAuthModal, setShowAuthModal] = useState(false);
+    const [showProfileModal, setShowProfileModal] = useState(false);
+    const [showProfileSetupModal, setShowProfileSetupModal] = useState(false);
     const [pendingFriendRequest, setPendingFriendRequest] = useState<any>(null);
+
+    // Session Metrics
+    const [timeLeft, setTimeLeft] = useState(300);
+    const [isSessionFinished, setIsSessionFinished] = useState(false);
+    const [selectedMode, setSelectedMode] = useState('casual');
 
     // Debate State
     const [debateData, setDebateData] = useState<DebateData>({
@@ -139,28 +167,61 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const dataArrayRef = useRef<Uint8Array | null>(null);
     const remoteAnalyserRef = useRef<AnalyserNode | null>(null);
     const remoteDataArrayRef = useRef<Uint8Array | null>(null);
+    const analysisFrameRef = useRef<number | null>(null);
     const animationFrameRef = useRef<number | null>(null);
 
-    // WebRTC & Socket refs
     const socketRef = useRef<Socket | null>(null);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
     const negotiationInProgressRef = useRef(false);
     const answerCreatedRef = useRef(false);
     const currentPartnerRef = useRef<string | null>(null);
     const listenersSetUpRef = useRef(false);
+    const hasShownProfileSetupRef = useRef(false);
+    // ICE candidate buffer: holds candidates that arrive before remoteDescription is set
+    const iceCandidateBufferRef = useRef<RTCIceCandidateInit[]>([]);
+    const threeMinuteNoticeShownRef = useRef(false);
+
 
     useEffect(() => {
         currentPartnerRef.current = partnerId;
     }, [partnerId]);
 
-    // General background socket just to get live user count when idle on homepage
     useEffect(() => {
         if (status === 'idle') {
-            const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
-                transports: ['websocket'],
+            // Versioning for deployment verification
+            console.log('[Norinly-App] Version: 1.0.7-UI-MOBILE-FIX');
+
+            const getSocketUrl = () => {
+                if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+                    return process.env.NEXT_PUBLIC_SOCKET_URL;
+                }
+                if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                    return 'https://norinly-backend.run.app';
+                }
+                return 'http://localhost:5000';
+            };
+
+            const socketUrl = getSocketUrl();
+            console.log('[Home Socket] Initializing with URL:', socketUrl);
+
+            const socket = io(socketUrl, {
+                transports: ['websocket', 'polling'],
+                withCredentials: true,
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000
             });
             socket.on('live_users_count', (count: number) => {
                 setLiveUsers(count);
+            });
+            socket.on('connect', () => {
+                console.log('[Home Socket] Connected:', socket.id);
+            });
+            socket.on('connect_error', (err) => {
+                console.error('Socket connection failed:', err.message);
+                setTimeout(() => {
+                    socket.connect();
+                }, 3000);
             });
             return () => {
                 socket.disconnect();
@@ -170,13 +231,39 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Auth Listener
     useEffect(() => {
+        if (!auth) return; // Firebase not configured
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             setCurrentUser(user);
             if (user) {
                 // Update last seen
-                updateDoc(doc(fdb, 'users', user.uid), {
-                    lastSeen: new Date()
-                }).catch(console.error);
+                if (fdb) {
+                    const userRef = doc(fdb, 'users', user.uid);
+                    onSnapshot(userRef, (snapshot) => {
+                        if (snapshot.exists()) {
+                            const data = snapshot.data();
+                            // If user is new and hasn't completed onboarding OR doesn't have required fields
+                            if (!data.onboardingComplete && !data.profileCompleted && !hasShownProfileSetupRef.current) {
+                                if (typeof window !== 'undefined' && sessionStorage.getItem('skippedProfileSetup') !== 'true') {
+                                    setShowProfileSetupModal(true);
+                                    hasShownProfileSetupRef.current = true;
+                                }
+                            }
+                        } else {
+                            // Document doesn't exist yet, AuthModal usually creates it, 
+                            // but if not, user is definitely new
+                            if (!hasShownProfileSetupRef.current) {
+                                if (typeof window !== 'undefined' && sessionStorage.getItem('skippedProfileSetup') !== 'true') {
+                                    setShowProfileSetupModal(true);
+                                    hasShownProfileSetupRef.current = true;
+                                }
+                            }
+                        }
+                    });
+
+                    updateDoc(userRef, {
+                        lastSeen: new Date()
+                    }).catch(console.error);
+                }
 
                 // Re-register with back-end if socket is active
                 if (socketRef.current?.connected) {
@@ -187,9 +274,33 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return () => unsubscribe();
     }, []);
 
-    // Awkward Silence Helper (Feature 6) & Streak Logic (Feature 5)
+    // Session Timer & Stats
     useEffect(() => {
-        if (status !== 'connected' || !connectionStartTime) return;
+        if (status !== 'connected' || !connectionStartTime) {
+            setTimeLeft(300);
+            setIsSessionFinished(false);
+            return;
+        }
+
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const elapsed = now - connectionStartTime;
+            const remaining = Math.max(0, 300 - Math.floor(elapsed / 1000));
+            
+            setTimeLeft(remaining);
+
+            if (remaining === 0 && !isSessionFinished) {
+                setIsSessionFinished(true);
+                saveSessionStats();
+                sendSystemMessage("Time's up! Great practice session. You can stay and finish your point, or find a new partner.");
+            }
+
+            // Streak/Long convo check (3 minutes)
+            if (elapsed >= 180000 && !threeMinuteNoticeShownRef.current) {
+                sendSystemMessage("🔥 You've been talking for 3 minutes! Great conversation!");
+                threeMinuteNoticeShownRef.current = true;
+            }
+        }, 1000);
 
         const suggestions = [
             "Ask them what music they like",
@@ -198,19 +309,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             "Ask what they do for fun",
             "Ask what country they want to visit"
         ];
-
-        let streakSent = false;
-
-        const interval = setInterval(() => {
-            const now = Date.now();
-            const elapsed = now - connectionStartTime;
-
-            // Streak check (3 minutes)
-            if (elapsed >= 180000 && !streakSent) {
-                sendSystemMessage("🔥 You've been talking for 3 minutes! Great conversation!");
-                streakSent = true;
-            }
-        }, 1000);
 
         // Individual timeout for silence to avoid spamming
         const silenceTimer = setTimeout(() => {
@@ -228,7 +326,26 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             clearInterval(interval);
             clearTimeout(silenceTimer);
         }
-    }, [messages.length, isRemoteSpeaking, isStrangerTyping, status, connectionStartTime]);
+    }, [messages.length, isRemoteSpeaking, isStrangerTyping, status, connectionStartTime, isSessionFinished]);
+
+    const saveSessionStats = async () => {
+        if (!currentUser || !connectionStartTime || !fdb) return;
+        const now = Date.now();
+        const elapsedMinutes = Math.floor((now - connectionStartTime) / 60000);
+        
+        if (elapsedMinutes < 1) return;
+
+        try {
+            const userRef = doc(fdb, 'users', currentUser.uid);
+            await updateDoc(userRef, {
+                conversationsCount: increment(1),
+                totalSpeakingMinutes: increment(elapsedMinutes),
+                updatedAt: new Date()
+            });
+        } catch (e) {
+            console.error('Error saving session stats:', e);
+        }
+    };
 
 
     const setupSocketListeners = () => {
@@ -287,7 +404,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
         socketRef.current.on('webrtc_offer', async (offer) => {
-            if (!peerConnectionRef.current) return;
+            console.log('[Signaling] Received WebRTC offer');
+            if (!peerConnectionRef.current) {
+                console.warn('[Signaling] PeerConnection not initialized yet, ignoring offer');
+                return;
+            }
 
             // Check if we already created an answer for this session
             if (answerCreatedRef.current) {
@@ -303,14 +424,25 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             try {
                 negotiationInProgressRef.current = true;
-                answerCreatedRef.current = true; // Set flag that answer is being created
+                answerCreatedRef.current = true;
                 await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(offer));
+
+                // Drain buffered ICE candidates now that remoteDescription is set
+                if (iceCandidateBufferRef.current.length > 0) {
+                    console.log(`[WebRTC] Draining ${iceCandidateBufferRef.current.length} buffered ICE candidates`);
+                    for (const c of iceCandidateBufferRef.current) {
+                        try { await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(c)); } catch { /* ignore stale */ }
+                    }
+                    iceCandidateBufferRef.current = [];
+                }
+
                 const answer = await peerConnectionRef.current.createAnswer();
                 await peerConnectionRef.current.setLocalDescription(answer);
                 socketRef.current?.emit('webrtc_answer', answer);
+                console.log('[WebRTC] Answer created and sent');
             } catch (e) {
                 console.error('Error handling webrtc_offer', e);
-                answerCreatedRef.current = false; // Reset if it failed
+                answerCreatedRef.current = false;
             } finally {
                 negotiationInProgressRef.current = false;
             }
@@ -319,7 +451,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         socketRef.current.on('webrtc_answer', async (answer) => {
             if (!peerConnectionRef.current) return;
 
-            // Only process answer if we have sent an offer and are waiting for one
             if (peerConnectionRef.current.signalingState !== 'have-local-offer') {
                 console.warn('Received answer but signaling state is not have-local-offer', peerConnectionRef.current.signalingState);
                 return;
@@ -327,17 +458,38 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             try {
                 await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(answer));
+
+                // Drain buffered ICE candidates now that remoteDescription is set
+                if (iceCandidateBufferRef.current.length > 0) {
+                    console.log(`[WebRTC] Draining ${iceCandidateBufferRef.current.length} buffered ICE candidates (from answer path)`);
+                    for (const c of iceCandidateBufferRef.current) {
+                        try { await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(c)); } catch { /* ignore stale */ }
+                    }
+                    iceCandidateBufferRef.current = [];
+                }
+
+                console.log('[WebRTC] Remote answer applied');
             } catch (e) {
                 console.error('Error handling webrtc_answer', e);
             }
         });
 
         socketRef.current.on('webrtc_ice_candidate', async (candidate) => {
-            if (!peerConnectionRef.current || !peerConnectionRef.current.remoteDescription) return;
+            console.log('[Signaling] Received Remote ICE Candidate');
+            const pc = peerConnectionRef.current;
+            if (!pc) return;
+
+            if (!pc.remoteDescription) {
+                // Buffer candidate — remoteDescription not yet set
+                console.log('[WebRTC] Buffering ICE candidate (remoteDescription not set yet)');
+                iceCandidateBufferRef.current.push(candidate);
+                return;
+            }
+
             try {
-                await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+                await pc.addIceCandidate(new RTCIceCandidate(candidate));
             } catch (e) {
-                console.error('Error adding received ice candidate', e);
+                console.error('Error adding received ICE candidate', e);
             }
         });
 
@@ -368,12 +520,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setPendingFriendRequest({ fromUserId, fromUsername });
         });
 
+        socketRef.current.on('friends_list', (list) => setFriends(list));
+
         socketRef.current.on('friend_request_accepted', ({ friendId }) => {
             sendSystemMessage(`You and your partner are now friends!`);
             socketRef.current?.emit('get_friends_list');
         });
-
-        socketRef.current.on('friends_list', (list) => setFriends(list));
 
         // Debate Socket Listeners
         socketRef.current.on('debate_offered', ({ from }) => {
@@ -415,20 +567,54 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
     };
 
-    const requestMicrophoneAndJoin = async (interests: string[], country: string) => {
+    const requestMicrophoneAndJoin = async (interests: string[], country: string, mode: 'normal' | 'debate' = 'normal') => {
         searchParamsRef.current = { interests, country };
+        setChatMode(mode);
+        setSelectedMode(mode);
+        setErrorDetail(null);
+        setStatus('initializing');
+
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            // STEP 1: Request Microphone immediately to satisfy user gesture requirements (especially Safari/iOS)
+            console.log("[Connection-Flow] Requesting microphone access...");
+            setStatus('requesting_mic');
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                },
+                video: false
+            });
+
+            console.log("[Connection-Flow] Microphone granted.");
             setMicDenied(false);
             localStreamRef.current = stream;
             if (localAudioRef.current) localAudioRef.current.srcObject = stream;
 
+            // STEP 2: Setup Visualizer (non-blocking)
             setupVisualizer(stream);
+
+            // STEP 3: Connect to Signaling Server
+            setStatus('searching');
             connectToSignalingServer();
-        } catch (err) {
-            console.error('Error accessing microphone', err);
-            setMicDenied(true);
+        } catch (err: any) {
+            console.error('[Connection-Flow] Microphone error:', err);
             setStatus('error');
+
+            if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+                setMicDenied(true);
+                setErrorDetail("Microphone permission denied. Please allow access and try again.");
+            } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+                setErrorDetail("No microphone detected. Please plug in a microphone.");
+            } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
+                setErrorDetail("Microphone is already in use by another application.");
+            } else if (err.name === "OverconstrainedError") {
+                setErrorDetail("Your microphone does not support the required settings.");
+            } else {
+                setErrorDetail("Could not access microphone: " + (err.message || "Unknown error"));
+            }
         }
     };
 
@@ -439,7 +625,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { interests, country } = searchParamsRef.current;
 
         socketRef.current?.emit('register', { userId });
-        socketRef.current?.emit('join_queue', { userId, interests, country });
+        socketRef.current?.emit('join_queue', { userId, interests, country, mode: chatMode });
         // NOTE: setupSocketListeners is called once by connectToSignalingServer, not here, to prevent duplicate listeners
     };
 
@@ -547,7 +733,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 updated.status = 'finished' as DebateStatusType;
 
                 // Update stats in Firebase if logged in
-                if (currentUser && finalWinner) {
+                if (currentUser && finalWinner && fdb) {
                     const userRef = doc(fdb, 'users', currentUser.uid);
                     const isWin = finalWinner === 'me';
                     const isDraw = finalWinner === 'draw';
@@ -584,17 +770,48 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const connectToSignalingServer = () => {
         setStatus('searching');
-        listenersSetUpRef.current = false; // Reset guard so listeners can be attached to new socket
-        socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
-            transports: ['websocket'],
+        listenersSetUpRef.current = false;
+
+        const getSocketUrl = () => {
+            if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+                return process.env.NEXT_PUBLIC_SOCKET_URL;
+            }
+            if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                return window.location.origin;
+            }
+            return 'http://localhost:5000';
+        };
+
+        const socketUrl = getSocketUrl();
+        console.log('[Chat Socket] Initializing with URL:', socketUrl);
+
+        if (socketRef.current) {
+            socketRef.current.disconnect();
+        }
+
+        socketRef.current = io(socketUrl, {
+            transports: ['websocket', 'polling'],
+            withCredentials: true,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000
         });
 
         socketRef.current.on('connect', () => {
-            console.log('Connected to signaling server');
+            console.log('[Chat Socket] Connected:', socketRef.current?.id);
+            // Attach all listeners once the connection is confirmed to avoid race conditions
+            setupSocketListeners();
             emitJoinQueue();
         });
 
-        setupSocketListeners();
+        socketRef.current.on('connect_error', (err) => {
+            console.error('Socket connection failed:', err.message);
+            setErrorDetail(`Connection Error: Unable to reach the signaling server. Please check your internet connection and try again. (Detail: ${err.message})`);
+            setStatus('error');
+            setTimeout(() => {
+                if (socketRef.current) socketRef.current.connect();
+            }, 3000);
+        });
     };
 
     const joinPrivateRoom = async (inviteCode: string) => {
@@ -607,20 +824,45 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setupVisualizer(stream);
 
             setStatus('searching');
-            socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
-                transports: ['websocket'],
+            listenersSetUpRef.current = false;
+
+            const getSocketUrl = () => {
+                if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+                    return process.env.NEXT_PUBLIC_SOCKET_URL;
+                }
+                if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                    return window.location.origin;
+                }
+                return 'http://localhost:5000';
+            };
+
+            const socketUrl = getSocketUrl();
+            console.log('[Private Socket] Initializing with URL:', socketUrl);
+
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+
+            socketRef.current = io(socketUrl, {
+                transports: ['websocket', 'polling'],
+                withCredentials: true,
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000
             });
 
             socketRef.current.on('connect', () => {
+                console.log('[Private Socket] Connected:', socketRef.current?.id);
                 const userId = currentUser?.uid || localStorage.getItem('norinly_user_id') || crypto.randomUUID();
+                setupSocketListeners();
                 socketRef.current?.emit('register', { userId });
                 socketRef.current?.emit('join_private_room', { userId, inviteCode });
             });
 
-            setupSocketListeners();
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error joining private room', err);
             setMicDenied(true);
+            setErrorDetail(`Could not join private room: ${err.message || 'Unknown error'}`);
             setStatus('error');
         }
     };
@@ -631,25 +873,64 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         peerConnectionRef.current = pc;
         negotiationInProgressRef.current = false;
         answerCreatedRef.current = false;
+        threeMinuteNoticeShownRef.current = false;
+
+        pc.onconnectionstatechange = () => {
+            console.log('[WebRTC] Connection state:', pc.connectionState);
+            if (pc.connectionState === 'failed') {
+                setErrorDetail("WebRTC Connection Failed: Could not establish a direct voice path. This can happen due to strict firewalls or mobile network restrictions.");
+                setStatus('error');
+            } else if (pc.connectionState === 'connected') {
+                console.log('[WebRTC] SUCCESS: Peer-to-peer connection established!');
+            }
+        };
+
+        pc.oniceconnectionstatechange = () => {
+            console.log('[WebRTC] ICE Connection state:', pc.iceConnectionState);
+            if (pc.iceConnectionState === 'failed') {
+                setErrorDetail("ICE Negotiation Failed: Peer-to-peer connection could not be negotiated.");
+                setStatus('error');
+            }
+        };
+
+        pc.onicegatheringstatechange = () => {
+            console.log('[WebRTC] ICE Gathering state:', pc.iceGatheringState);
+        };
+
+        pc.onsignalingstatechange = () => {
+            console.log('[WebRTC] Signaling state:', pc.signalingState);
+        };
+
 
         if (localStreamRef.current) {
             localStreamRef.current.getTracks().forEach((track) => {
                 pc.addTrack(track, localStreamRef.current!);
             });
+
         }
 
         pc.ontrack = (event) => {
+            console.log('[WebRTC] Received remote track:', event.track.kind);
             if (remoteAudioRef.current) {
-                remoteAudioRef.current.srcObject = event.streams[0];
-                remoteAudioRef.current.play().catch(e => console.error("Audio play failed:", e));
+                if (remoteAudioRef.current.srcObject !== event.streams[0]) {
+                    remoteAudioRef.current.srcObject = event.streams[0];
+                    console.log('[WebRTC] Attached remote stream to audio element');
+                }
+                remoteAudioRef.current.play().catch(e => {
+                    console.log("[WebRTC] Autoplay blocked, standard handling triggered:", e);
+                });
             }
             remoteStreamRef.current = event.streams[0];
             setupRemoteAudioAnalysis(event.streams[0]);
         };
 
+
         pc.onicecandidate = (event) => {
             if (event.candidate) {
+                console.log('[WebRTC] Local ICE Candidate generated');
                 socketRef.current?.emit('webrtc_ice_candidate', event.candidate);
+            } else {
+                console.log('[WebRTC] ICE Gathering Complete');
             }
         };
 
@@ -680,6 +961,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         negotiationInProgressRef.current = false;
         answerCreatedRef.current = false;
+        // Clear buffered ICE candidates to prevent them leaking into next session
+        iceCandidateBufferRef.current = [];
         if (remoteAudioRef.current) {
             remoteAudioRef.current.srcObject = null;
         }
@@ -688,6 +971,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const cleanupConnection = () => {
         cleanupWebRTC();
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        if (analysisFrameRef.current) cancelAnimationFrame(analysisFrameRef.current);
+        analysisFrameRef.current = null;
         if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
             audioContextRef.current.close().catch(console.error);
         }
@@ -697,21 +982,55 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (socketRef.current) socketRef.current.disconnect();
 
         setStatus('idle');
-        setPartnerId(null);
         setPartnerCountry(null);
         setConnectionStartTime(null);
         setIsRemoteSpeaking(false);
+        setIsLocalSpeaking(false);
         setActiveFilter('none');
+        setErrorDetail(null);
     };
 
     const setupRemoteAudioAnalysis = (stream: MediaStream) => {
         if (!audioContextRef.current) return;
-        const source = audioContextRef.current.createMediaStreamSource(stream);
-        const analyser = audioContextRef.current.createAnalyser();
-        analyser.fftSize = 256;
-        source.connect(analyser);
-        remoteAnalyserRef.current = analyser;
-        remoteDataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
+        try {
+            const source = audioContextRef.current.createMediaStreamSource(stream);
+            const analyser = audioContextRef.current.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.smoothingTimeConstant = 0.8;
+            source.connect(analyser);
+            remoteAnalyserRef.current = analyser;
+            remoteDataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
+
+            // Ensure analysis loop is running
+            if (!analysisFrameRef.current) {
+                runAudioAnalysis();
+            }
+        } catch (e) {
+            console.error('[WebRTC] Error setting up remote audio analysis:', e);
+        }
+    };
+
+    const runAudioAnalysis = () => {
+        if (!audioContextRef.current || audioContextRef.current.state === 'closed') return;
+
+        analysisFrameRef.current = requestAnimationFrame(runAudioAnalysis);
+
+        // Analyze Remote Speaking
+        if (remoteAnalyserRef.current && remoteDataArrayRef.current) {
+            remoteAnalyserRef.current.getByteFrequencyData(remoteDataArrayRef.current as any);
+            const average = remoteDataArrayRef.current.reduce((a, b: any) => a + b, 0) / remoteDataArrayRef.current.length;
+            // Sensitivity threshold
+            const remoteSpeaking = average > 12;
+            setIsRemoteSpeaking(prev => prev !== remoteSpeaking ? remoteSpeaking : prev);
+        }
+
+        // Analyze Local Speaking
+        if (analyserRef.current && dataArrayRef.current) {
+            analyserRef.current.getByteFrequencyData(dataArrayRef.current as any);
+            const localAverage = dataArrayRef.current.reduce((a, b: any) => a + b, 0) / dataArrayRef.current.length;
+            const localSpeaking = localAverage > 12;
+            setIsLocalSpeaking(prev => prev !== localSpeaking ? localSpeaking : prev);
+        }
     };
 
     const setupVisualizer = (stream: MediaStream) => {
@@ -745,6 +1064,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         updateFilterEffect(activeFilter);
         drawVisualizer();
+
+        // Start continuous analysis if not already running
+        if (!analysisFrameRef.current) {
+            runAudioAnalysis();
+        }
     };
 
     const drawVisualizer = () => {
@@ -764,12 +1088,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         animationFrameRef.current = requestAnimationFrame(drawVisualizer);
-
-        if (remoteAnalyserRef.current && remoteDataArrayRef.current) {
-            remoteAnalyserRef.current.getByteFrequencyData(remoteDataArrayRef.current as unknown as Uint8Array<ArrayBuffer>);
-            const average = remoteDataArrayRef.current.reduce((a, b) => a + b) / remoteDataArrayRef.current.length;
-            setIsRemoteSpeaking(average > 30);
-        }
 
         analyser.getByteFrequencyData(dataArray as any);
 
@@ -854,8 +1172,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             votes: { me: null, stranger: null },
             winner: null
         });
+        threeMinuteNoticeShownRef.current = false;
         setStatus('searching');
-        emitJoinQueue();
+
+
+        // Only re-emit join_queue if the socket is still connected
+        if (socketRef.current?.connected) {
+            emitJoinQueue();
+        } else {
+            console.warn('[handleNext] Socket not connected, reconnecting before emitting join_queue');
+            connectToSignalingServer();
+        }
     };
 
     const handleReconnect = () => {
@@ -918,7 +1245,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = async () => {
-        await signOut(auth);
+        if (auth) await signOut(auth);
         cleanupConnection();
     };
 
@@ -928,7 +1255,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return;
         }
         socketRef.current?.emit('send_friend_request');
-        alert('Friend request sent!');
+        toast.success('Friend request sent');
     };
 
     const acceptFriendRequest = (fromUserId: string) => {
@@ -937,49 +1264,40 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return;
         }
         socketRef.current?.emit('accept_friend_request', { fromUserId });
+        setPendingFriendRequest(null);
+    };
+
+    const declineFriendRequest = () => {
+        setPendingFriendRequest(null);
     };
 
     return (
         <ChatContext.Provider value={{
             status, liveUsers, isMuted, micDenied, partnerId, partnerCountry, lastPartnerId, connectionStartTime,
-            messages, isStrangerTyping, isRemoteSpeaking, activeReactions, activeFilter,
+            messages, isStrangerTyping, isRemoteSpeaking, isLocalSpeaking, activeReactions, activeFilter,
+            errorDetail,
             canvasRef, localAudioRef, remoteAudioRef,
             requestMicrophoneAndJoin, handleMute, handleNext, handleEnd, handleReconnect, handleReport,
             sendMessage, sendTyping, sendReaction, sendSystemMessage, revealCountry, setActiveFilter, cleanupConnection,
-            currentUser, logout, sendFriendRequest, acceptFriendRequest, friends, showAuthModal, setShowAuthModal,
+            currentUser, logout, sendFriendRequest, acceptFriendRequest, declineFriendRequest, friends,
+            showAuthModal,
+            setShowAuthModal,
+            showProfileModal,
+            setShowProfileModal,
+            showProfileSetupModal,
+            setShowProfileSetupModal,
             joinPrivateRoom,
+            pendingFriendRequest,
+            timeLeft,
+            isSessionFinished,
+            selectedMode,
             debateData, offerDebate, acceptDebate, rejectDebate, sendDebateAction, voteDebate, exitDebate
         }}>
             {children}
-            <audio ref={localAudioRef} autoPlay muted />
-            <audio ref={remoteAudioRef} autoPlay />
+            <audio ref={localAudioRef} autoPlay muted playsInline />
+            <audio ref={remoteAudioRef} autoPlay playsInline />
 
             <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-
-            {pendingFriendRequest && (
-                <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] bg-surface border border-accent/50 p-4 rounded-2xl shadow-2xl flex items-center space-x-4 animate-in slide-in-from-bottom-10 fade-in duration-300">
-                    <div className="flex flex-col">
-                        <span className="text-sm font-bold text-white">{pendingFriendRequest.fromUsername} wants to add you as a friend.</span>
-                    </div>
-                    <div className="flex space-x-2">
-                        <button
-                            onClick={() => {
-                                acceptFriendRequest(pendingFriendRequest.fromUserId);
-                                setPendingFriendRequest(null);
-                            }}
-                            className="px-4 py-2 bg-accent text-white rounded-xl text-xs font-bold hover:bg-accent-hover transition-all"
-                        >
-                            Accept
-                        </button>
-                        <button
-                            onClick={() => setPendingFriendRequest(null)}
-                            className="px-4 py-2 bg-zinc-800 text-zinc-300 rounded-xl text-xs font-bold hover:bg-zinc-700 transition-all"
-                        >
-                            Decline
-                        </button>
-                    </div>
-                </div>
-            )}
         </ChatContext.Provider>
     );
 };

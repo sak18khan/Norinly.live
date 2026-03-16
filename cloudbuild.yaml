@@ -1,0 +1,36 @@
+steps:
+  # 1. Build the container image using the multi-stage Dockerfile
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/norinly-repo/app:latest',
+      '.'
+    ]
+
+  # 2. Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/norinly-repo/app:latest']
+
+  # 3. Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'norinly'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/norinly-repo/app:latest'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--session-affinity'
+      - '--set-env-vars'
+      - 'NEXT_PUBLIC_DOMAIN=PLACEHOLDER_DOMAIN,NEXT_PUBLIC_SOCKET_URL=PLACEHOLDER_SOCKET_URL,NEXT_PUBLIC_FIREBASE_API_KEY=PLACEHOLDER_FIREBASE_API_KEY,NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=PLACEHOLDER_FIREBASE_AUTH_DOMAIN,NEXT_PUBLIC_FIREBASE_PROJECT_ID=PLACEHOLDER_FIREBASE_PROJECT_ID,NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=PLACEHOLDER_FIREBASE_STORAGE_BUCKET,NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=PLACEHOLDER_FIREBASE_MESSAGING_SENDER_ID,NEXT_PUBLIC_FIREBASE_APP_ID=PLACEHOLDER_FIREBASE_APP_ID,OPENAI_API_KEY=PLACEHOLDER_OPENAI_API_KEY'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/norinly-repo/app:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

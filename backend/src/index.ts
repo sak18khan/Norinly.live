@@ -22,18 +22,27 @@ app.use(cors({
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ALLOWED_ORIGIN,
-        methods: ['GET', 'POST']
-    }
+        origin: [
+            "https://norinly.live",
+            "https://Norinly.live",
+            "http://localhost:3000"
+        ],
+        methods: ["GET", "POST"],
+        credentials: true
+    },
+    transports: ['websocket', 'polling'],
+    pingInterval: 10000,
+    pingTimeout: 5000
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 interface QueueUser {
     socket: Socket;
     userId: string;
     interests: string[];
     country: string;
+    mode: string;
 }
 
 // Matchmaking state
@@ -42,6 +51,7 @@ let isMatching = false;
 
 // Rooms state Map<socketId, roomId>
 const activeRooms = new Map<string, string>();
+const roomStartTimes = new Map<string, number>(); // roomId -> startTime
 
 // User sessions mapping
 const connectedUsers = new Map<string, Socket>(); // userId -> Socket
@@ -119,6 +129,9 @@ const processQueue = async () => {
                 // Skip if socket disconnected
                 if (!user2.socket.connected) continue;
 
+                // Mode match - fundamental requirement
+                if (user1.mode !== user2.mode) continue;
+
                 let score = 0;
                 // Country match
                 if (user1.country && user2.country && user1.country === user2.country) {
@@ -148,8 +161,9 @@ const processQueue = async () => {
 
                 activeRooms.set(user1.socket.id, roomId);
                 activeRooms.set(user2.socket.id, roomId);
+                roomStartTimes.set(roomId, Date.now());
 
-                console.log(`Matched ${user1.socket.id} with ${user2.socket.id} (Score: ${bestScore})`);
+                console.log(`[MATCH] Matched ${user1.socket.id} with ${user2.socket.id} in room ${roomId} (Score: ${bestScore})`);
 
                 user1.socket.emit('match_found', { initiator: true, partnerId: user2.userId });
                 user2.socket.emit('match_found', { initiator: false, partnerId: user1.userId });
@@ -160,8 +174,22 @@ const processQueue = async () => {
                 user1.socket.emit('user-country', user2Country);
                 user2.socket.emit('user-country', user1Country);
 
+                // Auto-start debate if mode is debate
+                if (user1.mode === 'debate') {
+                    const DEBATE_TOPICS = [
+                        'Android vs iPhone', 'Remote work vs Office', 'Coffee vs Tea',
+                        'Cats vs Dogs', 'Summer vs Winter', 'Fiction vs Non-fiction',
+                        'Space exploration is worth it', 'Books vs E-books'
+                    ];
+                    const randomTopic = DEBATE_TOPICS[Math.floor(Math.random() * DEBATE_TOPICS.length)];
+                    const initiatorIndex = Math.floor(Math.random() * 2);
+                    const firstSpeakerId = initiatorIndex === 0 ? user1.userId : user2.userId;
 
-
+                    io.to(roomId).emit('debate_start', {
+                        topic: randomTopic,
+                        firstSpeakerId: firstSpeakerId
+                    });
+                }
             } else {
                 // Should always find a match since score > -1 for any user, but break just in case
                 break;
@@ -175,7 +203,7 @@ const processQueue = async () => {
 };
 
 io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.id}`);
+    console.log(`[CONNECT] User connected: ${socket.id} (total clients: ${io.engine.clientsCount})`);
 
     // Initial emission when this user connects
     emitLiveCount();
@@ -195,9 +223,10 @@ io.on('connection', (socket) => {
 
     });
 
-    socket.on('join_queue', async (data: { userId: string, interests?: string[], country?: string }) => {
+    socket.on('join_queue', async (data: { userId: string, interests?: string[], country?: string, mode?: string }) => {
         const userIp = (socket.handshake.headers['x-forwarded-for'] as string)?.split(',')[0] || socket.handshake.address;
         const userId = data?.userId || socket.id;
+        const mode = data?.mode || 'normal';
 
         if (bannedIPs.has(userIp) || bannedUUIDs.has(userId)) {
             socket.emit('banned', { reason: 'You have been banned due to multiple reports.' });
@@ -217,9 +246,8 @@ io.on('connection', (socket) => {
         // Accurate Geolocation via ipapi.co
         let countryInfo = { countryName: 'Unknown location', countryCode: '' };
         try {
-            // Filter out IPv6/localhost for dev testing if needed
             const cleanIp = userIp === '::1' || userIp === '127.0.0.1' ? '' : userIp;
-            const res = await axios.get(`https://ipapi.co/${cleanIp}/json/`);
+            const res = await axios.get(`https://ipapi.co/${cleanIp}/json/`, { timeout: 3000 });
             if (res.data && !res.data.error) {
                 countryInfo = {
                     countryName: res.data.country_name,
@@ -233,9 +261,10 @@ io.on('connection', (socket) => {
         // Remove from queue if already there to avoid duplicates
         waitingUsers = waitingUsers.filter(u => u.socket.id !== socket.id);
 
-        waitingUsers.push({ socket, userId, interests, country: countryInfo.countryName });
+        waitingUsers.push({ socket, userId, interests, country: countryInfo.countryName, mode });
         socketToCountry.set(socket.id, countryInfo);
 
+        console.log(`[QUEUE] User joined queue: ${socket.id} (userId: ${userId}, mode: ${mode}, country: ${countryInfo.countryName}, queue size: ${waitingUsers.length})`);
         processQueue();
     });
 
@@ -244,6 +273,7 @@ io.on('connection', (socket) => {
         const roomId = `private_${data.inviteCode}`;
         socket.join(roomId);
         activeRooms.set(socket.id, roomId);
+        if (!roomStartTimes.has(roomId)) roomStartTimes.set(roomId, Date.now());
 
         connectedUsers.set(data.userId, socket);
         socketToUserId.set(socket.id, data.userId);
@@ -300,6 +330,7 @@ io.on('connection', (socket) => {
                 // Clear session map
                 recentSessions.delete(myUserId);
                 recentSessions.delete(targetUserId);
+                roomStartTimes.set(roomId, Date.now());
             } else {
                 // Target unavailable
                 socket.emit('reconnect_failed');
@@ -312,23 +343,33 @@ io.on('connection', (socket) => {
     });
 
     socket.on('next_stranger', () => {
+        console.log(`[QUEUE] User ${socket.id} pressed Next Stranger`);
         leaveRoomAndNotifyPartner(socket);
     });
 
     // WebRTC Signaling
     socket.on('webrtc_offer', (data) => {
         const roomId = activeRooms.get(socket.id);
-        if (roomId) socket.to(roomId).emit('webrtc_offer', data);
+        if (roomId) {
+            console.log(`[WebRTC] Offer relayed from ${socket.id} in room ${roomId}`);
+            socket.to(roomId).emit('webrtc_offer', data);
+        }
     });
 
     socket.on('webrtc_answer', (data) => {
         const roomId = activeRooms.get(socket.id);
-        if (roomId) socket.to(roomId).emit('webrtc_answer', data);
+        if (roomId) {
+            console.log(`[WebRTC] Answer relayed from ${socket.id} in room ${roomId}`);
+            socket.to(roomId).emit('webrtc_answer', data);
+        }
     });
 
     socket.on('webrtc_ice_candidate', (data) => {
         const roomId = activeRooms.get(socket.id);
-        if (roomId) socket.to(roomId).emit('webrtc_ice_candidate', data);
+        if (roomId) {
+            console.log(`[WebRTC] ICE candidate relayed from ${socket.id}`);
+            socket.to(roomId).emit('webrtc_ice_candidate', data);
+        }
     });
 
     // Chat Messaging
@@ -388,8 +429,33 @@ io.on('connection', (socket) => {
         if (roomId) {
             socket.leave(roomId);
             activeRooms.delete(socket.id);
+            // We don't delete roomStartTimes here, leaveRoomAndNotifyPartner handles it
         }
     });
+
+    // Helper functions
+    async function saveChatHistory(userId: string, partnerId: string, startTime: number) {
+        if (!db) return;
+        const duration = Math.floor((Date.now() - startTime) / 1000);
+        if (duration < 60) return;
+
+        try {
+            // Get partner username
+            const partnerDoc = await db.collection('users').doc(partnerId).get();
+            const partnerUsername = partnerDoc.exists ? partnerDoc.data()?.username : 'Anonymous Stranger';
+
+            await db.collection('users').doc(userId).collection('history').add({
+                partnerId,
+                partnerUsername,
+                startTime: new Date(startTime),
+                duration,
+                createdAt: new Date()
+            });
+            console.log(`Saved history for user ${userId} (duration: ${duration}s)`);
+        } catch (err) {
+            console.error('Error saving chat history:', err);
+        }
+    }
 
     // Moderation
     socket.on('report_user', async () => {
@@ -462,7 +528,7 @@ io.on('connection', (socket) => {
             socketToCountry.delete(socket.id);
         }
 
-        console.log(`User disconnected: ${socket.id}`);
+        console.log(`[DISCONNECT] User disconnected: ${socket.id} (queue size: ${waitingUsers.length})`);
         emitLiveCount();
     });
 
@@ -484,15 +550,28 @@ io.on('connection', (socket) => {
             // Find partner
             const roomSockets = io.sockets.adapter.rooms.get(roomId);
             let partnerSocketId = '';
+            let partnerUserId: string | null = null;
             if (roomSockets) {
                 for (const sid of roomSockets) {
-                    if (sid !== socket.id) partnerSocketId = sid;
+                    if (sid !== socket.id) {
+                        partnerSocketId = sid;
+                        partnerUserId = socketToUserId.get(sid) || null;
+                    }
                 }
+            }
+
+            if (partnerUserId && db) {
+                const requestRef = db.collection('users').doc(partnerUserId).collection('friendRequests').doc(myUserId);
+                await requestRef.set({
+                    fromUserId: myUserId,
+                    fromUsername: myDoc.data()?.username || 'Stranger',
+                    status: 'pending',
+                    createdAt: new Date()
+                });
             }
 
             if (partnerSocketId) {
                 const partnerSocket = io.sockets.sockets.get(partnerSocketId);
-                const partnerUserId = socketToUserId.get(partnerSocketId);
                 if (partnerSocket && partnerUserId) {
                     partnerSocket.emit('friend_request_received', {
                         fromUserId: myUserId,
@@ -515,9 +594,11 @@ io.on('connection', (socket) => {
                 const batch = db.batch();
                 const myFriendRef = db.collection('users').doc(myUserId).collection('friends').doc(fromUserId);
                 const theirFriendRef = db.collection('users').doc(fromUserId).collection('friends').doc(myUserId);
+                const requestRef = db.collection('users').doc(myUserId).collection('friendRequests').doc(fromUserId);
 
                 batch.set(myFriendRef, { status: 'accepted', addedAt: new Date() });
                 batch.set(theirFriendRef, { status: 'accepted', addedAt: new Date() });
+                batch.delete(requestRef);
 
                 await batch.commit();
 
@@ -632,6 +713,22 @@ io.on('connection', (socket) => {
             s.to(roomId).emit('partner_disconnected');
             s.leave(roomId);
             activeRooms.delete(s.id);
+
+            // Handle history saving
+            const startTime = roomStartTimes.get(roomId);
+            if (startTime) {
+                if (userId && partnerUserId) {
+                    saveChatHistory(userId, partnerUserId, startTime);
+                    // Also save for the partner if they are still connected
+                    // The partner will eventually call this too or disconnect
+                }
+                // Room is fully empty when both leave, but we can clean up the startTime if one person leaves
+                // Actually, let's only clean up when the room is empty from adapter
+                const roomSockets = io.sockets.adapter.rooms.get(roomId);
+                if (!roomSockets || roomSockets.size === 0) {
+                    roomStartTimes.delete(roomId);
+                }
+            }
         }
     }
 });

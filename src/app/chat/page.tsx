@@ -2,44 +2,52 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mic, MicOff, SkipForward, XSquare, Flag, Loader2, Users, RefreshCcw, Send, UserPlus, User as UserIcon, LogOut, Info, Scale, Check, ArrowRight } from 'lucide-react';
+import {
+    Mic, MicOff, SkipForward, XSquare, Flag, Loader2, Users, RefreshCcw, Send,
+    UserPlus, User as UserIcon, LogOut, Info, Scale, Check, ArrowRight,
+    Bell, Heart, SendHorizontal, Sparkles, Gamepad2, Globe
+} from 'lucide-react';
 import { useChatContext } from '@/context/ChatContext';
 import { PROMPTS, GAMES, DEBATE_TOPICS } from '@/lib/engagement';
 import DebateStatus from '@/components/DebateStatus';
+import ProfileModal from '@/components/ProfileModal';
+import HeaderFriendsList from '@/components/HeaderFriendsList';
 
 export default function ChatPage() {
     const router = useRouter();
     const {
         status, liveUsers, isMuted, micDenied, partnerId, partnerCountry, lastPartnerId, connectionStartTime,
-        messages, isStrangerTyping, isRemoteSpeaking, activeReactions, activeFilter,
+        messages, isStrangerTyping, isRemoteSpeaking, isLocalSpeaking, activeReactions, activeFilter,
         canvasRef, handleMute, handleNext, handleEnd, handleReconnect, handleReport,
         sendMessage, sendTyping, sendReaction, sendSystemMessage, revealCountry, setActiveFilter,
         currentUser, logout, sendFriendRequest, setShowAuthModal,
-        debateData, offerDebate, acceptDebate, rejectDebate, exitDebate, voteDebate
+        showProfileModal, setShowProfileModal, acceptFriendRequest, declineFriendRequest,
+        debateData, offerDebate, acceptDebate, rejectDebate, exitDebate, voteDebate,
+        timeLeft, isSessionFinished, selectedMode
     } = useChatContext();
 
-
-
     const [inputText, setInputText] = useState('');
-    const [seconds, setSeconds] = useState(0);
-    const [showDebateModal, setShowDebateModal] = useState(false);
+    const [currentPrompt, setCurrentPrompt] = useState<string | null>(null);
     const lastPromptIndexRef = useRef<number>(-1);
     const lastGameIndexRef = useRef<number>(-1);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    // Timer effect
+    // Prompt effect
     useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (status === 'connected' && connectionStartTime) {
-            interval = setInterval(() => {
-                setSeconds(Math.floor((Date.now() - connectionStartTime) / 1000));
-            }, 1000);
-        } else {
-            setSeconds(0);
+        if (status === 'connected' && !currentPrompt) {
+            handleNextPrompt();
+        } else if (status !== 'connected') {
+            setCurrentPrompt(null);
         }
-        return () => clearInterval(interval);
-    }, [status, connectionStartTime]);
+    }, [status]);
+
+    const handleNextPrompt = () => {
+        const nextIndex = (lastPromptIndexRef.current + 1) % PROMPTS.length;
+        lastPromptIndexRef.current = nextIndex;
+        setCurrentPrompt(PROMPTS[nextIndex]);
+    };
 
     const formatTime = (secs: number) => {
         const m = Math.floor(secs / 60);
@@ -106,45 +114,36 @@ export default function ChatPage() {
     }, [status, router]);
 
     return (
-        <div className="min-h-screen flex flex-col bg-background selection:bg-accent/30 selection:text-white">
+        <div className="min-h-screen h-screen flex flex-col bg-slate-50 selection:bg-accent/10 selection:text-accent overflow-hidden">
             {/* Top Navigation Bar */}
-            <header className="w-full px-6 py-4 flex justify-between items-center border-b border-border bg-surface/30 backdrop-blur-md z-50">
-                <div className="flex items-center gap-6">
-                    <div
-                        className="text-xl font-black tracking-tighter cursor-pointer select-none text-white"
-                        onClick={() => router.push('/')}
-                    >
-                        NORINLY<span className="text-accent">.</span>
-                    </div>
-
-                    <div className="flex items-center space-x-2 text-zinc-500 text-[11px] font-bold uppercase tracking-widest">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <span>People talking right now: <strong className="text-zinc-300 ml-1">{liveUsers.toLocaleString()}</strong></span>
-                    </div>
+            <header className="w-full px-5 py-3 flex justify-between items-center border-b border-border bg-white z-50 shrink-0">
+                <div
+                    className="text-lg md:text-xl font-bold tracking-tight cursor-pointer select-none text-foreground shrink-0"
+                    onClick={() => router.push('/')}
+                >
+                    Norinly<span className="text-accent">.</span>
                 </div>
 
+                <div className="flex items-center space-x-2 text-muted text-[10px] md:text-xs font-bold uppercase tracking-widest mx-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-positive-accent animate-pulse" />
+                    <span className="whitespace-nowrap">Live: <strong className="text-secondary ml-0.5">{liveUsers.toLocaleString()}</strong></span>
+                </div>
 
-                <div className="flex items-center space-x-4">
-                    <button
-                        onClick={() => router.push('/friends')}
-                        className="text-sm font-bold text-zinc-400 hover:text-white transition-colors"
-                    >
-                        Friends
-                    </button>
+                <div className="flex items-center space-x-2 shrink-0 text-white">
                     {currentUser ? (
-                        <div className="flex items-center space-x-3 bg-surface/50 border border-border px-3 py-1.5 rounded-full">
-                            <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center">
-                                <UserIcon className="w-3.5 h-3.5 text-white" />
-                            </div>
-                            <span className="text-xs font-bold text-white max-w-[100px] truncate">{currentUser.displayName || 'User'}</span>
-                            <button onClick={logout} className="p-1 hover:text-red-400 transition-colors">
-                                <LogOut className="w-3.5 h-3.5" />
+                        <div className="flex items-center space-x-1">
+                            <HeaderFriendsList />
+                            <button
+                                onClick={() => setShowProfileModal(true)}
+                                className="w-8 h-8 rounded-full bg-surface border border-border flex items-center justify-center hover:bg-slate-50 transition-colors shadow-sm"
+                            >
+                                <UserIcon className="w-4 h-4 text-secondary" />
                             </button>
                         </div>
                     ) : (
                         <button
                             onClick={() => setShowAuthModal(true)}
-                            className="bg-accent/10 border border-accent/20 text-accent px-4 py-1.5 rounded-full text-xs font-bold hover:bg-accent/20 transition-all"
+                            className="bg-accent text-white px-3 py-1 rounded-full text-[10px] md:text-xs font-bold hover:bg-accent-hover transition-all shadow-[0_0_10px_rgba(59,130,246,0.3)]"
                         >
                             Sign In
                         </button>
@@ -152,451 +151,430 @@ export default function ChatPage() {
                 </div>
             </header>
 
-            {/* Connection Status Banner (Subtle) */}
-            <div className="py-2 text-center bg-surface/20 border-b border-border">
+            <div className="h-10 md:h-12 flex items-center justify-center bg-white border-b border-border shrink-0">
                 {micDenied ? (
-                    <div className="text-red-400 text-sm font-medium">Microphone permission denied. Please enable it in browser settings.</div>
+                    <div className="text-red-400 text-[10px] font-bold px-4 uppercase tracking-widest">Microphone permission denied. Enable in settings.</div>
                 ) : (
-                    <div className="flex items-center justify-center gap-4 text-sm text-zinc-400 font-medium tracking-wide">
-                        <span className="flex items-center gap-2">
-                            {status === 'searching' && <Loader2 className="w-3.5 h-3.5 text-accent animate-spin" />}
-                            {status === 'connected' && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_rgba(34,197,94,0.7)]" />}
-                            {status === 'disconnected' && <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.7)]" />}
-
-                            {status === 'searching' && 'Searching for a stranger...'}
-                            {status === 'connected' && 'Connected'}
-                            {status === 'disconnected' && 'Stranger disconnected'}
-                            {status === 'idle' && 'Starting up...'}
-                            {status === 'error' && 'Error connecting'}
-                        </span>
+                    <div className="flex items-center gap-4 text-[10px] md:text-xs text-zinc-400 font-black uppercase tracking-[0.1em] px-4">
+                        <div className="flex items-center gap-2 bg-accent/5 text-accent px-4 py-1 rounded-full border border-accent/10">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span className="truncate max-w-[150px] font-bold">{selectedMode.replace('-', ' ')} Mode</span>
+                        </div>
 
                         {status === 'connected' && (
                             <>
-                                <span>•</span>
-                                <span className="font-mono text-zinc-400">{formatTime(seconds)}</span>
-                                <span>•</span>
-                                <span className="flex items-center">
-                                    Stranger from {partnerCountry ? (
-                                        <span className="ml-1.5 flex items-center">
+                                <span className="text-border font-light">|</span>
+                                <div className={`flex items-center gap-2 font-mono transition-colors ${timeLeft < 30 ? 'text-red-500 font-bold' : 'text-secondary'}`}>
+                                    <span className="tracking-tight">{formatTime(timeLeft)}</span>
+                                </div>
+                                <span className="text-border font-light">|</span>
+                                <span className="flex items-center truncate text-secondary font-medium">
+                                    {partnerCountry ? (
+                                        <>
                                             <span className="mr-1.5 text-lg leading-none">{getFlagEmoji(partnerCountry.countryCode)}</span>
-                                            <span className="text-zinc-200">{partnerCountry.countryName}</span>
-                                        </span>
+                                            <span className="truncate max-w-[120px]">{partnerCountry.countryName}</span>
+                                        </>
                                     ) : (
-                                        <span className="ml-1.5 text-zinc-200">🌍 Unknown location</span>
+                                        'Unknown Location'
                                     )}
                                 </span>
                             </>
                         )}
+                        {status === 'searching' && (
+                            <span className="animate-pulse">Finding a partner...</span>
+                        )}
                     </div>
                 )}
-
             </div>
 
+            {/* Main Chat Content Area */}
+            <main className="flex-1 w-full flex flex-col items-center relative overflow-hidden bg-slate-50">
+                {/* Background Decorations */}
+                <div className={`absolute inset-0 transition-opacity duration-1000 -z-10 ${status === 'connected' ? 'bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/5 via-background to-background opacity-100' : 'opacity-0'}`} />
 
-            {/* Main Content (Visualizer & Chat) */}
-            <main className="flex-1 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-                <div className={`absolute inset-0 transition-opacity duration-1000 -z-10 ${status === 'connected' ? 'bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/10 via-background to-background opacity-100' : 'opacity-0'}`} />
+                {/* Deskop Speaking Indicators */}
+                <div className="hidden lg:flex absolute left-8 top-1/2 -translate-y-1/2 flex-col items-center space-y-4 w-32">
+                    <SpeakingIndicator isSpeaking={status === 'connected' && isRemoteSpeaking} label="Stranger Speaking" position="left" />
+                </div>
+                <div className="hidden lg:flex absolute right-8 top-1/2 -translate-y-1/2 flex-col items-center space-y-4 w-32">
+                    <SpeakingIndicator isSpeaking={status === 'connected' && isLocalSpeaking} label="You Speaking" position="right" />
+                </div>
 
-                {status === 'connected' && isRemoteSpeaking && (
-                    <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <span className="flex items-center text-[11px] font-black text-accent animate-pulse px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 tracking-widest uppercase">
-                            <span className="mr-2">🔊</span> Stranger speaking...
-                        </span>
-                    </div>
-                )}
+                {/* Mobile Speaking Indicators (Compact Top) */}
+                <div className="lg:hidden absolute top-4 inset-x-0 flex justify-center gap-8 px-4 z-20 pointer-events-none">
+                    <SpeakingIndicator isSpeaking={status === 'connected' && isRemoteSpeaking} label="Stranger" position="top" compact />
+                    <SpeakingIndicator isSpeaking={status === 'connected' && isLocalSpeaking} label="You" position="top" compact />
+                </div>
 
-                <div className="w-full max-w-2xl h-[60vh] md:h-[500px] rounded-3xl bg-surface/30 border border-border shadow-2xl flex flex-col overflow-hidden relative backdrop-blur-sm transition-all duration-500">
+                {/* Chat Container */}
+                <div className="flex-1 w-full max-w-3xl flex flex-col pt-4 md:pt-6 px-4 md:px-0 relative mb-6">
+                    <div className="flex-1 bg-white border border-border rounded-t-[3rem] md:rounded-[3rem] flex flex-col overflow-hidden relative shadow-xl shadow-slate-200/50">
 
-                    {/* Debate Status Overlay */}
-                    <DebateStatus
-                        data={debateData}
-                        onExit={exitDebate}
-                        onVote={voteDebate}
-                        partnerId={partnerId}
-                    />
-
-                    {/* Visualizer Background (Overlay when connected) */}
-                    {!micDenied && status === 'connected' && (
-                        <div className="absolute inset-0 opacity-10 pointer-events-none">
-                            <canvas
-                                ref={canvasRef}
-                                className="w-full h-full object-cover grayscale"
-                                width={800}
-                                height={400}
-                            />
-                        </div>
-                    )}
-
-                    {!micDenied && status !== 'connected' && (
-                        <canvas
-                            ref={canvasRef}
-                            className="w-full h-full object-cover transition-opacity duration-500 opacity-40 grayscale-[0.8]"
-                            width={800}
-                            height={400}
+                        {/* Debate Status Overlay */}
+                        <DebateStatus
+                            data={debateData}
+                            onExit={exitDebate}
+                            onVote={voteDebate}
+                            partnerId={partnerId}
                         />
-                    )}
 
-                    {/* Chat Area */}
-                    {status === 'connected' && (
-                        <div className="flex-1 flex flex-col overflow-hidden z-10">
-                            <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-                                <div className="text-center mb-6">
-                                    <span className="px-3 py-1 rounded-full bg-zinc-800/50 text-zinc-500 text-[10px] font-bold uppercase tracking-widest border border-zinc-700/30">
-                                        Secure voice & text connection established
-                                    </span>
-                                </div>
-                                {messages.map((msg) => (
-                                    <div
-                                        key={msg.id}
-                                        className={`flex flex-col ${msg.sender === 'me' ? 'items-end' : 'items-start'}`}
+                        {/* Visualizer Background */}
+                        {!micDenied && status === 'connected' && (
+                            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20 transition-opacity duration-1000">
+                                <canvas ref={canvasRef} className="w-full h-full object-cover" />
+                            </div>
+                        )}
+
+                        {/* Topic Prompt Overlay */}
+                        {status === 'connected' && currentPrompt && !isSessionFinished && (
+                            <div className="absolute top-6 inset-x-6 z-40 animate-in slide-in-from-top-4 duration-500">
+                                <div className="bg-white/90 backdrop-blur-md border border-border p-4 rounded-2xl flex items-center gap-4 shadow-lg">
+                                    <div className="w-10 h-10 rounded-2xl bg-accent/5 flex items-center justify-center shrink-0">
+                                        <Sparkles className="w-5 h-5 text-accent" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-[10px] font-bold text-accent uppercase tracking-widest mb-1">Topic Suggestion</div>
+                                        <div className="text-[14px] font-bold text-foreground leading-tight">{currentPrompt}</div>
+                                    </div>
+                                    <button
+                                        onClick={handleNextPrompt}
+                                        className="p-2.5 hover:bg-surface rounded-xl text-muted hover:text-foreground transition-all shrink-0"
+                                        title="Next Topic"
                                     >
-                                        <div className="flex items-center space-x-1 mb-1 px-1">
-                                            <span className={`text-[10px] font-bold uppercase tracking-wider ${msg.sender === 'me' ? 'text-accent' : 'text-zinc-500'}`}>
+                                        <RefreshCcw className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Session Finished Overlay */}
+                        {isSessionFinished && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center p-8 bg-white/90 backdrop-blur-xl animate-in zoom-in-95 fade-in duration-300 text-center">
+                                <div className="flex flex-col items-center space-y-8 max-w-sm">
+                                    <div className="w-24 h-24 rounded-[2.5rem] bg-positive-accent/5 flex items-center justify-center mb-2 border border-positive-accent/10">
+                                        <Check className="w-12 h-12 text-positive-accent" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-3xl font-bold text-foreground tracking-tight mb-3">Practice Complete!</h3>
+                                        <p className="text-secondary text-lg">Goal reached. Your progress has been saved to your profile.</p>
+                                    </div>
+                                    <div className="flex flex-col w-full gap-4">
+                                        <button
+                                            onClick={handleNext}
+                                            className="w-full py-5 bg-accent text-white font-bold rounded-2xl hover:bg-accent-hover transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3"
+                                        >
+                                            <SkipForward className="w-5 h-5" />
+                                            Next Partner
+                                        </button>
+                                        <button
+                                            onClick={handleEnd}
+                                            className="w-full py-5 bg-white border border-border text-secondary font-bold rounded-2xl hover:bg-surface transition-all active:scale-[0.98]"
+                                        >
+                                            Exit Chat
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Messages Feed */}
+                        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 no-scrollbar relative z-10 scroll-smooth">
+                            {messages.length === 0 ? (
+                                <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-40">
+                                    <div className="p-8 rounded-[2rem] bg-surface">
+                                        <Users className="w-12 h-12 text-muted" />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-foreground font-bold text-lg">Connected!</p>
+                                        <p className="text-muted font-medium text-sm">Say hello to get the conversation started.</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                messages.map((msg, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`flex flex-col ${msg.sender === 'me' ? 'items-end' : 'items-start'} mb-3`}
+                                    >
+                                        <div className="flex items-center space-x-2 mb-1.5 px-2">
+                                            <span className={`text-[10px] font-bold uppercase tracking-widest ${msg.sender === 'me' ? 'text-accent' : 'text-muted'}`}>
                                                 {msg.sender === 'me' ? 'You' : 'Stranger'}
                                             </span>
                                         </div>
                                         <div
-                                            className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm font-medium shadow-sm leading-relaxed transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 ${msg.sender === 'me'
-                                                ? 'bg-accent text-white rounded-tr-none'
+                                            className={`max-w-[85%] px-5 py-3.5 rounded-[1.5rem] text-[14px] md:text-[15px] font-medium transition-all duration-300 ${msg.sender === 'me'
+                                                ? 'bg-accent text-white rounded-tr-none shadow-md shadow-accent/10'
                                                 : msg.text.startsWith('[SYSTEM]:')
-                                                    ? 'bg-zinc-800/90 text-zinc-100 border border-zinc-700/50 rounded-xl mx-auto !max-w-[95%] shadow-lg'
-                                                    : 'bg-zinc-800/80 text-zinc-100 border border-zinc-700/50 rounded-tl-none'
+                                                    ? 'bg-slate-50 text-muted border border-border rounded-xl mx-auto !max-w-[92%] shadow-none py-2 px-4 text-center text-[12px] md:text-sm font-bold tracking-tight'
+                                                    : 'bg-surface text-foreground border border-border shadow-sm rounded-tl-none'
                                                 }`}
                                         >
-                                            {msg.text.startsWith('[SYSTEM]:') ? (
-                                                <div className="flex flex-col gap-1 py-1">
-                                                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-accent/80 mb-0.5">
-                                                        <div className="w-1 h-1 rounded-full bg-accent" />
-                                                        {msg.text.includes('Prompt:') ? 'Conversation Starter' : msg.text.includes('Game:') ? 'Mini Game' : 'System Notification'}
-                                                    </div>
-                                                    <div className="text-sm font-medium leading-relaxed">
-                                                        {msg.text.replace('[SYSTEM]: ', '').replace('Prompt: ', '').replace('Game: ', '')}
-                                                    </div>
-                                                </div>
-                                            ) : msg.text}
+                                            {msg.text.replace('[SYSTEM]:', '').trim()}
                                         </div>
                                     </div>
-                                ))}
-                                <div ref={messagesEndRef} />
-                            </div>
+                                ))
+                            )}
 
-                            {/* Stranger is Typing Indicator (Relocated above input) */}
                             {isStrangerTyping && (
-                                <div className="px-6 py-2 flex items-center space-x-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <div className="flex space-x-1 bg-zinc-800/40 px-3 py-1.5 rounded-full border border-zinc-700/30">
-                                        <div className="w-1 h-1 bg-accent rounded-full animate-bounce [animation-delay:-0.3s]" />
-                                        <div className="w-1 h-1 bg-accent rounded-full animate-bounce [animation-delay:-0.15s]" />
-                                        <div className="w-1 h-1 bg-accent rounded-full animate-bounce" />
+                                <div className="flex justify-start items-center space-x-2 animate-pulse mb-6 pl-2">
+                                    <div className="flex space-x-1 px-4 py-3 bg-surface rounded-2xl rounded-tl-none border border-border">
+                                        <div className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" />
+                                        <div className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce [animation-delay:0.2s]" />
+                                        <div className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce [animation-delay:0.4s]" />
                                     </div>
-                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest italic">Stranger is typing...</span>
                                 </div>
                             )}
+                            <div ref={messagesEndRef} />
+                        </div>
 
-
-                            {/* Floating Reactions Overlay */}
-                            <div className="absolute inset-x-0 bottom-24 pointer-events-none z-30 flex justify-center">
-                                <div className="relative w-full max-w-xs h-32">
-                                    {activeReactions.map((reaction) => (
-                                        <div
-                                            key={reaction.id}
-                                            className="absolute bottom-0 text-4xl animate-float-up opacity-0"
-                                            style={{
-                                                left: `${Math.random() * 80 + 10}%`,
-                                                animationDelay: `${Math.random() * 0.2}s`
-                                            }}
-                                        >
-                                            {reaction.emoji}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Engagement Buttons Row */}
-                            <div className="px-4 py-2 bg-surface/30 border-t border-border flex items-center justify-center space-x-2 overflow-x-auto no-scrollbar">
-                                <button
-                                    onClick={() => {
-                                        let randomIndex;
-                                        do {
-                                            randomIndex = Math.floor(Math.random() * PROMPTS.length);
-                                        } while (randomIndex === lastPromptIndexRef.current && PROMPTS.length > 1);
-
-                                        lastPromptIndexRef.current = randomIndex;
-                                        const randomPrompt = PROMPTS[randomIndex];
-                                        sendSystemMessage(`Prompt: ${randomPrompt}`);
-                                    }}
-                                    className="px-3 py-1.5 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700/30 text-[11px] font-bold text-zinc-300 flex items-center space-x-1 transition-all whitespace-nowrap"
-                                >
-                                    <span>🎲</span> <span>Prompt</span>
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        let randomIndex;
-                                        do {
-                                            randomIndex = Math.floor(Math.random() * GAMES.length);
-                                        } while (randomIndex === lastGameIndexRef.current && GAMES.length > 1);
-
-                                        lastGameIndexRef.current = randomIndex;
-                                        const randomGame = GAMES[randomIndex];
-                                        sendSystemMessage(`Game: ${randomGame}`);
-                                    }}
-                                    className="px-3 py-1.5 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700/30 text-[11px] font-bold text-zinc-300 flex items-center space-x-1 transition-all whitespace-nowrap"
-                                >
-                                    <span>🎮</span> <span>Game</span>
-                                </button>
-                                <div className="h-4 w-px bg-border mx-1 shrink-0" />
-                                {['😂', '🔥', '👏', '🤯'].map((emoji) => (
-                                    <button
-                                        key={emoji}
-                                        onClick={() => sendReaction(emoji)}
-                                        className="w-8 h-8 rounded-full bg-zinc-800/50 hover:bg-accent/20 hover:border-accent/40 border border-zinc-700/30 flex items-center justify-center text-sm transition-all hover:scale-110 active:scale-90"
+                        {/* Floating Reactions */}
+                        <div className="absolute inset-x-0 bottom-32 pointer-events-none z-30 flex justify-center h-24">
+                            <div className="relative w-full max-w-xs overflow-hidden">
+                                {activeReactions.map((reaction) => (
+                                    <div
+                                        key={reaction.id}
+                                        className="absolute bottom-0 text-3xl animate-float-up opacity-0"
+                                        style={{
+                                            left: `${Math.random() * 80 + 10}%`,
+                                            animationDelay: `${Math.random() * 0.2}s`
+                                        }}
                                     >
-                                        {emoji}
-                                    </button>
-                                ))}
-                                <div className="h-4 w-px bg-border mx-1 shrink-0" />
-                                <button
-                                    onClick={revealCountry}
-                                    className="px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 border border-accent/20 text-[11px] font-bold text-accent flex items-center space-x-1 transition-all whitespace-nowrap"
-                                >
-                                    <span>🌍</span> <span>Guess Country</span>
-                                </button>
-                                <div className="h-4 w-px bg-border mx-1 shrink-0" />
-                                <button
-                                    onClick={() => setShowDebateModal(true)}
-                                    disabled={debateData.status !== 'idle'}
-                                    className={`px-3 py-1.5 rounded-lg border text-[11px] font-bold flex items-center space-x-1 transition-all whitespace-nowrap ${debateData.status !== 'idle' ? 'bg-accent/20 border-accent/40 text-accent cursor-default' : 'bg-zinc-800/50 hover:bg-accent/10 hover:border-accent/30 text-zinc-300 hover:text-accent border-zinc-700/30'}`}
-                                >
-                                    <Scale className="w-3.5 h-3.5" /> <span>Debate Mode</span>
-                                </button>
-                            </div>
-
-                            {/* Debate Invitation Overlay */}
-                            {debateData.status === 'offered' && (
-                                <div className="p-4 bg-accent/10 border-t border-accent/20 animate-in slide-in-from-bottom-2 duration-300">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                                                <Scale className="w-5 h-5 text-accent" />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-xs font-black text-white uppercase tracking-widest">Debate Invitation</span>
-                                                <span className="text-[10px] text-accent font-bold">Stranger wants to start a structured debate</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={rejectDebate}
-                                                className="px-4 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-700 transition-all"
-                                            >
-                                                Decline
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    const randomTopic = DEBATE_TOPICS[Math.floor(Math.random() * DEBATE_TOPICS.length)];
-                                                    acceptDebate(randomTopic);
-                                                }}
-                                                className="px-4 py-1.5 rounded-lg bg-accent border border-accent text-white text-[10px] font-bold uppercase tracking-widest hover:bg-accent-hover transition-all"
-                                            >
-                                                Accept
-                                            </button>
-                                        </div>
+                                        {reaction.emoji}
                                     </div>
-                                </div>
-                            )}
+                                ))}
+                            </div>
+                        </div>
 
-                            {/* Chat Input Area */}
-                            <div className="p-4 bg-surface/50 border-t border-border flex items-center space-x-2">
+                        {/* Message Input & Actions */}
+                        <div className="p-4 md:p-6 bg-white border-t border-border mt-auto z-20">
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    handleSendMessage();
+                                }}
+                                className="relative flex items-center gap-2"
+                            >
                                 <input
+                                    ref={inputRef}
                                     type="text"
                                     value={inputText}
                                     onChange={handleInputChange}
-                                    onKeyDown={handleKeyDown}
                                     placeholder="Type a message..."
-                                    className="flex-1 bg-zinc-900/50 border border-border rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50 transition-all"
+                                    className="flex-1 bg-surface border border-border rounded-2xl px-6 py-4 md:py-4.5 text-[14px] md:text-base text-foreground focus:outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent transition-all placeholder:text-muted h-[60px]"
                                 />
                                 <button
-                                    onClick={handleSendMessage}
+                                    type="submit"
                                     disabled={!inputText.trim()}
-                                    className="p-3 bg-accent text-white rounded-xl hover:bg-accent-hover hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:pointer-events-none"
+                                    className="w-[60px] h-[60px] rounded-2xl bg-accent flex items-center justify-center text-white hover:bg-accent-hover transition-all shadow-xl shadow-accent/20 active:scale-95 disabled:opacity-40"
                                 >
-                                    <Send className="w-5 h-5" />
+                                    <SendHorizontal className="w-6 h-6" />
+                                </button>
+                            </form>
+
+                            {/* Scrollable Quick Actions */}
+                            <div className="flex items-center gap-2 mt-3 overflow-x-auto no-scrollbar py-0.5">
+                                <button
+                                    onClick={() => {
+                                        const nextPrompt = PROMPTS[(lastPromptIndexRef.current + 1) % PROMPTS.length];
+                                        lastPromptIndexRef.current = (lastPromptIndexRef.current + 1) % PROMPTS.length;
+                                        setInputText(nextPrompt);
+                                    }}
+                                    className="flex items-center space-x-2 px-4 py-2 bg-surface border border-border rounded-xl hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0"
+                                >
+                                    <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+                                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-secondary">Prompt</span>
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        const nextGame = GAMES[(lastGameIndexRef.current + 1) % GAMES.length];
+                                        lastGameIndexRef.current = (lastGameIndexRef.current + 1) % GAMES.length;
+                                        setInputText(nextGame);
+                                    }}
+                                    className="flex items-center space-x-2 px-4 py-2 bg-surface border border-border rounded-xl hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0"
+                                >
+                                    <Gamepad2 className="w-3.5 h-3.5 text-positive-accent" />
+                                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-secondary">Game</span>
+                                </button>
+
+                                <div className="flex items-center bg-surface border border-border rounded-xl px-2 py-1 shrink-0">
+                                    {['😂', '🔥', '👏', '🤯'].map((emoji) => (
+                                        <button
+                                            key={emoji}
+                                            onClick={() => sendReaction(emoji)}
+                                            className="w-8 h-8 flex items-center justify-center hover:scale-125 transition-transform"
+                                        >
+                                            <span className="text-base">{emoji}</span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={revealCountry}
+                                    disabled={status !== 'connected'}
+                                    className="flex items-center space-x-2 px-4 py-2 bg-accent/5 border border-accent/10 rounded-xl hover:bg-accent/10 transition-colors whitespace-nowrap shrink-0 disabled:opacity-30"
+                                >
+                                    <Globe className="w-3.5 h-3.5 text-accent" />
+                                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-accent">Guess</span>
                                 </button>
                             </div>
                         </div>
-                    )}
-
+                    </div>
                 </div>
 
-                {/* Debate Invitation Waiting Overlay */}
-                {debateData.status === 'offered' && !isStrangerTyping && !isRemoteSpeaking && (
-                    <div className="absolute inset-x-0 bottom-32 p-4 z-40 pointer-events-none text-center">
-                        <div className="mx-auto max-w-sm bg-zinc-900/90 border border-accent/30 p-4 rounded-2xl shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-4 duration-500 pointer-events-auto">
-                            <div className="flex flex-col items-center space-y-3">
-                                <Scale className="w-8 h-8 text-accent animate-pulse" />
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-black text-white uppercase tracking-tight">Waiting for response</span>
-                                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">You invited the stranger to a debate</span>
-                                </div>
-                                <button
-                                    onClick={rejectDebate}
-                                    className="w-full py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-700 transition-all"
-                                >
-                                    Cancel Invitation
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
+                {/* Overlays (Searching / Disconnected) */}
                 {status === 'searching' && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-surface/80 backdrop-blur-md animate-in fade-in duration-500 z-20">
-                        <div className="flex flex-col items-center space-y-6">
+                    <div className="absolute inset-x-4 top-4 bottom-6 md:inset-0 flex items-center justify-center bg-white/80 backdrop-blur-md z-40 rounded-[3rem] md:rounded-none animate-in fade-in duration-500">
+                        <div className="flex flex-col items-center space-y-8">
                             <div className="relative">
-                                <div className="absolute inset-0 rounded-full blur-2xl bg-accent/20 animate-pulse scale-150" />
-                                <div className="w-20 h-20 rounded-full border-2 border-accent/20 flex items-center justify-center relative overflow-hidden">
-                                    <Loader2 className="w-10 h-10 text-accent animate-spin relative z-10" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-accent/10 to-transparent animate-pulse" />
+                                <div className="absolute inset-0 rounded-full blur-3xl bg-accent/10 animate-pulse scale-150" />
+                                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-accent/5 flex items-center justify-center relative overflow-hidden bg-white shadow-xl">
+                                    <Loader2 className="w-10 h-10 md:w-12 md:h-12 text-accent animate-spin relative z-10" />
                                 </div>
                             </div>
-                            <div className="flex flex-col items-center space-y-2">
-                                <span className="text-sm font-black tracking-[0.3em] text-white uppercase animate-pulse">
-                                    Finding someone new
+                            <div className="flex flex-col items-center space-y-3 text-center">
+                                <span className="text-[10px] md:text-xs font-bold tracking-[0.4em] text-accent uppercase animate-pulse">
+                                    Finding a partner...
                                 </span>
-                                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest animate-pulse delay-75">
-                                    Connecting to world...
-                                </span>
+                                <p className="text-muted text-sm font-medium">Matching you with another English speaker</p>
                             </div>
                         </div>
                     </div>
                 )}
-
 
                 {status === 'disconnected' && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-surface/80 backdrop-blur-md animate-in fade-in duration-300 z-20">
-                        <div className="flex flex-col items-center space-y-4">
-                            <div className="p-4 rounded-full bg-red-500/10 text-red-500 mb-2">
+                    <div className="absolute inset-x-4 top-4 bottom-6 md:inset-0 flex items-center justify-center bg-white/95 backdrop-blur-xl z-40 rounded-[3rem] md:rounded-none animate-in fade-in duration-300">
+                        <div className="flex flex-col items-center space-y-8 p-10 text-center max-w-sm">
+                            <div className="w-20 h-20 rounded-[2rem] bg-slate-100 flex items-center justify-center text-muted mb-2">
                                 <XSquare className="w-10 h-10" />
                             </div>
-                            <span className="text-zinc-300 font-medium">The stranger has left the chat.</span>
-
+                            <div>
+                                <h3 className="text-2xl font-bold text-foreground tracking-tight mb-3">Stranger Left</h3>
+                                <p className="text-secondary text-base">The conversation has ended. Would you like to find someone else?</p>
+                            </div>
                             {lastPartnerId && (
                                 <button
                                     onClick={handleReconnect}
-                                    className="mt-4 flex items-center px-6 py-3 bg-accent/20 border border-accent/50 text-accent rounded-full hover:bg-accent/30 transition-colors"
+                                    className="flex items-center px-10 py-4 bg-accent text-white font-bold rounded-2xl hover:bg-accent-hover transition-all shadow-xl shadow-accent/20 active:scale-[0.98]"
                                 >
-                                    <RefreshCcw className="w-4 h-4 mr-2" />
-                                    Reconnect with previous stranger
+                                    <RefreshCcw className="w-5 h-5 mr-3" />
+                                    Find New Partner
                                 </button>
                             )}
                         </div>
                     </div>
                 )}
-            </main >
+            </main>
 
-            {/* Footer Controls */}
-            <footer className="p-6 pb-10 bg-surface/80 border-t border-border backdrop-blur-md z-20">
-                <div className="max-w-xl mx-auto flex items-center justify-between gap-4">
+            {/* Bottom Primary Controls (Footer) */}
+            <footer className="p-6 md:p-8 bg-white border-t border-border z-50 shrink-0">
+                <div className="max-w-xl mx-auto flex items-center justify-between gap-3">
                     <button
                         onClick={handleMute}
-                        className={`flex flex-col items-center justify-center p-4 rounded-2xl flex-1 transition-all duration-200 border group ${isMuted ? 'bg-red-500/10 border-red-500/50 text-red-500 hover:bg-red-500/20' : 'bg-surface border-border text-zinc-300 hover:bg-surface hover:text-white'}`}
+                        className={`flex flex-col items-center justify-center w-20 h-20 rounded-3xl transition-all duration-200 border group ${isMuted ? 'bg-red-50 border-red-200 text-red-500 shadow-sm' : 'bg-surface border-border text-muted hover:border-accent/40'}`}
                     >
-                        {isMuted ? <MicOff className="w-6 h-6 mb-2" /> : <Mic className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />}
-                        <span className="text-xs font-semibold uppercase tracking-wider">{isMuted ? 'Muted' : 'Mute'}</span>
+                        {isMuted ? <MicOff className="w-6 h-6 mb-1.5" /> : <Mic className="w-6 h-6 mb-1.5" />}
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{isMuted ? 'Muted' : 'Mute'}</span>
                     </button>
-
-                    <div className="hidden md:flex flex-col items-center space-y-1">
-                        <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Filters</span>
-                        <div className="flex bg-surface border border-border rounded-xl p-1 shrink-0">
-                            {[
-                                { id: 'none', icon: '🎤' },
-                                { id: 'robot', icon: '🤖' },
-                                { id: 'deep', icon: '🐻' },
-                                { id: 'chipmunk', icon: '🐿️' },
-                                { id: 'alien', icon: '👽' }
-                            ].map((f) => (
-                                <button
-                                    key={f.id}
-                                    onClick={() => setActiveFilter(f.id)}
-                                    title={f.id}
-                                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs transition-all ${activeFilter === f.id ? 'bg-accent text-white' : 'text-zinc-500 hover:bg-zinc-800'}`}
-                                >
-                                    {f.icon}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
 
                     <button
                         onClick={handleNext}
                         disabled={status === 'idle' || status === 'error'}
-                        className="flex flex-col items-center justify-center p-4 rounded-2xl flex-2 bg-accent text-white border border-accent hover:bg-accent-hover hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)] cursor-pointer"
+                        className="flex-1 flex flex-col items-center justify-center h-24 md:h-28 rounded-[2.5rem] bg-accent text-white hover:bg-accent-hover active:scale-[0.98] transition-all duration-300 disabled:opacity-50 shadow-2xl shadow-accent/20 group relative overflow-hidden"
                     >
-                        <SkipForward className="w-7 h-7 mb-2" />
-                        <span className="text-sm font-bold uppercase tracking-wider">Next Stranger</span>
+                        <SkipForward className="w-10 h-10 mb-1.5 group-hover:translate-x-1 transition-transform" />
+                        <span className="text-[11px] md:text-sm font-bold uppercase tracking-[0.2em] whitespace-nowrap">Next Partner</span>
                     </button>
 
                     <button
                         onClick={handleEnd}
-                        className="flex flex-col items-center justify-center p-4 rounded-2xl flex-1 bg-surface border border-border text-zinc-300 hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-500 transition-all duration-200 group cursor-pointer"
+                        className="flex flex-col items-center justify-center w-20 h-20 rounded-3xl bg-surface border border-border text-muted hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-all shrink-0 group"
                     >
-                        <XSquare className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
-                        <span className="text-xs font-semibold uppercase tracking-wider">End</span>
-                    </button>
-
-                    <button
-                        onClick={handleReport}
-                        disabled={status !== 'connected' && status !== 'disconnected'}
-                        title="Report this user"
-                        className="flex flex-col items-center justify-center p-4 rounded-2xl flex-1 bg-surface border border-border text-zinc-500 hover:bg-yellow-500/10 hover:border-yellow-500/50 hover:text-yellow-500 transition-all duration-200 disabled:opacity-30 disabled:pointer-events-none group cursor-pointer"
-                    >
-                        <Flag className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Report</span>
+                        <XSquare className="w-6 h-6 mb-1.5 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">End</span>
                     </button>
 
                     <button
                         onClick={sendFriendRequest}
                         disabled={status !== 'connected'}
-                        className="flex flex-col items-center justify-center p-4 rounded-2xl flex-1 bg-surface border border-border text-accent hover:bg-accent/10 hover:border-accent/50 transition-all duration-200 disabled:opacity-30 disabled:pointer-events-none group cursor-pointer"
+                        className="flex flex-col items-center justify-center w-20 h-20 rounded-3xl bg-surface border border-border text-muted hover:text-accent hover:bg-accent/5 hover:border-accent/20 transition-all shrink-0 disabled:opacity-20 group"
                     >
-                        <UserPlus className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Add Friend</span>
+                        <UserPlus className="w-6 h-6 mb-1.5 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-center leading-none">Add Friend</span>
                     </button>
                 </div>
             </footer>
 
-            {/* Debate Mode Confirmation Modal */}
-            {showDebateModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="w-full max-w-sm bg-zinc-900 border border-border rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mb-6">
-                                <Scale className="w-10 h-10 text-accent" />
-                            </div>
-                            <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Start Debate Mode?</h3>
-                            <p className="text-sm text-zinc-400 font-medium mb-8 leading-relaxed">
-                                This will start a structured debate with timed rounds. Microphones will be automatically controlled based on whose turn it is.
-                            </p>
-                            <div className="w-full flex flex-col gap-3">
-                                <button
-                                    onClick={() => {
-                                        offerDebate();
-                                        setShowDebateModal(false);
-                                    }}
-                                    className="w-full py-4 bg-accent text-white rounded-2xl font-black uppercase tracking-widest hover:bg-accent-hover transition-all flex items-center justify-center gap-2 group"
-                                >
-                                    Start Debate <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </button>
-                                <button
-                                    onClick={() => setShowDebateModal(false)}
-                                    className="w-full py-4 bg-zinc-800 text-zinc-400 rounded-2xl font-black uppercase tracking-widest hover:bg-zinc-700 hover:text-white transition-all"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Modals & Overlays */}
+            <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
+            <FriendRequestNotification />
         </div>
     );
+
+    function SpeakingIndicator({ isSpeaking, label, position, compact = false }: { isSpeaking: boolean, label: string, position: 'left' | 'right' | 'top', compact?: boolean }) {
+        return (
+            <div className={`flex flex-col items-center transition-all duration-500 ${isSpeaking ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                {!compact && (
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-accent mb-3 animate-pulse">
+                        {label}
+                    </span>
+                )}
+                <div className={`flex items-end justify-center space-x-1 ${compact ? 'h-5' : 'h-10'}`}>
+                    {[0, 1, 2, 3, 4].map((i) => (
+                        <div
+                            key={i}
+                            className="w-1 bg-accent rounded-full animate-speaking-bar"
+                            style={{
+                                height: '100%',
+                                animationDelay: `${i * 0.15}s`,
+                                animationDuration: `${0.6 + Math.random() * 0.4}s`
+                            }}
+                        />
+                    ))}
+                </div>
+                {compact && (
+                    <span className="text-[8px] font-black uppercase tracking-widest text-accent mt-1 animate-pulse">
+                        {label}
+                    </span>
+                )}
+            </div>
+        );
+    }
+
+    function FriendRequestNotification() {
+        const { pendingFriendRequest, acceptFriendRequest } = useChatContext();
+
+        if (!pendingFriendRequest) return null;
+
+        return (
+            <div className="fixed bottom-28 right-4 left-4 md:left-auto md:w-[350px] z-[100] animate-in slide-in-from-bottom-full duration-500">
+                <div className="bg-surface/90 backdrop-blur-xl border border-accent/30 rounded-2xl shadow-2xl p-4 flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-accent/5 flex items-center justify-center shrink-0">
+                        <Heart className="w-7 h-7 text-accent animate-pulse" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                            <Bell className="w-3.5 h-3.5 text-accent" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-accent">New Request</span>
+                        </div>
+                        <p className="text-sm font-bold text-foreground truncate">
+                            {pendingFriendRequest.fromUsername} wants to connect
+                        </p>
+                    </div>
+                    <div className="flex flex-col gap-2 shrink-0">
+                        <button
+                            onClick={() => acceptFriendRequest(pendingFriendRequest.fromUserId)}
+                            className="px-4 py-1.5 bg-accent text-white rounded-lg text-xs font-bold hover:bg-accent-hover active:scale-95 transition-all"
+                        >
+                            Accept
+                        </button>
+                        <button
+                            onClick={declineFriendRequest}
+                            className="px-4 py-1.5 bg-zinc-800 text-zinc-400 rounded-lg text-xs font-bold hover:bg-zinc-700 active:scale-95 transition-all"
+                        >
+                            Decline
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 }

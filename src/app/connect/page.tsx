@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { X, Loader2 } from 'lucide-react';
 import { useChatContext } from '@/context/ChatContext';
+import AIPracticeSetup from '@/components/AIPracticeSetup';
 
 const INTERESTS = ['Music', 'Gaming', 'Travel', 'Startups', 'Language Practice', 'Movies', 'Sports', 'Art'];
 const COUNTRIES = [
@@ -11,10 +12,14 @@ const COUNTRIES = [
     'India', 'Germany', 'France', 'Japan', 'Brazil', 'South Korea', 'Other'
 ];
 
-export default function ConnectPage() {
+function ConnectContent() {
     const router = useRouter();
-    const { status, requestMicrophoneAndJoin } = useChatContext();
+    const searchParams = useSearchParams();
+    const mode = searchParams.get('mode') === 'debate' ? 'debate' : 'normal';
 
+    const { status, requestMicrophoneAndJoin, errorDetail } = useChatContext();
+
+    const [practiceType, setPracticeType] = useState<'ai' | 'people' | null>(null);
     const [isPreferencesOpen, setIsPreferencesOpen] = useState(true);
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
     const [selectedCountry, setSelectedCountry] = useState<string>('');
@@ -35,20 +40,118 @@ export default function ConnectPage() {
         }
     };
 
-    const handleStartSearch = async () => {
+    const handleStartSearch = async (selectedMode: string = 'casual') => {
         setIsPreferencesOpen(false);
-        await requestMicrophoneAndJoin(selectedInterests, selectedCountry);
+        await requestMicrophoneAndJoin(selectedInterests, selectedCountry, selectedMode as any);
     };
+
+    if (status === 'idle' && isPreferencesOpen && !practiceType) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
+                {/* Logo in Header */}
+                <header className="absolute top-0 left-0 w-full p-6 z-20">
+                    <div
+                        className="text-2xl font-bold tracking-tight cursor-pointer select-none text-foreground inline-block"
+                        onClick={() => router.push('/')}
+                    >
+                        Norinly<span className="text-accent">.</span>
+                    </div>
+                </header>
+
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/10 via-background to-background -z-10" />
+
+                <div className="bg-white border border-border rounded-[2.5rem] w-full max-w-xl p-10 md:p-12 shadow-2xl relative animate-in zoom-in-95 duration-300">
+                    <h2 className="text-4xl font-bold text-foreground mb-4 text-center tracking-tight">Choose Your Practice Mode</h2>
+                    <p className="text-secondary text-lg mb-12 text-center">
+                        Select how you want to learn English today.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                        <button
+                            onClick={() => setPracticeType('ai')}
+                            className={`flex flex-col items-center gap-6 p-8 rounded-3xl border transition-all group relative ${
+                                practiceType === 'ai'
+                                    ? 'bg-[#F0F9FF] border-[#0EA5E9] border-2 shadow-sm'
+                                    : 'bg-white border-border hover:border-accent hover:shadow-md'
+                            }`}
+                        >
+                            <div className="text-5xl p-5 bg-[#F8FAFC] rounded-2xl group-hover:scale-110 transition-transform shadow-sm">
+                                🤖
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-foreground font-bold text-xl mb-2">Practice With AI</h3>
+                                <p className="text-secondary text-sm font-medium leading-relaxed">Talk to an AI partner to build confidence</p>
+                            </div>
+                        </button>
+
+                        <button
+                            onClick={() => setPracticeType('people')}
+                            className={`flex flex-col items-center gap-6 p-8 rounded-3xl border transition-all group relative ${
+                                practiceType === 'people'
+                                    ? 'bg-[#F0F9FF] border-[#0EA5E9] border-2 shadow-sm'
+                                    : 'bg-white border-border hover:border-accent hover:shadow-md'
+                            }`}
+                        >
+                            <div className="text-5xl p-5 bg-[#F8FAFC] rounded-2xl group-hover:scale-110 transition-transform shadow-sm">
+                                🌍
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-foreground font-bold text-xl mb-2">Practice With People</h3>
+                                <p className="text-secondary text-sm font-medium leading-relaxed">Real conversations with English learners</p>
+                            </div>
+                        </button>
+                    </div>
+
+                    <button
+                        onClick={() => router.push('/')}
+                        className="w-full py-2 text-muted hover:text-secondary text-sm font-bold transition-colors"
+                    >
+                        Cancel and return home
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // AI Practice Setup Screen
+    if (practiceType === 'ai' && isPreferencesOpen) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
+                {/* Logo in Header */}
+                <header className="absolute top-0 left-0 w-full p-6 z-20">
+                    <div
+                        className="text-2xl font-bold tracking-tight cursor-pointer select-none text-foreground inline-block"
+                        onClick={() => {
+                            setPracticeType(null);
+                        }}
+                    >
+                        <span className="mr-2 text-accent">←</span> Norinly<span className="text-accent">.</span>
+                    </div>
+                </header>
+
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/10 via-background to-background -z-10" />
+
+                <AIPracticeSetup onCancel={() => setPracticeType(null)} />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
             {/* Logo in Header */}
             <header className="absolute top-0 left-0 w-full p-6 z-20">
                 <div
-                    className="text-2xl font-black tracking-tighter cursor-pointer select-none text-white inline-block"
-                    onClick={() => router.push('/')}
+                    className="text-2xl font-bold tracking-tight cursor-pointer select-none text-foreground inline-block"
+                    onClick={() => {
+                        if (practiceType) {
+                            setPracticeType(null);
+                        } else {
+                            router.push('/');
+                        }
+                    }}
                 >
-                    NORINLY<span className="text-accent">.</span>
+                    {practiceType && <span className="mr-2 text-accent">←</span>}
+                    Norinly<span className="text-accent">.</span>
                 </div>
             </header>
 
@@ -56,66 +159,44 @@ export default function ConnectPage() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/10 via-background to-background -z-10" />
 
             {isPreferencesOpen ? (
-                <div className="bg-surface border border-border rounded-3xl w-full max-w-md p-8 shadow-2xl relative animate-in zoom-in-95 duration-300">
-                    <h2 className="text-3xl font-bold text-white mb-2">Configure Matchmaking</h2>
-                    <p className="text-zinc-400 mb-8">Select your preferences to find someone with shared interests.</p>
+                <div className="bg-white border border-border rounded-[2.5rem] w-full max-w-xl p-10 md:p-12 shadow-2xl relative animate-in zoom-in-95 duration-300">
+                    <h2 className="text-4xl font-bold text-foreground mb-3 tracking-tight">Configure Practice</h2>
+                    <p className="text-secondary text-lg mb-10 font-medium">
+                        Select a conversation goal to match with the right partner.
+                    </p>
 
-                    <div className="space-y-8">
-                        <div>
-                            <label className="block text-sm font-semibold text-zinc-300 mb-4 uppercase tracking-wider">
-                                Interests (Max 3)
-                            </label>
-                            <div className="flex flex-wrap gap-2.5">
-                                {INTERESTS.map(interest => (
-                                    <button
-                                        key={interest}
-                                        onClick={() => toggleInterest(interest)}
-                                        className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${selectedInterests.includes(interest)
-                                            ? 'bg-accent text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]'
-                                            : 'bg-background/50 text-zinc-400 border border-border hover:border-zinc-500 hover:text-zinc-200'
-                                            }`}
-                                    >
-                                        {interest}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-zinc-300 mb-4 uppercase tracking-wider">
-                                Country
-                            </label>
-                            <div className="relative">
-                                <select
-                                    value={selectedCountry}
-                                    onChange={(e) => setSelectedCountry(e.target.value)}
-                                    className="w-full bg-background/50 border border-border rounded-2xl px-5 py-4 text-zinc-200 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 appearance-none transition-all"
-                                >
-                                    <option value="">Anywhere in the world</option>
-                                    {COUNTRIES.map(c => (
-                                        <option key={c} value={c}>{c}</option>
-                                    ))}
-                                </select>
-                                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <div className="grid grid-cols-1 gap-4 mb-10">
+                        {[
+                            { id: 'casual', title: 'Casual Conversation', desc: 'Talk freely and improve speaking confidence', icon: '🗣️' },
+                            { id: 'interview', title: 'Job Interview Practice', desc: 'Practice answering common interview questions', icon: '💼' },
+                            { id: 'debate', title: 'Debate Mode', desc: 'Discuss topics and express your opinions', icon: '🔥' },
+                            { id: 'business', title: 'Business English', desc: 'Professional conversations and terminology', icon: '👔' },
+                            { id: 'pronunciation', title: 'Pronunciation Practice', desc: 'Focus on speaking clearly and accurately', icon: '🎯' },
+                        ].map((modeOption) => (
+                            <button
+                                key={modeOption.id}
+                                onClick={() => {
+                                    handleStartSearch(modeOption.id);
+                                }}
+                                className="flex items-center gap-5 p-5 rounded-2xl bg-white border border-border hover:border-accent hover:shadow-md transition-all text-left group"
+                            >
+                                <div className="text-4xl p-4 bg-[#F8FAFC] rounded-2xl group-hover:scale-110 transition-transform shadow-sm">
+                                    {modeOption.icon}
                                 </div>
-                            </div>
-                        </div>
-
-                        <button
-                            onClick={handleStartSearch}
-                            className="w-full py-5 rounded-2xl bg-accent text-white font-bold text-xl hover:bg-accent-hover transition-all shadow-[0_0_30px_-5px_rgba(59,130,246,0.6)] active:scale-[0.98] mt-4"
-                        >
-                            Find a Stranger
-                        </button>
-
-                        <button
-                            onClick={() => router.push('/')}
-                            className="w-full py-2 text-zinc-500 hover:text-zinc-300 text-sm font-medium transition-colors"
-                        >
-                            Cancel and return home
-                        </button>
+                                <div>
+                                    <h3 className="text-foreground font-bold text-lg mb-1">{modeOption.title}</h3>
+                                    <p className="text-secondary text-sm font-medium">{modeOption.desc}</p>
+                                </div>
+                            </button>
+                        ))}
                     </div>
+
+                    <button
+                        onClick={() => setPracticeType(null)}
+                        className="w-full py-2 text-muted hover:text-secondary text-sm font-bold transition-colors"
+                    >
+                        Back to mode selection
+                    </button>
                 </div>
             ) : (
                 <div className="flex flex-col items-center space-y-8 animate-in fade-in duration-500">
@@ -126,23 +207,32 @@ export default function ConnectPage() {
                         </div>
                     </div>
 
-                    <div className="text-center space-y-3">
-                        <h1 className="text-3xl font-bold text-white tracking-tight">
-                            {status === 'searching' && 'Searching for a stranger...'}
-                            {status === 'connected' && 'Match found!'}
+                    <div className="text-center space-y-4">
+                        <h1 className="text-4xl font-bold text-foreground tracking-tight">
+                            {status === 'initializing' && 'Preparing Practice...'}
+                            {status === 'requesting_mic' && 'Waiting for Microphone...'}
+                            {status === 'searching' && 'Finding a speaking partner...'}
+                            {status === 'connected' && 'Partner found!'}
                             {status === 'error' && 'Connection Error'}
-                            {status === 'idle' && 'Initializing...'}
+                            {status === 'idle' && 'Ready to start'}
                         </h1>
-                        <p className="text-zinc-400 max-w-xs mx-auto">
-                            {status === 'searching' && 'Matching you with someone across the globe based on your interests.'}
-                            {status === 'error' && 'Make sure your microphone is enabled and try again.'}
+                        <p className="text-secondary font-medium max-w-sm mx-auto text-lg">
+                            {!window.isSecureContext && (
+                                <span className="text-red-500 block mb-3 font-bold">
+                                    ⚠️ Insecure Context: WebRTC requires HTTPS to access the microphone.
+                                </span>
+                            )}
+                            {status === 'requesting_mic' && 'Please click "Allow" when prompted by your browser to enable voice chat.'}
+                            {status === 'searching' && 'Matching you with an English learner from around the world.'}
+                            {status === 'error' && (errorDetail || 'Make sure your microphone is enabled and try again.')}
+                            {status === 'initializing' && 'Preparing secure connection...'}
                         </p>
                     </div>
 
                     {(status === 'error' || status === 'disconnected') && (
                         <button
                             onClick={() => setIsPreferencesOpen(true)}
-                            className="px-8 py-3 bg-surface border border-border text-white rounded-full hover:bg-white/5 transition-colors"
+                            className="px-8 py-3 bg-accent hover:bg-accent-hover text-white font-bold rounded-full shadow-sm transition-all hover:scale-105 active:scale-95 mt-4"
                         >
                             Try Again
                         </button>
@@ -150,5 +240,17 @@ export default function ConnectPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function ConnectPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <Loader2 className="w-10 h-10 text-accent animate-spin" />
+            </div>
+        }>
+            <ConnectContent />
+        </Suspense>
     );
 }

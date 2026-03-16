@@ -7,7 +7,6 @@ import {
     ArrowLeft,
     MessageSquare,
     Phone,
-    Circle,
     Clock,
     MoreVertical,
     UserPlus,
@@ -17,11 +16,12 @@ import {
     Check,
     Globe,
     User,
-    Camera,
-    Info
+    Camera
 } from 'lucide-react';
 
 import { useChatContext } from '@/context/ChatContext';
+import HeaderFriendsList from '@/components/HeaderFriendsList';
+import Footer from '@/components/Footer';
 
 export default function FriendsPage() {
     const router = useRouter();
@@ -58,9 +58,11 @@ export default function FriendsPage() {
     };
 
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(inviteLink);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        if (typeof window !== 'undefined') {
+            navigator.clipboard.writeText(inviteLink);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
     };
 
     const handleSaveProfile = async () => {
@@ -102,6 +104,9 @@ export default function FriendsPage() {
                 >
                     Back to Home
                 </button>
+                <div className="mt-20 w-full">
+                    <Footer />
+                </div>
             </div>
         );
     }
@@ -112,7 +117,7 @@ export default function FriendsPage() {
                 <div className="max-w-4xl mx-auto flex justify-between items-center">
                     <div className="flex items-center space-x-4">
                         <button
-                            onClick={() => router.back()}
+                            onClick={() => router.push('/')}
                             className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 transition-colors"
                         >
                             <ArrowLeft className="w-5 h-5" />
@@ -122,6 +127,7 @@ export default function FriendsPage() {
                         </h1>
                     </div>
                     <div className="flex items-center space-x-6">
+                        <HeaderFriendsList />
                         <button
                             onClick={logout}
                             className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors"
@@ -314,6 +320,7 @@ export default function FriendsPage() {
                     </div>
                 )}
             </main>
+            <Footer />
         </div>
     );
 }
