@@ -10,21 +10,25 @@ export default function ToastProvider() {
             gutter={8}
             toastOptions={{
                 duration: 4000,
-                style: {
-                    background: '#18181b', // zinc-900
-                    color: '#fff',
-                    border: '1px solid #27272a', // zinc-800
-                    borderRadius: '1rem',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    padding: '0.75rem 1rem',
-                },
-                success: {
-                    iconTheme: {
-                        primary: '#3b82f6', // blue-500 (accent)
-                        secondary: '#fff',
-                    },
-                },
+                 style: {
+                     background: 'rgba(255, 255, 255, 0.9)',
+                     color: '#000',
+                     backdropFilter: 'blur(20px)',
+                     border: '1px solid rgba(0, 0, 0, 0.05)',
+                     borderRadius: '1.5rem',
+                     fontSize: '0.75rem',
+                     fontWeight: '900',
+                     textTransform: 'uppercase',
+                     letterSpacing: '0.1em',
+                     padding: '1rem 1.5rem',
+                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.1)',
+                 },
+                 success: {
+                     iconTheme: {
+                         primary: '#000',
+                         secondary: '#fff',
+                     },
+                 },
             }}
         />
     );

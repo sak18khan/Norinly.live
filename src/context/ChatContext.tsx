@@ -4,15 +4,17 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { io, Socket } from 'socket.io-client';
 import { auth, db as fdb } from '@/lib/firebase';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
-import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, increment, arrayUnion, addDoc, collection, query, where, getDocs, getDoc, setDoc } from 'firebase/firestore';
 import AuthModal from '@/components/AuthModal';
 import toast from 'react-hot-toast';
+import { generateRandomName, getFlagEmoji, getCountryInitials } from '@/lib/identity-utils';
+import { initializeUserProgress, updateTaskProgress } from '@/lib/gamification';
 
 export type ConnectionStatus = 'idle' | 'initializing' | 'requesting_mic' | 'searching' | 'connecting' | 'connected' | 'error' | 'disconnected';
 
 export interface Message {
     id: string;
-    sender: 'me' | 'stranger';
+    sender: 'me' | 'partner' | 'system';
     text: string;
     timestamp: number;
 }
@@ -36,7 +38,9 @@ interface ChatContextProps {
     isMuted: boolean;
     micDenied: boolean;
     partnerId: string | null;
+    partnerDisplayName: string | null;
     partnerCountry: { countryName: string, countryCode: string } | null;
+    myDisplayName: string | null;
     lastPartnerId: string | null;
     errorDetail: string | null;
 
@@ -50,7 +54,7 @@ interface ChatContextProps {
     canvasRef: React.RefObject<HTMLCanvasElement | null>;
     localAudioRef: React.RefObject<HTMLAudioElement | null>;
     remoteAudioRef: React.RefObject<HTMLAudioElement | null>;
-    requestMicrophoneAndJoin: (interests: string[], country: string, mode?: 'normal' | 'debate') => Promise<void>;
+    requestMicrophoneAndJoin: (interests: string[], country: string, mode?: string, scenario?: string) => Promise<void>;
     handleMute: () => void;
     handleNext: () => void;
     handleEnd: () => void;
@@ -58,16 +62,17 @@ interface ChatContextProps {
     handleReport: () => void;
     sendMessage: (text: string) => void;
     sendTyping: (isTyping: boolean) => void;
+    sendStopTyping: () => void;
     sendReaction: (emoji: string) => void;
     sendSystemMessage: (text: string) => void;
-    revealCountry: () => void;
+    saveRating: (rating: 'good' | 'okay' | 'bad') => Promise<void>;
     setActiveFilter: (filter: string) => void;
     cleanupConnection: () => void;
     currentUser: User | null;
     logout: () => Promise<void>;
     sendFriendRequest: () => void;
-    acceptFriendRequest: (fromUserId: string) => void;
-    declineFriendRequest: () => void;
+    acceptFriendRequest: (requestId: string) => Promise<void>;
+    declineFriendRequest: (requestId: string) => Promise<void>;
     friends: any[];
     showAuthModal: boolean;
     setShowAuthModal: (show: boolean) => void;
@@ -79,7 +84,7 @@ interface ChatContextProps {
     pendingFriendRequest: any;
 
     // Session Metrics
-    timeLeft: number;
+    sessionDuration: number;
     isSessionFinished: boolean;
     selectedMode: string;
 
@@ -91,6 +96,8 @@ interface ChatContextProps {
     sendDebateAction: (action: any) => void;
     voteDebate: (winnerId: string | null) => void;
     exitDebate: () => void;
+    // Roleplay Mode
+    roleplayData: { scenario: string | null, role: 'A' | 'B' | null };
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -102,8 +109,25 @@ const ICE_SERVERS: RTCConfiguration = {
         { urls: 'stun:stun2.l.google.com:19302' },
         { urls: 'stun:stun3.l.google.com:19302' },
         { urls: 'stun:stun4.l.google.com:19302' },
+        { urls: 'stun:stun.ekiga.net' },
+        { urls: 'stun:stun.ideasip.com' },
+        { urls: 'stun:stun.schlund.de' },
+        { urls: 'stun:stun.voiparound.com' },
+        { urls: 'stun:stun.voipbuster.com' },
+        { urls: 'stun:stun.voipstunt.com' },
+        { urls: 'stun:stun.voxgratia.org' },
     ],
     iceCandidatePoolSize: 10,
+};
+
+const getSocketUrl = () => {
+    if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+        return process.env.NEXT_PUBLIC_SOCKET_URL;
+    }
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        return 'https://norinly-backend.run.app';
+    }
+    return 'http://localhost:5000';
 };
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -111,10 +135,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [liveUsers, setLiveUsers] = useState<number>(0);
     const [isMuted, setIsMuted] = useState(false);
     const [micDenied, setMicDenied] = useState(false);
-    const [chatMode, setChatMode] = useState<'normal' | 'debate'>('normal');
+    const [chatMode, setChatMode] = useState<string>('normal');
 
     const [partnerId, setPartnerId] = useState<string | null>(null);
+    const [partnerDisplayName, setPartnerDisplayName] = useState<string | null>(null);
     const [partnerCountry, setPartnerCountry] = useState<{ countryName: string, countryCode: string } | null>(null);
+    const [myDisplayName, setMyDisplayName] = useState<string | null>(null);
     const [lastPartnerId, setLastPartnerId] = useState<string | null>(null);
     const [errorDetail, setErrorDetail] = useState<string | null>(null);
 
@@ -135,7 +161,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [pendingFriendRequest, setPendingFriendRequest] = useState<any>(null);
 
     // Session Metrics
-    const [timeLeft, setTimeLeft] = useState(300);
+    const [sessionDuration, setSessionDuration] = useState(0);
     const [isSessionFinished, setIsSessionFinished] = useState(false);
     const [selectedMode, setSelectedMode] = useState('casual');
 
@@ -149,6 +175,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isInitiator: false,
         votes: { me: null, stranger: null },
         winner: null
+    });
+
+    // Roleplay State
+    const [roleplayData, setRoleplayData] = useState<{ scenario: string | null, role: 'A' | 'B' | null }>({
+        scenario: null,
+        role: null
     });
 
     // Search parameters
@@ -191,16 +223,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Versioning for deployment verification
             console.log('[Norinly-App] Version: 1.0.7-UI-MOBILE-FIX');
 
-            const getSocketUrl = () => {
-                if (process.env.NEXT_PUBLIC_SOCKET_URL) {
-                    return process.env.NEXT_PUBLIC_SOCKET_URL;
-                }
-                if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                    return 'https://norinly-backend.run.app';
-                }
-                return 'http://localhost:5000';
-            };
-
             const socketUrl = getSocketUrl();
             console.log('[Home Socket] Initializing with URL:', socketUrl);
 
@@ -242,33 +264,72 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         if (snapshot.exists()) {
                             const data = snapshot.data();
                             // If user is new and hasn't completed onboarding OR doesn't have required fields
+                            /* Disabled: This popup is irritating
                             if (!data.onboardingComplete && !data.profileCompleted && !hasShownProfileSetupRef.current) {
                                 if (typeof window !== 'undefined' && sessionStorage.getItem('skippedProfileSetup') !== 'true') {
                                     setShowProfileSetupModal(true);
                                     hasShownProfileSetupRef.current = true;
                                 }
                             }
+                            */
                         } else {
                             // Document doesn't exist yet, AuthModal usually creates it, 
                             // but if not, user is definitely new
+                            /* Disabled: This popup is irritating
                             if (!hasShownProfileSetupRef.current) {
                                 if (typeof window !== 'undefined' && sessionStorage.getItem('skippedProfileSetup') !== 'true') {
                                     setShowProfileSetupModal(true);
                                     hasShownProfileSetupRef.current = true;
                                 }
                             }
+                            */
                         }
                     });
 
                     updateDoc(userRef, {
                         lastSeen: new Date()
                     }).catch(console.error);
+
+                    // Initialize Daily Progress & Gamification
+                    initializeUserProgress(user.uid).catch(console.error);
                 }
 
                 // Re-register with back-end if socket is active
                 if (socketRef.current?.connected) {
-                    socketRef.current.emit('register', { userId: user.uid });
+                    user.getIdToken().then(token => {
+                        socketRef.current?.emit('register', { userId: user.uid, token });
+                    }).catch(console.error);
                 }
+
+                // Fetch friends from Firestore
+                const friendsRef = collection(fdb, 'users', user.uid, 'friends');
+                const unsubFriends = onSnapshot(friendsRef, async (snapshot) => {
+                    const friendList: any[] = [];
+                    for (const friendDoc of snapshot.docs) {
+                        const friendData = friendDoc.data();
+                        let profileData = null;
+                        try {
+                            const profileSnap = await getDoc(doc(fdb, 'users', friendDoc.id));
+                            if (profileSnap.exists()) {
+                                profileData = profileSnap.data();
+                            }
+                        } catch (err) {
+                            console.warn(`[Firestore] Failed to fetch profile for ${friendDoc.id} (offline?):`, err);
+                        }
+
+                        friendList.push({
+                            id: friendDoc.id,
+                            ...friendData,
+                            profile: profileData
+                        });
+                    }
+                    setFriends(friendList);
+                });
+
+                return () => {
+                    unsubscribe();
+                    unsubFriends();
+                };
             }
         });
         return () => unsubscribe();
@@ -277,28 +338,31 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Session Timer & Stats
     useEffect(() => {
         if (status !== 'connected' || !connectionStartTime) {
-            setTimeLeft(300);
+            setSessionDuration(0);
             setIsSessionFinished(false);
             return;
         }
 
         const interval = setInterval(() => {
             const now = Date.now();
-            const elapsed = now - connectionStartTime;
-            const remaining = Math.max(0, 300 - Math.floor(elapsed / 1000));
+            const elapsed = Math.floor((now - connectionStartTime) / 1000);
             
-            setTimeLeft(remaining);
+            setSessionDuration(elapsed);
 
-            if (remaining === 0 && !isSessionFinished) {
+            // Session finish logic (if still needed, e.g., for stats)
+            if (elapsed >= 300 && !isSessionFinished) {
                 setIsSessionFinished(true);
                 saveSessionStats();
-                sendSystemMessage("Time's up! Great practice session. You can stay and finish your point, or find a new partner.");
+                // sendSystemMessage("Time's up! Great practice session. You can stay and finish your point, or find a new partner.");
             }
 
             // Streak/Long convo check (3 minutes)
-            if (elapsed >= 180000 && !threeMinuteNoticeShownRef.current) {
+            if (elapsed >= 180 && !threeMinuteNoticeShownRef.current) {
                 sendSystemMessage("🔥 You've been talking for 3 minutes! Great conversation!");
                 threeMinuteNoticeShownRef.current = true;
+                if (currentUser) {
+                    updateTaskProgress(currentUser.uid, 'activeTime', 180);
+                }
             }
         }, 1000);
 
@@ -310,6 +374,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             "Ask what country they want to visit"
         ];
 
+        /*
+        // Disabled: Conversation ideas are now shown as a floating card in the UI
         // Individual timeout for silence to avoid spamming
         const silenceTimer = setTimeout(() => {
             if (!isRemoteSpeaking && !isStrangerTyping) {
@@ -321,10 +387,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
             }
         }, 15000);
+        */
 
         return () => {
             clearInterval(interval);
-            clearTimeout(silenceTimer);
+            // silenceTimer is disabled
         }
     }, [messages.length, isRemoteSpeaking, isStrangerTyping, status, connectionStartTime, isSessionFinished]);
 
@@ -337,13 +404,58 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         try {
             const userRef = doc(fdb, 'users', currentUser.uid);
-            await updateDoc(userRef, {
+            const updates: any = {
                 conversationsCount: increment(1),
                 totalSpeakingMinutes: increment(elapsedMinutes),
                 updatedAt: new Date()
-            });
+            };
+
+            // Add country to countriesSpokenTo if we have it
+            if (partnerCountry?.countryName) {
+                updates.countriesSpokenTo = arrayUnion(partnerCountry.countryName);
+            }
+
+            await updateDoc(userRef, updates);
+            toast.success(`Session saved! +${elapsedMinutes} mins recorded.`);
         } catch (e) {
             console.error('Error saving session stats:', e);
+        }
+    };
+
+    const saveRating = async (rating: 'good' | 'okay' | 'bad') => {
+        if (!currentUser || !fdb) return;
+
+        // Map rating to score
+        const scores = { good: 5, okay: 3, bad: 1 };
+        const score = scores[rating];
+
+        try {
+            const userRef = doc(fdb, 'users', currentUser.uid);
+            let userDoc;
+            try {
+                userDoc = await getDoc(userRef);
+            } catch (err) {
+                toast.error('Could not save rating. You might be offline.');
+                console.error('getDoc error in saveRating:', err);
+                return;
+            }
+            
+            if (userDoc && userDoc.exists()) {
+                const data = userDoc.data();
+                const totalRatings = data.totalRatings || 0;
+                const currentAvg = data.averageRating || 0;
+                
+                const newTotalRatings = totalRatings + 1;
+                const newAvg = ((currentAvg * totalRatings) + score) / newTotalRatings;
+
+                await updateDoc(userRef, {
+                    averageRating: Number(newAvg.toFixed(1)),
+                    totalRatings: newTotalRatings
+                });
+                toast.success('Your feedback helps us improve! Thanks ❤️');
+            }
+        } catch (e) {
+            console.error('Error saving rating:', e);
         }
     };
 
@@ -358,28 +470,58 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLiveUsers(count);
         });
 
-        socketRef.current.on('match_found', async ({ initiator, partnerId }) => {
-            console.log('Match found!', initiator, partnerId);
+        socketRef.current.on('match_found', async (data: any) => {
+            const { initiator, partnerId, partnerDisplayName, partnerCountry, mode, scenario, role } = data;
+            console.log('[Match Found] Data:', data);
+            
             setPartnerId(partnerId);
-            setPartnerCountry(null);
+            setPartnerDisplayName(partnerDisplayName || 'Partner');
+            setPartnerCountry(partnerCountry || null);
             setConnectionStartTime(Date.now());
             setMessages([]);
             setIsStrangerTyping(false);
             setStatus('connected');
             setupWebRTC(initiator);
+
+            // Task: Join Room
+            if (currentUser) {
+                updateTaskProgress(currentUser.uid, 'joinRoom', 1);
+            }
+            if (mode === 'roleplay') {
+                setRoleplayData({
+                    scenario: scenario || null,
+                    role: role || null
+                });
+            } else {
+                setRoleplayData({ scenario: null, role: null });
+            }
+
+            // Broadcast our identity to the partner
+            const myIdData = {
+                name: myDisplayName,
+                country: searchParamsRef.current.country, // this is the country name we have from IP or selection
+                countryCode: '' // will be resolved if needed
+            };
+            socketRef.current?.emit('identity', myIdData);
         });
 
-        socketRef.current.on('chat-message', (text: string) => {
+        socketRef.current.on('typing', () => {
+            setIsStrangerTyping(true);
+        });
+
+        socketRef.current.on('stop_typing', () => {
+            setIsStrangerTyping(false);
+        });
+
+        socketRef.current.on('receive_message', (data: { text: string, senderId: string }) => {
+            setIsStrangerTyping(false); // Hide indicator when message received
             setMessages(prev => [...prev, {
                 id: Math.random().toString(36).substring(7),
-                sender: 'stranger',
-                text,
+                sender: 'partner',
+                text: data.text,
                 timestamp: Date.now()
             }]);
         });
-
-        socketRef.current.on('typing-start', () => setIsStrangerTyping(true));
-        socketRef.current.on('typing-stop', () => setIsStrangerTyping(false));
 
         socketRef.current.on('reaction', (emoji: string) => {
             const id = Math.random().toString(36).substring(7);
@@ -394,30 +536,44 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         socketRef.current.on('partner-country-revealed', (data: { countryName: string, countryCode: string }) => {
-            const getFlag = (code: string) => {
-                if (!code) return '🌍';
-                return code.toUpperCase().replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt(0)));
-            };
-            sendSystemMessage(`Stranger is from ${getFlag(data.countryCode)} ${data.countryName}`);
             setPartnerCountry(data);
+        });
+
+        socketRef.current.on('identity', (data: { name: string, country: string, countryCode?: string }) => {
+            console.log('[Identity] Received from partner:', data);
+            if (data.name) setPartnerDisplayName(data.name);
+            if (data.country) {
+                setPartnerCountry({
+                    countryName: data.country,
+                    countryCode: data.countryCode || ''
+                });
+            }
         });
 
 
         socketRef.current.on('webrtc_offer', async (offer) => {
             console.log('[Signaling] Received WebRTC offer');
-            if (!peerConnectionRef.current) {
-                console.warn('[Signaling] PeerConnection not initialized yet, ignoring offer');
-                return;
-            }
-
             // Check if we already created an answer for this session
             if (answerCreatedRef.current) {
                 console.warn('Answer already created for this session, ignoring duplicate offer');
                 return;
             }
 
+            // If peer connection isn't ready yet, wait a bit and retry once
+            if (!peerConnectionRef.current) {
+                console.warn('[Signaling] PeerConnection not initialized yet, retrying in 500ms');
+                setTimeout(() => {
+                    if (peerConnectionRef.current && !answerCreatedRef.current) {
+                        socketRef.current?.emit('webrtc_offer', offer); // Trigger a re-emit from this side to ourselves is not valid, 
+                        // Instead, we just call the handler again manually if possible, or wait for the other side's retry.
+                        // Actually, better to just wait. The initiator should handle a lack of answer.
+                    }
+                }, 500);
+                return;
+            }
+
             // Check if we are already in the process of negotiating or if state is not stable
-            if (negotiationInProgressRef.current || peerConnectionRef.current.signalingState !== 'stable') {
+            if (negotiationInProgressRef.current || (peerConnectionRef.current.signalingState !== 'stable' && peerConnectionRef.current.signalingState !== 'have-local-offer')) {
                 console.warn('Received offer but signaling state is not stable or negotiation in progress', peerConnectionRef.current.signalingState);
                 return;
             }
@@ -493,15 +649,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         });
 
-        socketRef.current.on('partner_disconnected', () => {
+        const onPartnerLeft = () => {
             cleanupWebRTC();
             setLastPartnerId(currentPartnerRef.current);
             setPartnerId(null);
-            setPartnerCountry(null);
+            setPartnerDisplayName(null);
             setConnectionStartTime(null);
             setIsStrangerTyping(false);
             setStatus('disconnected');
-        });
+        };
+
+        socketRef.current.on('partner_disconnected', onPartnerLeft);
+        socketRef.current.on('partner_left', onPartnerLeft);
 
         socketRef.current.on('reconnect_failed', () => {
             sendSystemMessage('Could not reconnect. The stranger might be offline or already in another chat.');
@@ -567,12 +726,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
     };
 
-    const requestMicrophoneAndJoin = async (interests: string[], country: string, mode: 'normal' | 'debate' = 'normal') => {
+    const requestMicrophoneAndJoin = async (interests: string[], country: string, mode: string = 'normal', scenario?: string) => {
         searchParamsRef.current = { interests, country };
+        if (scenario) {
+            setRoleplayData(prev => ({ ...prev, scenario }));
+        }
         setChatMode(mode);
         setSelectedMode(mode);
         setErrorDetail(null);
         setStatus('initializing');
+        
+        // Use user's real name if logged in, otherwise use a fun random one
+        let displayName = currentUser?.displayName || myDisplayName;
+        
+        if (!displayName || displayName === 'Learner') {
+            displayName = generateRandomName();
+        }
+        
+        setMyDisplayName(displayName);
 
         try {
             // STEP 1: Request Microphone immediately to satisfy user gesture requirements (especially Safari/iOS)
@@ -618,15 +789,43 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const emitJoinQueue = () => {
+    const emitJoinQueue = async () => {
         const userId = currentUser?.uid || localStorage.getItem('norinly_user_id') || crypto.randomUUID();
         if (!currentUser) localStorage.setItem('norinly_user_id', userId);
 
         const { interests, country } = searchParamsRef.current;
 
-        socketRef.current?.emit('register', { userId });
-        socketRef.current?.emit('join_queue', { userId, interests, country, mode: chatMode });
-        // NOTE: setupSocketListeners is called once by connectToSignalingServer, not here, to prevent duplicate listeners
+        let token = undefined;
+        if (currentUser) {
+            try {
+                token = await currentUser.getIdToken();
+            } catch (err) {
+                console.error('Error getting ID token:', err);
+            }
+        }
+
+        socketRef.current?.emit('register', { userId, token });
+        socketRef.current?.emit('join_queue', { userId, interests, country, mode: chatMode, scenario: roleplayData.scenario });
+        
+        // Tracking messages sent
+        // This is a bit hacky, better to use the sendMessage function
+    };
+
+    const sendMessage = (text: string) => {
+        if (socketRef.current && status === 'connected') {
+            socketRef.current.emit('send_message', { text });
+            setMessages(prev => [...prev, {
+                id: Math.random().toString(36).substring(7),
+                sender: 'me',
+                text,
+                timestamp: Date.now()
+            }]);
+            
+            // Task: Send Messages
+            if (currentUser) {
+                updateTaskProgress(currentUser.uid, 'sendMessages', 1);
+            }
+        }
     };
 
     // Debate Logic Effect
@@ -771,16 +970,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const connectToSignalingServer = () => {
         setStatus('searching');
         listenersSetUpRef.current = false;
-
-        const getSocketUrl = () => {
-            if (process.env.NEXT_PUBLIC_SOCKET_URL) {
-                return process.env.NEXT_PUBLIC_SOCKET_URL;
-            }
-            if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                return window.location.origin;
-            }
-            return 'http://localhost:5000';
-        };
 
         const socketUrl = getSocketUrl();
         console.log('[Chat Socket] Initializing with URL:', socketUrl);
@@ -936,15 +1125,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (initiator) {
             try {
-                // Guard: only create offer if in stable state
-                if (pc.signalingState !== 'stable') {
-                    console.warn('Cannot create offer: signalingState is not stable:', pc.signalingState);
+                // Wait a bit to ensure the other side has joined and set up their socket listeners
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                // Guard: only create offer if we are still in a valid state
+                if (!peerConnectionRef.current || pc.signalingState !== 'stable') {
+                    console.warn('Cannot create offer: PC closed or signalingState is not stable:', pc.signalingState);
                     return;
                 }
-                const offer = await pc.createOffer();
-                if (pc.signalingState !== 'stable') return; // Re-check after async gap
+                const offer = await pc.createOffer({
+                    offerToReceiveAudio: true
+                });
+                if (!peerConnectionRef.current || pc.signalingState !== 'stable') return; 
                 await pc.setLocalDescription(offer);
                 socketRef.current?.emit('webrtc_offer', offer);
+                console.log('[WebRTC] Initiator offer sent');
             } catch (e) {
                 console.error('Error creating offer:', e);
             }
@@ -1157,6 +1352,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cleanupWebRTC();
         socketRef.current?.emit('next_stranger');
         setPartnerId(null);
+        setPartnerDisplayName(null);
         setPartnerCountry(null);
         setConnectionStartTime(null);
         setMessages([]);
@@ -1202,17 +1398,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         handleNext();
     };
 
-    const sendMessage = (text: string) => {
-        if (!text.trim()) return;
-        const newMessage: Message = {
-            id: Math.random().toString(36).substring(7),
-            sender: 'me',
-            text,
-            timestamp: Date.now()
-        };
-        setMessages(prev => [...prev, newMessage]);
-        socketRef.current?.emit('chat-message', text);
+    const sendStopTyping = () => {
+        if (!socketRef.current) return;
+        socketRef.current.emit('stop_typing');
     };
+
 
     const sendTyping = (isTyping: boolean) => {
         if (isTyping) {
@@ -1234,14 +1424,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const sendSystemMessage = (text: string) => {
         setMessages(prev => [...prev, {
             id: Math.random().toString(36).substring(7),
-            sender: 'stranger',
+            sender: 'system',
             text: `[SYSTEM]: ${text}`,
             timestamp: Date.now()
         }]);
-    };
-
-    const revealCountry = () => {
-        socketRef.current?.emit('reveal-country');
     };
 
     const logout = async () => {
@@ -1249,36 +1435,111 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cleanupConnection();
     };
 
-    const sendFriendRequest = () => {
+    const sendFriendRequest = async () => {
         if (!currentUser) {
             setShowAuthModal(true);
             return;
         }
-        socketRef.current?.emit('send_friend_request');
-        toast.success('Friend request sent');
-    };
 
-    const acceptFriendRequest = (fromUserId: string) => {
-        if (!currentUser) {
-            setShowAuthModal(true);
-            return;
+        if (!partnerId || !fdb) return;
+
+        try {
+            // Check for existing request
+            const q = query(
+                collection(fdb, 'friendRequests'),
+                where('fromUserId', '==', currentUser.uid),
+                where('toUserId', '==', partnerId),
+                where('status', '==', 'pending')
+            );
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                toast.error('Friend request already pending');
+                return;
+            }
+
+            await addDoc(collection(fdb, 'friendRequests'), {
+                fromUserId: currentUser.uid,
+                fromUsername: currentUser.displayName || 'Learner',
+                toUserId: partnerId,
+                status: 'pending',
+                createdAt: new Date()
+            });
+
+            // Notify via socket for real-time alerts
+            socketRef.current?.emit('send_friend_request', { targetUserId: partnerId });
+
+            toast.success('Friend request sent ✅');
+        } catch (e) {
+            console.error('Error sending friend request:', e);
+            toast.error('Failed to send request');
         }
-        socketRef.current?.emit('accept_friend_request', { fromUserId });
-        setPendingFriendRequest(null);
     };
 
-    const declineFriendRequest = () => {
-        setPendingFriendRequest(null);
+    const acceptFriendRequest = async (requestId: string) => {
+        if (!fdb || !currentUser) return;
+        try {
+            const reqRef = doc(fdb, 'friendRequests', requestId);
+            let reqSnap;
+            try {
+                reqSnap = await getDoc(reqRef);
+            } catch (err) {
+                toast.error('Failed to accept request. Please check your connection.');
+                console.error('getDoc error in acceptFriendRequest:', err);
+                return;
+            }
+
+            if (!reqSnap || !reqSnap.exists()) return;
+            const reqData = reqSnap.data();
+
+            await updateDoc(reqRef, {
+                status: 'accepted',
+                updatedAt: new Date()
+            });
+
+            // Add mutual friends
+            const friendId = reqData.fromUserId === currentUser.uid ? reqData.toUserId : reqData.fromUserId;
+            
+            await setDoc(doc(fdb, 'users', currentUser.uid, 'friends', friendId), {
+                friendId,
+                addedAt: new Date()
+            }, { merge: true });
+
+            await setDoc(doc(fdb, 'users', friendId, 'friends', currentUser.uid), {
+                friendId: currentUser.uid,
+                addedAt: new Date()
+            }, { merge: true });
+
+            // Notify via socket for real-time alerts
+            socketRef.current?.emit('accept_friend_request', { targetUserId: friendId });
+
+            toast.success('Accepted! You are now friends 🤝');
+        } catch (e) {
+            console.error('Error accepting friend request:', e);
+        }
+    };
+
+    const declineFriendRequest = async (requestId: string) => {
+        if (!fdb) return;
+        try {
+            await updateDoc(doc(fdb, 'friendRequests', requestId), {
+                status: 'rejected',
+                updatedAt: new Date()
+            });
+            toast.success('Request declined');
+        } catch (e) {
+            console.error('Error declining friend request:', e);
+        }
     };
 
     return (
         <ChatContext.Provider value={{
-            status, liveUsers, isMuted, micDenied, partnerId, partnerCountry, lastPartnerId, connectionStartTime,
+            status, liveUsers, isMuted, micDenied, partnerId, partnerDisplayName, partnerCountry, myDisplayName, lastPartnerId, connectionStartTime,
             messages, isStrangerTyping, isRemoteSpeaking, isLocalSpeaking, activeReactions, activeFilter,
             errorDetail,
             canvasRef, localAudioRef, remoteAudioRef,
             requestMicrophoneAndJoin, handleMute, handleNext, handleEnd, handleReconnect, handleReport,
-            sendMessage, sendTyping, sendReaction, sendSystemMessage, revealCountry, setActiveFilter, cleanupConnection,
+            sendMessage, sendTyping, sendStopTyping, sendReaction, sendSystemMessage, saveRating, setActiveFilter, cleanupConnection,
             currentUser, logout, sendFriendRequest, acceptFriendRequest, declineFriendRequest, friends,
             showAuthModal,
             setShowAuthModal,
@@ -1288,9 +1549,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setShowProfileSetupModal,
             joinPrivateRoom,
             pendingFriendRequest,
-            timeLeft,
+            sessionDuration,
             isSessionFinished,
             selectedMode,
+            roleplayData,
             debateData, offerDebate, acceptDebate, rejectDebate, sendDebateAction, voteDebate, exitDebate
         }}>
             {children}

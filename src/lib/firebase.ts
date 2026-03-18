@@ -18,6 +18,18 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence);
 const db = getFirestore(app);
+
+// Enable offline persistence
+if (typeof window !== 'undefined') {
+    const { enableMultiTabIndexedDbPersistence } = require('firebase/firestore');
+    enableMultiTabIndexedDbPersistence(db).catch((err: any) => {
+        if (err.code === 'failed-precondition') {
+            console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+        } else if (err.code === 'unimplemented') {
+            console.warn('The current browser does not support all of the features required to enable persistence.');
+        }
+    });
+}
 const googleProvider = new GoogleAuthProvider();
 
 let analytics: Analytics | null = null;

@@ -65,127 +65,170 @@ export default function ProfileSetupModal({ isOpen, onClose }: ProfileSetupModal
     };
 
     return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="w-full max-w-lg bg-white border border-border rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                <div className="p-10 border-b border-border flex justify-between items-center bg-surface">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-white/80 backdrop-blur-xl animate-in fade-in duration-500">
+            <div className="w-full max-w-lg bg-white/90 backdrop-blur-2xl border border-black/5 rounded-[3.5rem] shadow-premium-xl overflow-hidden animate-in zoom-in-95 duration-500 relative">
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-accent/5 blur-[100px] rounded-full" />
+                
+                <div className="p-10 border-b border-black/5 flex justify-between items-center bg-black/[0.02] relative z-10">
                     <div>
-                        <h2 className="text-3xl font-bold text-foreground">Complete Your Profile</h2>
-                        <p className="text-secondary text-base mt-2">Tell us a bit about yourself to get started.</p>
+                        <h2 className="text-3xl font-black text-foreground uppercase tracking-tighter italic">Initial Setup<span className="text-accent">.</span></h2>
+                        <p className="text-zinc-400 text-xs font-black uppercase tracking-widest mt-2 opacity-60">Define your presence in the network.</p>
                     </div>
+                    <button onClick={onClose} className="p-3 bg-black/5 border border-black/5 hover:bg-black/10 rounded-[1.25rem] text-zinc-400 hover:text-black transition-all active:scale-90 shadow-sm">
+                        <X className="w-6 h-6" />
+                    </button>
                 </div>
 
-                <div className="p-10 space-y-10">
-                    <div className="flex flex-col items-center space-y-4">
+                <div className="p-10 space-y-10 max-h-[80vh] overflow-y-auto no-scrollbar relative z-10">
+                    <div className="flex flex-col items-center space-y-6">
                         <div className="relative group">
-                            <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden bg-surface">
-                                <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                            <div className="w-32 h-32 rounded-full border-4 border-white shadow-premium overflow-hidden bg-black/5">
+                                <img src={avatar} alt="Avatar" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             </div>
                             <button
                                 onClick={generateNewAvatar}
-                                className="absolute bottom-1 right-1 p-2.5 bg-accent rounded-full text-white hover:bg-accent-hover transition-all shadow-lg"
+                                className="absolute bottom-1 right-1 p-3 bg-black rounded-full text-white hover:bg-accent transition-all shadow-premium active:scale-95"
                             >
                                 <Camera className="w-5 h-5" />
                             </button>
                         </div>
-                        <span className="text-[10px] font-bold text-muted uppercase tracking-widest">Choose an Avatar</span>
+                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] opacity-60">Visual Identity</span>
                     </div>
 
                     <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Username */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-muted uppercase tracking-widest ml-1">Username</label>
-                            <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                        <div className="space-y-3">
+                            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Network Handle</label>
+                            <div className="relative group/input">
+                                <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within/input:text-accent transition-colors" />
                                 <input
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     placeholder="your_username"
-                                    className="w-full bg-surface border border-border rounded-2xl pl-12 pr-4 py-3.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    className="w-full bg-black/5 border border-black/5 rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black lowercase text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-zinc-300 shadow-sm"
                                 />
                             </div>
                         </div>
 
                         {/* Age */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-muted uppercase tracking-widest ml-1">Age</label>
-                            <div className="relative">
-                                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                        <div className="space-y-3">
+                            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Maturity Level</label>
+                            <div className="relative group/input">
+                                <Hash className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within/input:text-accent transition-colors" />
                                 <input
                                     type="number"
                                     value={age}
                                     onChange={(e) => setAge(e.target.value)}
-                                    placeholder="Your age"
-                                    className="w-full bg-surface border border-border rounded-2xl pl-12 pr-4 py-3.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    placeholder="Age"
+                                    className="w-full bg-black/5 border border-black/5 rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black uppercase tracking-widest text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-zinc-300 shadow-sm"
                                 />
                             </div>
                         </div>
 
                         {/* Country */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-muted uppercase tracking-widest ml-1">Country</label>
-                            <div className="relative">
-                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                        <div className="space-y-3">
+                            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Point of Origin</label>
+                            <div className="relative group/input">
+                                <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within/input:text-accent transition-colors" />
                                 <input
                                     type="text"
                                     value={country}
                                     onChange={(e) => setCountry(e.target.value)}
-                                    placeholder="e.g. United States"
-                                    className="w-full bg-surface border border-border rounded-2xl pl-12 pr-4 py-3.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    placeholder="Country"
+                                    className="w-full bg-black/5 border border-black/5 rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black uppercase tracking-widest text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-zinc-300 shadow-sm"
                                 />
                             </div>
                         </div>
 
                         {/* Interests */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-muted uppercase tracking-widest ml-1">Interests</label>
-                            <div className="relative">
-                                <Heart className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                        <div className="space-y-3">
+                            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Core Affinities</label>
+                            <div className="relative group/input">
+                                <Heart className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within/input:text-accent transition-colors" />
                                 <input
                                     type="text"
                                     value={interests}
                                     onChange={(e) => setInterests(e.target.value)}
-                                    placeholder="Music, Tech, Gaming..."
-                                    className="w-full bg-surface border border-border rounded-2xl pl-12 pr-4 py-3.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                                    placeholder="Music, Tech..."
+                                    className="w-full bg-black/5 border border-black/5 rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black uppercase tracking-widest text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-zinc-300 shadow-sm"
                                 />
                             </div>
                         </div>
 
                         {/* English Level */}
-                        <div className="md:col-span-2 space-y-4 pt-4 border-t border-border/50">
-                            <label className="text-xs font-bold text-muted uppercase tracking-widest ml-1">English Proficiency</label>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                {['Beginner', 'Intermediate', 'Advanced', 'Native'].map((level) => (
+                        <div className="md:col-span-2 space-y-6 pt-6 border-t border-black/5">
+                            <div className="space-y-1">
+                                <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Proficiency Tier</label>
+                                <p className="text-[10px] font-black text-zinc-400/60 uppercase tracking-widest ml-2">Matchmaking Optimization</p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                {[
+                                    { id: 'Beginner', title: 'Beginner', desc: 'Fundamentals', icon: '🌱' },
+                                    { id: 'Intermediate', title: 'Intermediate', desc: 'Daily use', icon: '🚀' },
+                                    { id: 'Advanced', title: 'Advanced', desc: 'Fluency', icon: '🏆' },
+                                ].map((level) => (
                                     <button
-                                        key={level}
+                                        key={level.id}
                                         type="button"
-                                        onClick={() => setEnglishLevel(level)}
-                                        className={`py-4 px-2 rounded-2xl border text-xs font-bold transition-all ${englishLevel === level
-                                            ? 'bg-accent border-accent text-white shadow-lg shadow-accent/20'
-                                            : 'bg-surface border-border text-secondary hover:border-accent hover:text-accent'
+                                        onClick={() => setEnglishLevel(level.id)}
+                                        className={`p-6 rounded-[2.5rem] border-2 text-left transition-all duration-500 group flex flex-col gap-3 relative overflow-hidden ${englishLevel === level.id
+                                            ? 'bg-black/5 border-black shadow-premium'
+                                            : 'bg-black/[0.02] border-black/5 hover:border-accent/30 hover:bg-white'
                                             }`}
                                     >
-                                        {level}
+                                        <div className={`text-2xl transition-transform duration-500 ${englishLevel === level.id ? 'scale-110' : 'group-hover:scale-110'}`}>
+                                            {level.icon}
+                                        </div>
+                                        <div>
+                                            <div className={`font-black uppercase tracking-tighter text-base ${englishLevel === level.id ? 'text-foreground' : 'text-zinc-400'}`}>
+                                                {level.title}
+                                            </div>
+                                            <div className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-1 opacity-60 leading-none">
+                                                {level.desc}
+                                            </div>
+                                        </div>
+                                        {englishLevel === level.id && (
+                                            <div className="absolute top-4 right-4">
+                                                <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center shadow-premium animate-in zoom-in duration-300">
+                                                    <Check className="w-3.5 h-3.5 text-white" />
+                                                </div>
+                                            </div>
+                                        )}
                                     </button>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="md:col-span-2 pt-6 flex gap-4">
+                        <div className="md:col-span-2 pt-8 flex gap-4">
                             <button
                                 type="button"
                                 onClick={handleSkip}
-                                className="flex-1 py-4 px-6 rounded-2xl border border-border text-secondary font-bold hover:bg-surface transition-all"
+                                className="flex-1 py-5 px-6 rounded-[1.5rem] border border-black/5 text-zinc-400 font-black uppercase tracking-widest text-[10px] hover:bg-black/5 transition-all shadow-sm"
                             >
-                                Skip
+                                Bypassing
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading || success}
-                                className={`flex-[2] py-4 px-6 rounded-2xl font-bold transition-all flex items-center justify-center space-x-2 shadow-lg ${success ? 'bg-positive-accent text-white shadow-positive-accent/20' : 'bg-accent hover:bg-accent-hover text-white shadow-accent/20'
+                                className={`flex-[2] py-5 px-6 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center space-x-3 shadow-premium group relative overflow-hidden ${success ? 'bg-positive-accent text-white shadow-premium' : 'bg-black text-white hover:bg-accent'
                                     }`}
                             >
-                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : success ? <Check className="w-6 h-6" /> : <span>Start Practicing</span>}
+                                <span className="relative z-10 flex items-center gap-3">
+                                {loading ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : success ? (
+                                    <>
+                                        <Check className="w-5 h-5" />
+                                        <span>Initialization Complete</span>
+                                    </>
+                                ) : (
+                                    <span>Establish Identity</span>
+                                )}
+                                </span>
+                                {!success && !loading && (
+                                    <div className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                                )}
                             </button>
                         </div>
                     </form>

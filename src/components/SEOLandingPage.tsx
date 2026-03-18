@@ -3,10 +3,13 @@
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Mic, Shield, Zap, Globe, MessageCircle, HelpCircle, CheckCircle2, Award, Sparkles } from 'lucide-react';
+import { Mic, Shield, Zap, Globe, MessageCircle, HelpCircle, CheckCircle2, Award, Sparkles, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { analytics } from '@/lib/firebase';
 import { logEvent } from 'firebase/analytics';
+import Script from 'next/script';
+import Link from 'next/link';
+import { blogPosts } from '@/data/blogPosts';
 
 interface FAQ {
     q: string;
@@ -56,8 +59,32 @@ export default function SEOLandingPage({
         { icon: <Shield className="w-6 h-6 text-accent" />, title: 'Safe Environment', desc: 'A moderated community focused on learning and respect.' },
     ];
 
+    // Structured Data for SEO
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": title,
+        "description": description,
+        "mainEntity": {
+            "@type": "FAQPage",
+            "mainEntity": faqs.map(faq => ({
+                "@type": "Question",
+                "name": faq.q,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq.a
+                }
+            }))
+        }
+    };
+
     return (
         <div className="min-h-screen flex flex-col bg-background selection:bg-accent/20 selection:text-foreground">
+            <Script
+                id="faq-schema"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <Header />
 
             <main className="flex-grow">
@@ -166,8 +193,57 @@ export default function SEOLandingPage({
                     </div>
                 </section>
 
+                {/* Latest from Blog Section */}
+                <section className="bg-surface border-y border-border py-24 md:py-40">
+                    <div className="max-w-7xl mx-auto px-6">
+                        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                            <div className="max-w-2xl">
+                                <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight">Latest From Our Blog</h2>
+                                <p className="text-secondary mt-6 text-lg md:text-xl font-normal">Expert tips and strategies to accelerate your language journey.</p>
+                            </div>
+                            <Link 
+                                href="/blog"
+                                className="inline-flex items-center space-x-2 text-accent font-bold text-lg hover:underline decoration-2 underline-offset-8"
+                            >
+                                <span>View All Posts</span>
+                                <ArrowRight className="w-5 h-5" />
+                            </Link>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {blogPosts.slice(0, 3).map((post, i) => (
+                                <Link key={i} href={`/blog/${post.slug}`} className="group block">
+                                    <div className="bg-white border border-border rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
+                                        <div className="relative aspect-video overflow-hidden">
+                                            <img 
+                                                src={post.image} 
+                                                alt={post.title}
+                                                className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" 
+                                            />
+                                            <div className="absolute top-4 left-4 px-4 py-2 bg-white/90 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest text-accent">
+                                                {post.category}
+                                            </div>
+                                        </div>
+                                        <div className="p-8 space-y-4 flex-grow">
+                                            <h4 className="text-xl font-bold text-foreground group-hover:text-accent transition-colors leading-tight">
+                                                {post.title}
+                                            </h4>
+                                            <p className="text-secondary text-sm leading-relaxed line-clamp-2">
+                                                {post.description}
+                                            </p>
+                                        </div>
+                                        <div className="px-8 pb-8 pt-4 flex items-center justify-between border-t border-border/50 mx-8">
+                                            <span className="text-[10px] font-black text-muted uppercase tracking-widest">{post.date}</span>
+                                            <span className="text-[10px] font-black text-muted uppercase tracking-widest">{post.readTime}</span>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
                 {/* Final CTA Section */}
-                <section className="max-w-7xl mx-auto px-6 pb-24 md:pb-48">
+                <section className="max-w-7xl mx-auto px-6 pb-24 md:pb-48 pt-24">
                     <div className="bg-accent p-12 md:p-32 rounded-[3.5rem] text-center shadow-2xl shadow-accent/20 relative overflow-hidden group">
                         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
                         <div className="relative z-10 space-y-10">
@@ -200,8 +276,8 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-8 md:p-10 text-left group"
             >
-                <span className="text-xl md:text-2xl font-bold text-foreground group-hover:text-accent transition-colors">{question}</span>
-                <div className={`p-2 rounded-xl transition-all duration-300 ${isOpen ? 'bg-accent/10 text-accent rotate-180' : 'bg-surface text-muted'}`}>
+                <span className="text-xl md:text-2xl font-bold text-foreground group-hover:text-accent transition-colors text-left">{question}</span>
+                <div className={`p-2 rounded-xl transition-all duration-300 flex-shrink-0 ${isOpen ? 'bg-accent/10 text-accent rotate-180' : 'bg-surface text-muted'}`}>
                     <HelpCircle className="w-6 h-6 outline-none" />
                 </div>
             </button>

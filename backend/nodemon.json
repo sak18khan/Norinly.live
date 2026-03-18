@@ -6,7 +6,7 @@
     "ignore": [
         "dist"
     ],
-    "exec": "ts-node --require dotenv/config src/index.ts",
+    "exec": "ts-node --require dotenv/config",
     "env": {
         "NODE_ENV": "development"
     }

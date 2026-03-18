@@ -112,25 +112,25 @@ export default function FriendsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
-            <header className="w-full px-6 py-6 border-b border-border bg-surface/30 backdrop-blur-md sticky top-0 z-50">
-                <div className="max-w-4xl mx-auto flex justify-between items-center">
-                    <div className="flex items-center space-x-4">
+        <div className="min-h-screen bg-[#0A0A0B] flex flex-col font-sans selection:bg-accent/30 selection:text-white">
+            <header className="w-full px-6 py-6 border-b border-white/5 bg-black/40 backdrop-blur-3xl sticky top-0 z-50">
+                <div className="max-w-5xl mx-auto flex justify-between items-center">
+                    <div className="flex items-center space-x-6">
                         <button
                             onClick={() => router.push('/')}
-                            className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 transition-colors"
+                            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-zinc-400 hover:text-white transition-all border border-white/5 active:scale-95"
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </button>
-                        <h1 className="text-2xl font-black tracking-tighter text-white">
-                            FRIENDS<span className="text-accent">.</span>
+                        <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white uppercase italic">
+                            Friends<span className="text-accent">.</span>
                         </h1>
                     </div>
                     <div className="flex items-center space-x-6">
                         <HeaderFriendsList />
                         <button
                             onClick={logout}
-                            className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors"
+                            className="text-[10px] font-black uppercase tracking-widest text-secondary hover:text-accent transition-colors py-2 px-4 bg-white/5 border border-white/5 rounded-xl"
                         >
                             Sign Out
                         </button>
@@ -138,68 +138,78 @@ export default function FriendsPage() {
                 </div>
             </header>
 
-            <main className="flex-1 max-w-4xl w-full mx-auto p-6">
+            <main className="flex-1 max-w-5xl w-full mx-auto p-6 md:p-12">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-accent/5 blur-[120px] rounded-full pointer-events-none -z-10" />
                 {/* User Profile Section (Feature 9) */}
-                <div className="mb-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="md:col-span-1 flex flex-col items-center">
-                        <div className="relative group cursor-pointer">
-                            <div className="w-32 h-32 rounded-3xl bg-zinc-800 border-2 border-border flex items-center justify-center overflow-hidden transition-all group-hover:border-accent">
+                <div className="mb-16 grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
+                    <div className="lg:col-span-1 flex flex-col items-center">
+                        <div className="relative group perspective-1000">
+                            <div className="w-32 h-32 md:w-44 md:h-44 rounded-[2.5rem] bg-zinc-900 border-2 border-white/5 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover:border-accent/50 group-hover:shadow-[0_20px_50px_-15px_rgba(99,102,241,0.3)] shadow-premium rotate-3 group-hover:rotate-0">
                                 {currentUser.photoURL ? (
                                     <img src={currentUser.photoURL} alt="Avatar" className="w-full h-full object-cover" />
                                 ) : (
-                                    <User className="w-12 h-12 text-zinc-600" />
+                                    <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+                                       <User className="w-16 h-16 text-zinc-700" />
+                                    </div>
                                 )}
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                    <Camera className="w-6 h-6 text-white" />
+                                <div className="absolute inset-0 bg-accent/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm">
+                                    <Camera className="w-8 h-8 text-white animate-bounce" />
                                 </div>
                             </div>
                         </div>
-                        <h2 className="mt-4 text-xl font-bold text-white tracking-tight">{username || 'Anonymous User'}</h2>
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">{currentUser.email}</span>
+                        <div className="mt-8 text-center">
+                          <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">{username || 'Anonymous Learner'}</h2>
+                          <div className="flex items-center justify-center gap-2 mt-2">
+                             <div className="w-2 h-2 rounded-full bg-positive-accent animate-pulse" />
+                             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">{currentUser.email}</span>
+                          </div>
+                        </div>
                     </div>
 
-                    <div className="md:col-span-2 space-y-4 bg-surface/20 border border-border p-6 rounded-3xl">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest pl-1">Username</label>
+                    <div className="lg:col-span-2 space-y-6 bg-white/[0.02] border border-white/5 p-8 md:p-10 rounded-[3rem] backdrop-blur-xl shadow-premium relative overflow-hidden">
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-accent/10 blur-[80px] rounded-full" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest pl-1">Personal Identifier</label>
                                 <input
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     placeholder="Enter username"
-                                    className="w-full bg-zinc-900/50 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent/50 transition-all font-medium"
+                                    className="w-full bg-black/40 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-accent/50 focus:bg-black/60 transition-all font-medium shadow-inner"
                                 />
                             </div>
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest pl-1">Country</label>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest pl-1">Home Base</label>
                                 <div className="relative">
-                                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                                    <Globe className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                                     <input
                                         type="text"
                                         value={country}
                                         onChange={(e) => setCountry(e.target.value)}
                                         placeholder="United States"
-                                        className="w-full bg-zinc-900/50 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent/50 transition-all font-medium"
+                                        className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-sm text-white focus:outline-none focus:border-accent/50 focus:bg-black/60 transition-all font-medium shadow-inner"
                                     />
                                 </div>
                             </div>
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest pl-1">Bio</label>
+                        <div className="space-y-2 relative z-10">
+                            <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest pl-1">Mini Bio</label>
                             <textarea
                                 value={bio}
                                 onChange={(e) => setBio(e.target.value)}
                                 placeholder="Tell friends about yourself..."
                                 rows={2}
-                                className="w-full bg-zinc-900/50 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent/50 transition-all font-medium resize-none"
+                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-accent/50 focus:bg-black/60 transition-all font-medium resize-none shadow-inner"
                             />
                         </div>
                         <button
                             onClick={handleSaveProfile}
                             disabled={isSaving}
-                            className="w-full py-2.5 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-accent/20"
+                            className="w-full py-5 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-glow-accent group relative z-10 overflow-hidden"
                         >
-                            {isSaving ? 'Saving...' : 'Update Profile'}
+                            <span className="relative z-10">{isSaving ? 'Synchronizing...' : 'Save Profile Changes'}</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-accent to-accent-hover opacity-0 group-hover:opacity-100 transition-opacity" />
                         </button>
                     </div>
                 </div>
@@ -207,111 +217,110 @@ export default function FriendsPage() {
                 <hr className="border-border/50 mb-10" />
 
                 {/* Invite Section (Feature 10) */}
-                <div className="mb-10 bg-gradient-to-br from-accent/10 to-transparent border border-accent/20 rounded-3xl p-8 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8 opacity-5">
-                        <Share2 className="w-32 h-32 text-accent" />
-                    </div>
-                    <div className="relative z-10 max-w-lg">
-                        <h2 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Invite to Private Chat</h2>
-                        <p className="text-zinc-400 text-sm mb-6 font-medium">Want to talk to a specific friend? Generate a private link and share it with them. You'll bypass matchmaking and connect directly.</p>
+                <div className="mb-16 bg-gradient-to-br from-accent/20 to-zinc-900/50 border border-accent/20 rounded-[3rem] p-10 md:p-12 relative overflow-hidden group shadow-premium-xl animate-in slide-in-from-bottom-12 duration-1000">
+                    <div className="absolute -top-12 -right-12 w-64 h-64 bg-accent/20 blur-[100px] rounded-full group-hover:bg-accent/30 transition-all duration-700" />
+                    <div className="relative z-10 max-w-2xl">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest mb-6">
+                           <Share2 className="w-3.5 h-3.5" /> Instant Direct Link
+                        </div>
+                        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-4">Invite to <span className="text-accent underline decoration-accent/20 decoration-8 underline-offset-4">Private Chat</span></h2>
+                        <p className="text-zinc-400 text-lg mb-8 font-medium max-w-xl leading-relaxed">Want to talk to a specific friend? Generate a private link and share it with them. You'll bypass matchmaking and connect directly in a secure room.</p>
 
                         {!inviteLink ? (
                             <button
                                 onClick={generateInviteLink}
-                                className="flex items-center space-x-2 bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-xl font-bold transition-all shadow-xl shadow-accent/30"
+                                className="flex items-center space-x-3 bg-accent hover:bg-accent-hover text-white px-8 py-5 rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-glow-accent hover:scale-105 active:scale-95"
                             >
                                 <UserPlus className="w-5 h-5" />
-                                <span>Generate Private Link</span>
+                                <span>Generate Private Key</span>
                             </button>
                         ) : (
-                            <div className="flex items-center space-x-2 bg-zinc-950/50 border border-white/10 p-1.5 rounded-2xl">
-                                <code className="flex-1 px-4 text-xs font-mono text-zinc-300 truncate">
+                            <div className="flex flex-col sm:flex-row items-center gap-3 bg-black/50 border border-white/10 p-2 rounded-[2rem] backdrop-blur-3xl">
+                                <code className="flex-1 px-6 py-3 text-xs md:text-sm font-mono text-accent truncate max-w-md">
                                     {inviteLink}
                                 </code>
                                 <button
                                     onClick={copyToClipboard}
-                                    className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${copied ? 'bg-green-500 text-white' : 'bg-white text-black hover:bg-zinc-200'}`}
+                                    className={`w-full sm:w-auto flex items-center justify-center space-x-3 px-8 py-4 rounded-[1.4rem] text-[11px] font-black uppercase tracking-widest transition-all ${copied ? 'bg-positive-accent text-white' : 'bg-white text-black hover:bg-zinc-200'}`}
                                 >
                                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                    <span>{copied ? 'Copied' : 'Copy'}</span>
+                                    <span>{copied ? 'Copied to Clipboard' : 'Copy Link'}</span>
                                 </button>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div className="mb-8 flex justify-between items-center">
-                    <div className="flex items-center space-x-2">
-                        <Users className="w-5 h-5 text-accent" />
-                        <span className="text-sm font-bold text-zinc-100 uppercase tracking-[0.3em]">
-                            Friends List <span className="text-zinc-500 ml-2">({friends.length})</span>
-                        </span>
+                <div className="mb-8 flex justify-between items-end">
+                    <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center">
+                            <Users className="w-4 h-4 text-accent" />
+                          </div>
+                          <h3 className="text-xl font-black text-white uppercase tracking-tighter">Your Circle</h3>
+                        </div>
+                        <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] pl-1">{friends.length} Network Connections</p>
                     </div>
                 </div>
 
                 {friends.length === 0 ? (
-                    <div className="bg-surface/30 border border-border border-dashed rounded-3xl p-12 text-center">
-                        <div className="w-16 h-16 bg-zinc-900 border border-border rounded-full flex items-center justify-center mx-auto mb-4">
-                            <UserPlus className="w-8 h-8 text-zinc-600" />
+                    <div className="bg-white/[0.01] border-2 border-dashed border-white/5 rounded-[3rem] p-16 text-center group hover:bg-white/[0.02] hover:border-accent/20 transition-all">
+                        <div className="w-20 h-20 bg-zinc-900 border border-white/5 rounded-[1.8rem] flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform shadow-premium">
+                            <UserPlus className="w-8 h-8 text-zinc-600 group-hover:text-accent transition-colors" />
                         </div>
-                        <h3 className="text-white font-bold mb-1">No friends yet</h3>
-                        <p className="text-zinc-500 text-sm mb-6">Start a chat and use the "Add Friend" button to fill this list.</p>
+                        <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Your library is empty</h3>
+                        <p className="text-zinc-500 text-sm font-medium mb-10 max-w-xs mx-auto leading-relaxed">Start exploring live rooms and use the heart button to add people to your network.</p>
                         <button
                             onClick={() => router.push('/')}
-                            className="bg-accent/10 border border-accent/20 text-accent px-6 py-2 rounded-xl text-sm font-bold hover:bg-accent/20 transition-all"
+                            className="bg-accent/10 border border-accent/20 text-accent px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-accent hover:text-white transition-all shadow-glow-accent/20"
                         >
-                            Find Someone to Talk To
+                            Find Someone Now
                         </button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-20">
                         {friends.map((friend) => (
                             <div
                                 key={friend.id}
-                                className="bg-surface/50 border border-border p-4 rounded-2xl hover:border-accent/30 transition-all group"
+                                className="bg-[#121214] border-2 border-white/5 p-6 rounded-[2.5rem] hover:border-accent/30 hover:bg-[#161618] transition-all group relative overflow-hidden"
                             >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-3">
+                                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-accent/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="flex items-center justify-between relative z-10">
+                                    <div className="flex items-center space-x-4">
                                         <div className="relative">
-                                            <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center border border-border">
-                                                <span className="text-lg font-black text-zinc-500">
+                                            <div className="w-14 h-14 md:w-16 md:h-16 rounded-[1.4rem] bg-zinc-800 flex items-center justify-center border-2 border-white/5 overflow-hidden group-hover:border-accent/30 transition-all">
+                                                <span className="text-2xl font-black text-zinc-600 group-hover:text-accent">
                                                     {friend.username.charAt(0)}
                                                 </span>
                                             </div>
-                                            <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-surface ${friend.status === 'online' ? 'bg-green-500' : 'bg-zinc-600'}`} />
+                                            <div className={`absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full border-[3px] border-[#121214] ${friend.status === 'online' ? 'bg-positive-accent shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-zinc-600'}`} />
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="font-bold text-white group-hover:text-accent transition-colors">
+                                            <span className="text-lg font-black text-white group-hover:text-accent transition-colors tracking-tight">
                                                 {friend.username}
                                             </span>
-                                            <span className="text-xs text-zinc-500 flex items-center">
+                                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center">
                                                 {friend.status === 'online' ? (
-                                                    <span className="text-green-500 font-medium">Online now</span>
+                                                    <span className="text-positive-accent">Ready to chat</span>
                                                 ) : (
                                                     <>
-                                                        <Clock className="w-3 h-3 mr-1" />
-                                                        Last seen {friend.lastSeen ? new Date(friend.lastSeen.seconds * 1000).toLocaleDateString() : 'a long time ago'}
+                                                        <Clock className="w-3 h-3 mr-1.5 opacity-50" />
+                                                        Active {friend.lastSeen ? new Date(friend.lastSeen.seconds * 1000).toLocaleDateString() : 'recently'}
                                                     </>
                                                 )}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex items-center space-x-2">
                                         <button
-                                            title="Voice Call"
-                                            className="p-2.5 bg-accent/10 text-accent hover:bg-accent hover:text-white rounded-xl transition-all"
+                                            title="Quick Connect"
+                                            className="p-3 bg-white/5 text-zinc-500 hover:bg-accent hover:text-white rounded-2xl transition-all active:scale-90"
                                         >
-                                            <Phone className="w-4 h-4" />
+                                            <MessageSquare className="w-5 h-5" />
                                         </button>
-                                        <button
-                                            title="Text Chat"
-                                            className="p-2.5 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white rounded-xl transition-all"
-                                        >
-                                            <MessageSquare className="w-4 h-4" />
-                                        </button>
-                                        <button className="p-2.5 text-zinc-500 hover:text-white transition-colors">
-                                            <MoreVertical className="w-4 h-4" />
+                                        <button className="p-3 text-zinc-700 hover:text-white transition-colors">
+                                            <MoreVertical className="w-5 h-5" />
                                         </button>
                                     </div>
                                 </div>

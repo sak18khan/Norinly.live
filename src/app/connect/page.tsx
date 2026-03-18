@@ -2,237 +2,191 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Mic2, Users, ArrowLeft, Shield, Sparkles, Globe, Laptop, MessageSquare } from 'lucide-react';
 import { useChatContext } from '@/context/ChatContext';
-import AIPracticeSetup from '@/components/AIPracticeSetup';
-
-const INTERESTS = ['Music', 'Gaming', 'Travel', 'Startups', 'Language Practice', 'Movies', 'Sports', 'Art'];
-const COUNTRIES = [
-    'United States', 'United Kingdom', 'Canada', 'Australia',
-    'India', 'Germany', 'France', 'Japan', 'Brazil', 'South Korea', 'Other'
-];
 
 function ConnectContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const mode = searchParams.get('mode') === 'debate' ? 'debate' : 'normal';
+    const mode = searchParams.get('mode');
+    const source = searchParams.get('source');
 
-    const { status, requestMicrophoneAndJoin, errorDetail } = useChatContext();
+    const { status, requestMicrophoneAndJoin, errorDetail, roleplayData, partnerId } = useChatContext();
 
-    const [practiceType, setPracticeType] = useState<'ai' | 'people' | null>(null);
     const [isPreferencesOpen, setIsPreferencesOpen] = useState(true);
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
     const [selectedCountry, setSelectedCountry] = useState<string>('');
+    const [loadingMessage, setLoadingMessage] = useState('Finding someone to talk to...');
+
+    useEffect(() => {
+        const scenario = searchParams.get('scenario');
+        if (mode === 'roleplay' && scenario && isPreferencesOpen) {
+            setIsPreferencesOpen(false);
+            handleStartSearch('casual', scenario); // We pass scenario as second arg if we update requestMicrophoneAndJoin
+        }
+    }, [mode, searchParams]);
+
+    useEffect(() => {
+        if (status === 'searching') {
+            const messages = [
+                'Finding a great partner for you...',
+                'Connecting to the global community...',
+                'Setting up your practice session...',
+                'Almost there...',
+                'Joining the conversation...'
+            ];
+            let i = 0;
+            const interval = setInterval(() => {
+                i = (i + 1) % messages.length;
+                setLoadingMessage(messages[i]);
+            }, 3000);
+            return () => clearInterval(interval);
+        }
+    }, [status]);
 
     useEffect(() => {
         if (status === 'connected') {
-            router.push('/chat');
-        }
-    }, [status, router]);
-
-    const toggleInterest = (interest: string) => {
-        if (selectedInterests.includes(interest)) {
-            setSelectedInterests(prev => prev.filter(i => i !== interest));
-        } else {
-            if (selectedInterests.length < 3) {
-                setSelectedInterests(prev => [...prev, interest]);
+            if (roleplayData && roleplayData.scenario) {
+                router.push(`/roleplay/${partnerId}`);
+            } else {
+                router.push('/chat');
             }
         }
-    };
+    }, [status, router, roleplayData, partnerId]);
 
-    const handleStartSearch = async (selectedMode: string = 'casual') => {
+    // Debate Mode Route Guard and Direct Entry
+    useEffect(() => {
+        if (mode === 'debate') {
+            if (source === 'homepage') {
+                // Direct entry from homepage: skip selection and start search
+                setIsPreferencesOpen(false);
+                handleStartSearch('debate');
+            } else {
+                // Attempted access from elsewhere: reset to normal mode
+                router.replace('/connect');
+            }
+        }
+    }, [mode, source]);
+
+    const handleStartSearch = async (selectedMode: 'casual' | 'debate' | 'interview' | 'pronunciation' = 'casual', scenario?: string) => {
         setIsPreferencesOpen(false);
-        await requestMicrophoneAndJoin(selectedInterests, selectedCountry, selectedMode as any);
+        // Updated requestMicrophoneAndJoin to accept interests, country, mode, scenario
+        // Wait, let's check the actual signature again.
+        await requestMicrophoneAndJoin(selectedInterests, selectedCountry, selectedMode, scenario);
     };
 
-    if (status === 'idle' && isPreferencesOpen && !practiceType) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
-                {/* Logo in Header */}
-                <header className="absolute top-0 left-0 w-full p-6 z-20">
-                    <div
-                        className="text-2xl font-bold tracking-tight cursor-pointer select-none text-foreground inline-block"
-                        onClick={() => router.push('/')}
-                    >
-                        Norinly<span className="text-accent">.</span>
-                    </div>
-                </header>
 
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/10 via-background to-background -z-10" />
-
-                <div className="bg-white border border-border rounded-[2.5rem] w-full max-w-xl p-10 md:p-12 shadow-2xl relative animate-in zoom-in-95 duration-300">
-                    <h2 className="text-4xl font-bold text-foreground mb-4 text-center tracking-tight">Choose Your Practice Mode</h2>
-                    <p className="text-secondary text-lg mb-12 text-center">
-                        Select how you want to learn English today.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                        <button
-                            onClick={() => setPracticeType('ai')}
-                            className={`flex flex-col items-center gap-6 p-8 rounded-3xl border transition-all group relative ${
-                                practiceType === 'ai'
-                                    ? 'bg-[#F0F9FF] border-[#0EA5E9] border-2 shadow-sm'
-                                    : 'bg-white border-border hover:border-accent hover:shadow-md'
-                            }`}
-                        >
-                            <div className="text-5xl p-5 bg-[#F8FAFC] rounded-2xl group-hover:scale-110 transition-transform shadow-sm">
-                                🤖
-                            </div>
-                            <div className="text-center">
-                                <h3 className="text-foreground font-bold text-xl mb-2">Practice With AI</h3>
-                                <p className="text-secondary text-sm font-medium leading-relaxed">Talk to an AI partner to build confidence</p>
-                            </div>
-                        </button>
-
-                        <button
-                            onClick={() => setPracticeType('people')}
-                            className={`flex flex-col items-center gap-6 p-8 rounded-3xl border transition-all group relative ${
-                                practiceType === 'people'
-                                    ? 'bg-[#F0F9FF] border-[#0EA5E9] border-2 shadow-sm'
-                                    : 'bg-white border-border hover:border-accent hover:shadow-md'
-                            }`}
-                        >
-                            <div className="text-5xl p-5 bg-[#F8FAFC] rounded-2xl group-hover:scale-110 transition-transform shadow-sm">
-                                🌍
-                            </div>
-                            <div className="text-center">
-                                <h3 className="text-foreground font-bold text-xl mb-2">Practice With People</h3>
-                                <p className="text-secondary text-sm font-medium leading-relaxed">Real conversations with English learners</p>
-                            </div>
-                        </button>
-                    </div>
-
-                    <button
-                        onClick={() => router.push('/')}
-                        className="w-full py-2 text-muted hover:text-secondary text-sm font-bold transition-colors"
-                    >
-                        Cancel and return home
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    // AI Practice Setup Screen
-    if (practiceType === 'ai' && isPreferencesOpen) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
-                {/* Logo in Header */}
-                <header className="absolute top-0 left-0 w-full p-6 z-20">
-                    <div
-                        className="text-2xl font-bold tracking-tight cursor-pointer select-none text-foreground inline-block"
-                        onClick={() => {
-                            setPracticeType(null);
-                        }}
-                    >
-                        <span className="mr-2 text-accent">←</span> Norinly<span className="text-accent">.</span>
-                    </div>
-                </header>
-
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/10 via-background to-background -z-10" />
-
-                <AIPracticeSetup onCancel={() => setPracticeType(null)} />
-            </div>
-        );
-    }
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
-            {/* Logo in Header */}
-            <header className="absolute top-0 left-0 w-full p-6 z-20">
-                <div
-                    className="text-2xl font-bold tracking-tight cursor-pointer select-none text-foreground inline-block"
-                    onClick={() => {
-                        if (practiceType) {
-                            setPracticeType(null);
-                        } else {
-                            router.push('/');
-                        }
-                    }}
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 relative overflow-hidden bg-mesh">
+            <header className="absolute top-0 left-0 w-full p-8 z-20">
+                <button
+                    onClick={() => router.push('/')}
+                    className="flex items-center space-x-3 group px-5 py-3 rounded-2xl bg-white/50 backdrop-blur-md border border-border hover:bg-white hover:border-accent/30 transition-all shadow-sm"
                 >
-                    {practiceType && <span className="mr-2 text-accent">←</span>}
-                    Norinly<span className="text-accent">.</span>
-                </div>
+                    <ArrowLeft className="w-5 h-5 text-accent group-hover:-translate-x-1 transition-transform" />
+                    <span className="font-black text-foreground text-sm uppercase tracking-widest">Back</span>
+                </button>
             </header>
 
-            {/* Background Glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-accent/10 via-background to-background -z-10" />
-
             {isPreferencesOpen ? (
-                <div className="bg-white border border-border rounded-[2.5rem] w-full max-w-xl p-10 md:p-12 shadow-2xl relative animate-in zoom-in-95 duration-300">
-                    <h2 className="text-4xl font-bold text-foreground mb-3 tracking-tight">Configure Practice</h2>
-                    <p className="text-secondary text-lg mb-10 font-medium">
-                        Select a conversation goal to match with the right partner.
-                    </p>
+                <div className="w-full max-w-2xl bg-white border border-border rounded-[3.5rem] p-10 md:p-14 shadow-premium relative animate-fade-in-up">
+                    <div className="space-y-4 mb-10">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/5 border border-accent/10 text-accent text-xs font-black uppercase tracking-wider">
+                            <Sparkles className="w-4 h-4" /> Smart Matching
+                        </div>
+                        <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tight leading-tight uppercase italic">Find Your <br /><span className="text-accent underline decoration-accent/10 underline-offset-4 not-italic">Practice Partner.</span></h2>
+                        <p className="text-zinc-600 text-lg font-bold leading-relaxed uppercase tracking-tight">
+                            Our smart algorithm pairs you with the best speaker for your goals.
+                        </p>
+                    </div>
 
-                    <div className="grid grid-cols-1 gap-4 mb-10">
+                    <div className="grid grid-cols-1 gap-4 mb-12">
                         {[
-                            { id: 'casual', title: 'Casual Conversation', desc: 'Talk freely and improve speaking confidence', icon: '🗣️' },
-                            { id: 'interview', title: 'Job Interview Practice', desc: 'Practice answering common interview questions', icon: '💼' },
-                            { id: 'debate', title: 'Debate Mode', desc: 'Discuss topics and express your opinions', icon: '🔥' },
-                            { id: 'business', title: 'Business English', desc: 'Professional conversations and terminology', icon: '👔' },
-                            { id: 'pronunciation', title: 'Pronunciation Practice', desc: 'Focus on speaking clearly and accurately', icon: '🎯' },
-                        ].map((modeOption) => (
+                            { id: 'casual', title: 'Casual Chat', desc: 'Relaxed conversation on any topic', icon: <MessageSquare className="w-6 h-6" />, color: 'text-accent', locked: false },
+                            { id: 'interview', title: 'Interview Prep', desc: 'Mock interviews & professional skill', icon: <Laptop className="w-6 h-6" />, color: 'text-secondary-accent', locked: true },
+                            { id: 'pronunciation', title: 'Pronunciation', desc: 'Focus on accent & sounding natural', icon: <Shield className="w-6 h-6" />, color: 'text-positive-accent', locked: true },
+                        ].map((option) => (
                             <button
-                                key={modeOption.id}
-                                onClick={() => {
-                                    handleStartSearch(modeOption.id);
-                                }}
-                                className="flex items-center gap-5 p-5 rounded-2xl bg-white border border-border hover:border-accent hover:shadow-md transition-all text-left group"
+                                key={option.id}
+                                onClick={() => !option.locked && handleStartSearch(option.id as 'casual' | 'debate' | 'interview' | 'pronunciation')}
+                                className={`flex items-center gap-6 p-6 rounded-3xl bg-surface border border-transparent transition-all text-left group relative overflow-hidden ${option.locked ? 'opacity-70 grayscale-[0.5] cursor-not-allowed' : 'hover:border-accent/30 hover:bg-white hover:shadow-premium'}`}
                             >
-                                <div className="text-4xl p-4 bg-[#F8FAFC] rounded-2xl group-hover:scale-110 transition-transform shadow-sm">
-                                    {modeOption.icon}
+                                <div className={`w-14 h-14 rounded-2xl bg-white border border-border flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm ${option.color}`}>
+                                    {option.icon}
                                 </div>
-                                <div>
-                                    <h3 className="text-foreground font-bold text-lg mb-1">{modeOption.title}</h3>
-                                    <p className="text-secondary text-sm font-medium">{modeOption.desc}</p>
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-black text-foreground group-hover:text-accent transition-colors flex items-center gap-2">
+                                        {option.title}
+                                    </h3>
+                                    <p className="text-sm font-medium text-secondary">{option.desc}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {option.locked ? (
+                                        <div className="flex flex-col items-end gap-1">
+                                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                                <X className="w-4 h-4" />
+                                            </div>
+                                            <span className="text-[8px] font-black text-accent uppercase tracking-widest whitespace-nowrap">Upgrade to unlock</span>
+                                        </div>
+                                    ) : (
+                                        <div className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-accent">
+                                            <ArrowLeft className="w-5 h-5 rotate-180" />
+                                        </div>
+                                    )}
                                 </div>
                             </button>
                         ))}
                     </div>
 
-                    <button
-                        onClick={() => setPracticeType(null)}
-                        className="w-full py-2 text-muted hover:text-secondary text-sm font-bold transition-colors"
-                    >
-                        Back to mode selection
-                    </button>
+                    <div className="flex items-center justify-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-t border-border pt-8">
+                        <Shield className="w-3 h-3 text-positive-accent" /> Secure & Anonymous Voice Matching
+                    </div>
                 </div>
             ) : (
-                <div className="flex flex-col items-center space-y-8 animate-in fade-in duration-500">
+                <div className="flex flex-col items-center space-y-12 animate-fade-in-up">
                     <div className="relative">
-                        <div className="absolute inset-0 rounded-full blur-3xl bg-accent/40 animate-pulse" />
-                        <div className="relative bg-surface p-8 rounded-full border border-border shadow-2xl">
-                            <Loader2 className="w-20 h-20 text-accent animate-spin" />
+                        <div className="absolute inset-0 rounded-full blur-[100px] bg-accent/30 animate-pulse-glow" />
+                        <div className="relative w-56 h-56 bg-white rounded-full border border-border shadow-premium flex items-center justify-center overflow-hidden animate-pulse-subtle">
+                            <div className="absolute inset-4 border-2 border-dashed border-accent/20 rounded-full animate-spin [animation-duration:15s]" />
+                            <div className="absolute inset-8 border border-accent/10 rounded-full animate-spin [animation-duration:8s] reverse" />
+                            <div className="flex items-end gap-1.5 h-12 relative z-10">
+                                {[0, 1, 2, 3, 4, 3, 2, 1, 0].map((h, i) => (
+                                    <div
+                                        key={i}
+                                        className="w-2 bg-accent rounded-full animate-speaking-bar"
+                                        style={{ height: '100%', animationDelay: `${i * 0.1}s`, animationDuration: '0.8s' }}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
 
-                    <div className="text-center space-y-4">
-                        <h1 className="text-4xl font-bold text-foreground tracking-tight">
-                            {status === 'initializing' && 'Preparing Practice...'}
-                            {status === 'requesting_mic' && 'Waiting for Microphone...'}
-                            {status === 'searching' && 'Finding a speaking partner...'}
-                            {status === 'connected' && 'Partner found!'}
-                            {status === 'error' && 'Connection Error'}
-                            {status === 'idle' && 'Ready to start'}
+                    <div className="text-center space-y-6 max-w-sm">
+                        <h1 className="text-4xl font-black text-foreground tracking-tight leading-tight min-h-[4rem]">
+                            {status === 'initializing' && 'Preparing session...'}
+                            {status === 'requesting_mic' && 'Permission Required'}
+                            {status === 'searching' && loadingMessage}
+                            {status === 'connected' && 'Partner Found!'}
+                            {status === 'error' && 'Connection error'}
+                            {status === 'idle' && 'Ready to go'}
                         </h1>
-                        <p className="text-secondary font-medium max-w-sm mx-auto text-lg">
-                            {!window.isSecureContext && (
-                                <span className="text-red-500 block mb-3 font-bold">
-                                    ⚠️ Insecure Context: WebRTC requires HTTPS to access the microphone.
-                                </span>
-                            )}
-                            {status === 'requesting_mic' && 'Please click "Allow" when prompted by your browser to enable voice chat.'}
-                            {status === 'searching' && 'Matching you with an English learner from around the world.'}
-                            {status === 'error' && (errorDetail || 'Make sure your microphone is enabled and try again.')}
-                            {status === 'initializing' && 'Preparing secure connection...'}
-                        </p>
+                        <div className="min-h-[3rem] px-4">
+                            <p className="text-secondary font-medium text-lg leading-relaxed">
+                                {!window.isSecureContext && (
+                                    <span className="text-red-500 font-black block mb-2">HTTPS required for Mic access</span>
+                                )}
+                                {status === 'requesting_mic' && 'Please allow microphone access to join the voice practice.'}
+                                {status === 'searching' && loadingMessage}
+                                {status === 'error' && (errorDetail || 'Could not connect. Please check your mic.')}
+                            </p>
+                        </div>
                     </div>
 
                     {(status === 'error' || status === 'disconnected') && (
                         <button
                             onClick={() => setIsPreferencesOpen(true)}
-                            className="px-8 py-3 bg-accent hover:bg-accent-hover text-white font-bold rounded-full shadow-sm transition-all hover:scale-105 active:scale-95 mt-4"
+                            className="px-10 py-4 bg-accent text-white font-black rounded-2xl shadow-glow hover:bg-accent-hover transition-all hover:scale-105 active:scale-95"
                         >
                             Try Again
                         </button>
@@ -254,3 +208,4 @@ export default function ConnectPage() {
         </Suspense>
     );
 }
+
