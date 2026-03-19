@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
+import socket from '@/lib/socket';
 import { auth, db as fdb } from '@/lib/firebase';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { doc, onSnapshot, updateDoc, increment, arrayUnion, addDoc, collection, query, where, getDocs, getDoc, setDoc } from 'firebase/firestore';
@@ -120,15 +121,7 @@ const ICE_SERVERS: RTCConfiguration = {
     iceCandidatePoolSize: 10,
 };
 
-const getSocketUrl = () => {
-    if (process.env.NEXT_PUBLIC_SOCKET_URL) {
-        return process.env.NEXT_PUBLIC_SOCKET_URL;
-    }
-    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        return 'https://norinly-backend.run.app';
-    }
-    return 'http://localhost:5000';
-};
+// Removed getSocketUrl - using centralized socket from @/lib/socket
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [status, setStatus] = useState<ConnectionStatus>('idle');
@@ -202,7 +195,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const analysisFrameRef = useRef<number | null>(null);
     const animationFrameRef = useRef<number | null>(null);
 
-    const socketRef = useRef<Socket | null>(null);
+    const socketRef = useRef<Socket | null>(socket);
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
     const negotiationInProgressRef = useRef(false);
     const answerCreatedRef = useRef(false);
@@ -221,32 +214,20 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         if (status === 'idle') {
             // Versioning for deployment verification
-            console.log('[Norinly-App] Version: 1.0.7-UI-MOBILE-FIX');
+            console.log('[Norinly-App] Version: 1.0.8-SOCKET-FIX');
 
-            const socketUrl = getSocketUrl();
-            console.log('[Home Socket] Initializing with URL:', socketUrl);
+            if (!socket.connected) {
+                socket.connect();
+            }
 
-            const socket = io(socketUrl, {
-                transports: ['websocket', 'polling'],
-                withCredentials: true,
-                reconnection: true,
-                reconnectionAttempts: 5,
-                reconnectionDelay: 1000
-            });
-            socket.on('live_users_count', (count: number) => {
+            const handleLiveUsers = (count: number) => {
                 setLiveUsers(count);
-            });
-            socket.on('connect', () => {
-                console.log('[Home Socket] Connected:', socket.id);
-            });
-            socket.on('connect_error', (err) => {
-                console.error('Socket connection failed:', err.message);
-                setTimeout(() => {
-                    socket.connect();
-                }, 3000);
-            });
+            };
+
+            socket.on('live_users_count', handleLiveUsers);
+            
             return () => {
-                socket.disconnect();
+                socket.off('live_users_count', handleLiveUsers);
             };
         }
     }, [status]);
@@ -971,20 +952,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setStatus('searching');
         listenersSetUpRef.current = false;
 
-        const socketUrl = getSocketUrl();
-        console.log('[Chat Socket] Initializing with URL:', socketUrl);
-
-        if (socketRef.current) {
-            socketRef.current.disconnect();
+        if (socket.connected) {
+            socket.disconnect();
         }
 
-        socketRef.current = io(socketUrl, {
-            transports: ['websocket', 'polling'],
-            withCredentials: true,
-            reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000
-        });
+        socket.connect();
+        socketRef.current = socket;
 
         socketRef.current.on('connect', () => {
             console.log('[Chat Socket] Connected:', socketRef.current?.id);
@@ -1015,30 +988,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setStatus('searching');
             listenersSetUpRef.current = false;
 
-            const getSocketUrl = () => {
-                if (process.env.NEXT_PUBLIC_SOCKET_URL) {
-                    return process.env.NEXT_PUBLIC_SOCKET_URL;
-                }
-                if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                    return window.location.origin;
-                }
-                return 'http://localhost:5000';
-            };
+            // Removed redundant getSocketUrl in private room
 
-            const socketUrl = getSocketUrl();
-            console.log('[Private Socket] Initializing with URL:', socketUrl);
-
-            if (socketRef.current) {
-                socketRef.current.disconnect();
+            if (socket.connected) {
+                socket.disconnect();
             }
 
-            socketRef.current = io(socketUrl, {
-                transports: ['websocket', 'polling'],
-                withCredentials: true,
-                reconnection: true,
-                reconnectionAttempts: 5,
-                reconnectionDelay: 1000
-            });
+            socket.connect();
+            socketRef.current = socket;
 
             socketRef.current.on('connect', () => {
                 console.log('[Private Socket] Connected:', socketRef.current?.id);

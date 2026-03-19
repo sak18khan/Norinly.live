@@ -31,7 +31,8 @@ import {
   Loader2,
   ArrowUp
 } from 'lucide-react';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
+import socket from '@/lib/socket';
 import toast from 'react-hot-toast';
 import { generateRandomName } from '@/lib/identity-utils';
 import { updateTaskProgress } from '@/lib/gamification';
@@ -103,11 +104,9 @@ export default function SpeakRooms() {
 
   useEffect(() => {
     // Socket Initialization
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
-    const socket = io(socketUrl, {
-      transports: ['websocket'],
-      withCredentials: true
-    });
+    if (!socket.connected) {
+      socket.connect();
+    }
     socketRef.current = socket;
 
     socket.on('sr_room_update', (data) => {
