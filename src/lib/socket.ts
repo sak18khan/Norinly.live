@@ -9,14 +9,13 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://norinlylive-pr
  * Forced to use 'websocket' transport to avoid common issues with Vercel and Railway.
  */
 export const socket: Socket = io(SOCKET_URL, {
-  path: "/socket.io", // Explicitly set path without trailing slash to avoid Railway 308 redirects
-  transports: ["websocket"], // Force websocket to bypass polling/CORS issues on Railway
-  secure: true,
+  transports: ["polling", "websocket"], // Allow polling fallback for maximum compatibility
+  secure: SOCKET_URL.startsWith('https'),
   autoConnect: false,
   reconnection: true,
   reconnectionAttempts: 10,
   reconnectionDelay: 1000,
-  withCredentials: false, 
+  withCredentials: SOCKET_URL.includes("localhost"), // Only use credentials locally to allow wildcard origin in prod
 });
 
 // Production Debugging and Monitoring

@@ -13,9 +13,9 @@ const app = express();
 const server = http.createServer(app);
 
 const corsOptions = {
-  origin: "*", // Use wildcard since we are disabling credentials
+  origin: ["http://localhost:3000", "https://norinly.live"],
   methods: ["GET", "POST"],
-  credentials: false
+  credentials: true
 };
 
 app.use(express.json());
@@ -29,13 +29,8 @@ app.get('/', (req, res) => {
 });
 
 const io = new Server(server, {
-  path: "/socket.io", // Explicitly match frontend path without trailing slash
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    credentials: false
-  },
-  transports: ['websocket'], // Force websocket on backend too
+  cors: corsOptions,
+  transports: ['polling', 'websocket'],
   pingInterval: 25000,
   pingTimeout: 30000 
 });
