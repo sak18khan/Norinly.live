@@ -36,7 +36,18 @@ const io = new Server(server, {
   cors: corsOptions,
   transports: ['polling', 'websocket'],
   pingInterval: 25000,
-  pingTimeout: 30000 
+  pingTimeout: 60000 
+});
+
+// Diagnostic logging for connections
+io.on('connection', (socket) => {
+  const origin = socket.handshake.headers.origin || 'unknown';
+  const transport = socket.conn.transport.name;
+  console.log(`[Socket] New connection: ${socket.id} | Origin: ${origin} | Transport: ${transport}`);
+  
+  socket.on('disconnect', (reason) => {
+    console.log(`[Socket] Disconnected: ${socket.id} | Reason: ${reason}`);
+  });
 });
 
 setupSocketHandlers(io);
