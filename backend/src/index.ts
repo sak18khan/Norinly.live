@@ -13,14 +13,13 @@ const app = express();
 const server = http.createServer(app);
 
 const corsOptions = {
-  origin: true, // Echoes back the request origin - required for credentials: true
+  origin: "*", // Use wildcard since we are disabling credentials
   methods: ["GET", "POST"],
-  credentials: true
+  credentials: false
 };
 
-app.use(cors(corsOptions));
 app.use(express.json());
-app.use(rateLimiter);
+// app.use(rateLimiter); // Temporarily disabled to rule out socket connection interference
 
 // Routes
 app.use('/health', healthRoutes);
@@ -32,16 +31,13 @@ app.get('/', (req, res) => {
 // Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: (origin, callback) => {
-      // Allow all origins in production for testing
-      callback(null, true);
-    },
+    origin: "*",
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: false
   },
   transports: ['polling', 'websocket'],
   pingInterval: 25000,
-  pingTimeout: 20000 // Very relaxed timeout for debugging
+  pingTimeout: 30000 // Even more relaxed
 });
 
 setupSocketHandlers(io);

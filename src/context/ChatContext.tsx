@@ -214,7 +214,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         if (status === 'idle') {
             // Versioning for deployment verification
-            console.log('[Norinly-App] Version: 1.0.10-DEBUG-CORS-FIX');
+            console.log('[Norinly-App] Version: 1.0.11-NO-CREDENTIALS');
 
             if (!socket.connected) {
                 socket.connect();
