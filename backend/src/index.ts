@@ -34,17 +34,16 @@ app.get('/', (req, res) => {
 // Socket.io setup
 const io = new Server(server, {
   cors: corsOptions,
-  transports: ['websocket'], // Force websocket as requested for production reliability
-  allowEIO3: true,
+  transports: ['polling', 'websocket'], // Allow polling for debugging connection issues
   pingInterval: 25000,
-  pingTimeout: 5000
+  pingTimeout: 7500 // Slightly more relaxed timeout for handshake
 });
 
 setupSocketHandlers(io);
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
+server.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`[Server] Norinly backend running on port ${PORT}`);
 });
 

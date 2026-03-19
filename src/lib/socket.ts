@@ -9,7 +9,7 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://norinlylive-pr
  * Forced to use 'websocket' transport to avoid common issues with Vercel and Railway.
  */
 export const socket: Socket = io(SOCKET_URL, {
-  transports: ["websocket"],
+  transports: ["polling", "websocket"], // Allow polling fallback for debugging on Railway
   secure: true,
   autoConnect: false, // Components should manually call .connect() to control lifecycle
   reconnection: true,
