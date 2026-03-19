@@ -1,8 +1,8 @@
 import { io, Socket } from "socket.io-client";
 
 // The single source of truth for the socket configuration
-// NEXT_PUBLIC_SOCKET_URL should be https://norinlylive-production.up.railway.app in production
-const SOCKET_URL = "https://norinlylive-production.up.railway.app";
+// NEXT_PUBLIC_SOCKET_URL should be set in .env files (e.g., http://localhost:5000 for local, production URL for live)
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://norinlylive-production.up.railway.app";
 
 /**
  * Singleton socket instance configured for production deployment.
