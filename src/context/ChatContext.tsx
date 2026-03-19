@@ -443,9 +443,33 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const setupSocketListeners = () => {
         if (!socketRef.current) return;
-        // Guard against duplicate listener attachment
-        if (listenersSetUpRef.current) return;
-        listenersSetUpRef.current = true;
+        
+        // Remove all previous listeners to prevent accumulation and "infinite loops"
+        socketRef.current.off('live_users_count');
+        socketRef.current.off('match_found');
+        socketRef.current.off('chat-message'); // Unified event name
+        socketRef.current.off('typing-start'); // Unified event name
+        socketRef.current.off('typing-stop');  // Unified event name
+        socketRef.current.off('reaction');
+        socketRef.current.off('user-country');
+        socketRef.current.off('partner-country-revealed');
+        socketRef.current.off('identity');
+        socketRef.current.off('webrtc_offer');
+        socketRef.current.off('webrtc_answer');
+        socketRef.current.off('webrtc_ice_candidate');
+        socketRef.current.off('partner_disconnected');
+        socketRef.current.off('partner_left');
+        socketRef.current.off('reconnect_failed');
+        socketRef.current.off('banned');
+        socketRef.current.off('auth_required');
+        socketRef.current.off('friend_request_received');
+        socketRef.current.off('friends_list');
+        socketRef.current.off('friend_request_accepted');
+        socketRef.current.off('debate_offered');
+        socketRef.current.off('debate_start');
+        socketRef.current.off('debate_state_updated');
+        socketRef.current.off('debate_vote_received');
+        socketRef.current.off('debate_ended');
 
         socketRef.current.on('live_users_count', (count) => {
             setLiveUsers(count);
@@ -486,15 +510,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             socketRef.current?.emit('identity', myIdData);
         });
 
-        socketRef.current.on('typing', () => {
+        socketRef.current.on('typing-start', () => {
             setIsStrangerTyping(true);
         });
 
-        socketRef.current.on('stop_typing', () => {
+        socketRef.current.on('typing-stop', () => {
             setIsStrangerTyping(false);
         });
 
-        socketRef.current.on('receive_message', (data: { text: string, senderId: string }) => {
+        socketRef.current.on('chat-message', (data: { text: string, senderId: string }) => {
             setIsStrangerTyping(false); // Hide indicator when message received
             setMessages(prev => [...prev, {
                 id: Math.random().toString(36).substring(7),
@@ -794,7 +818,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const sendMessage = (text: string) => {
         if (socketRef.current && status === 'connected') {
-            socketRef.current.emit('send_message', { text });
+            socketRef.current.emit('chat-message', { text });
             setMessages(prev => [...prev, {
                 id: Math.random().toString(36).substring(7),
                 sender: 'me',
@@ -1082,12 +1106,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (initiator) {
             try {
-                // Wait a bit to ensure the other side has joined and set up their socket listeners
-                await new Promise(resolve => setTimeout(resolve, 800));
-
-                // Guard: only create offer if we are still in a valid state
+                // Remove magic 800ms delay. Signaling state check is enough.
                 if (!peerConnectionRef.current || pc.signalingState !== 'stable') {
-                    console.warn('Cannot create offer: PC closed or signalingState is not stable:', pc.signalingState);
+                    console.warn('[WebRTC] Cannot create offer: PC closed or state not stable:', pc.signalingState);
                     return;
                 }
                 const offer = await pc.createOffer({
@@ -1096,9 +1117,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (!peerConnectionRef.current || pc.signalingState !== 'stable') return; 
                 await pc.setLocalDescription(offer);
                 socketRef.current?.emit('webrtc_offer', offer);
-                console.log('[WebRTC] Initiator offer sent');
+                console.log('[WebRTC] Initiator offer sent successfully');
             } catch (e) {
-                console.error('Error creating offer:', e);
+                console.error('[WebRTC] Error creating offer:', e);
             }
         }
     };

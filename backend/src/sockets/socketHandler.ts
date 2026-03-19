@@ -101,6 +101,7 @@ export const setupSocketHandlers = (io: Server) => {
     socket.on('webrtc_offer', safeHandler(socket, 'webrtc_offer', (data: any) => {
       const partnerId = activeMatches.get(socket.id);
       if (partnerId) {
+        console.log(`[Signaling] Offer: ${socket.id} -> ${partnerId}`);
         io.to(partnerId).emit('webrtc_offer', data);
       }
     }));
@@ -108,6 +109,7 @@ export const setupSocketHandlers = (io: Server) => {
     socket.on('webrtc_answer', safeHandler(socket, 'webrtc_answer', (data: any) => {
       const partnerId = activeMatches.get(socket.id);
       if (partnerId) {
+        console.log(`[Signaling] Answer: ${socket.id} -> ${partnerId}`);
         io.to(partnerId).emit('webrtc_answer', data);
       }
     }));

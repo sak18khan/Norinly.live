@@ -43,14 +43,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
     // Firebase not configured — show notice
     if (!auth || !googleProvider) {
         return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/40 backdrop-blur-2xl">
-                <div className="w-full max-w-sm bg-white border border-black/5 rounded-[3rem] shadow-premium-xl p-10 text-center relative overflow-hidden">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-surface/40 dark:bg-slate-950/40 backdrop-blur-2xl">
+                <div className="w-full max-w-sm bg-premium-card border border-border rounded-[3rem] shadow-premium-xl p-10 text-center relative overflow-hidden">
                     <div className="absolute -top-12 -right-12 w-32 h-32 bg-secondary/10 blur-[60px] rounded-full" />
                     <h2 className="text-2xl font-black text-foreground uppercase tracking-tight mb-4 relative z-10">Almost Ready!</h2>
-                    <p className="text-zinc-400 text-sm font-medium leading-relaxed mb-10 relative z-10">
+                    <p className="text-muted-text text-sm font-medium leading-relaxed mb-10 relative z-10">
                         We need to finish the setup. Please double-check your <code className="text-accent bg-accent/5 px-2 py-0.5 rounded-md">FIREBASE_CONFIG</code> to enable sign-in.
                     </p>
-                    <button onClick={onClose} className="w-full py-4 bg-black text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-zinc-800 transition-all active:scale-95 relative z-10">Acknowledge</button>
+                    <button onClick={onClose} className="w-full py-4 bg-foreground text-background rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 relative z-10">Acknowledge</button>
                 </div>
             </div>
         );
@@ -113,16 +113,16 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/80 backdrop-blur-xl animate-in fade-in duration-500">
-            <div className="w-full max-w-md bg-white/90 backdrop-blur-2xl border border-black/5 rounded-[3.5rem] shadow-premium-xl overflow-hidden animate-in zoom-in-95 duration-500 relative">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-surface/80 dark:bg-slate-950/80 backdrop-blur-xl animate-in fade-in duration-500">
+            <div className="w-full max-w-md bg-premium-card/90 backdrop-blur-2xl border border-border rounded-[3.5rem] shadow-premium-xl overflow-hidden animate-in zoom-in-95 duration-500 relative">
                 <div className="absolute -top-24 -left-24 w-64 h-64 bg-accent/5 blur-[100px] rounded-full" />
                 <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-secondary/5 blur-[100px] rounded-full" />
                 
-                <div className="p-10 md:p-12 border-b border-black/5 flex justify-between items-center relative z-10">
+                <div className="p-10 md:p-12 border-b border-border flex justify-between items-center relative z-10">
                     <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter uppercase italic leading-none">
                         {isLogin ? 'Hello' : 'Join Us'}<span className="text-accent">.</span>
                     </h2>
-                    <button onClick={onClose} className="p-3 bg-black/5 border border-black/5 hover:bg-black/10 rounded-2xl text-zinc-400 hover:text-black transition-all active:scale-90 shadow-sm">
+                    <button onClick={onClose} className="p-3 bg-surface border border-border hover:bg-surface/80 rounded-2xl text-muted-text hover:text-foreground transition-all active:scale-90 shadow-sm">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
@@ -134,7 +134,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
                                 ? 'Welcome Back!' 
                                 : 'Start Your Journey'}
                         </h3>
-                        <p className="text-zinc-400 text-sm font-medium leading-relaxed opacity-80 uppercase tracking-tight">
+                        <p className="text-muted-text text-sm font-medium leading-relaxed opacity-80 uppercase tracking-tight">
                             {isLogin
                                 ? 'Sign in to sync your progress, connect with friends, and view your history.'
                                 : 'Create your profile to connect with learners globally and track your progress.'}
@@ -145,7 +145,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
                         <button
                             onClick={handleGoogleSignIn}
                             disabled={loading}
-                            className="w-full bg-black text-white font-black py-5 rounded-2xl hover:bg-zinc-800 transition-all flex items-center justify-center space-x-4 disabled:opacity-70 shadow-premium active:scale-[0.98] relative overflow-hidden group"
+                            className="w-full bg-foreground text-background font-black py-5 rounded-2xl hover:opacity-90 transition-all flex items-center justify-center space-x-4 disabled:opacity-70 shadow-premium active:scale-[0.98] relative overflow-hidden group"
                         >
                             {loading ? (
                                 <div className="flex items-center space-x-3">
@@ -168,8 +168,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
                         {error && <p className="text-secondary text-[10px] text-center font-black uppercase tracking-widest bg-secondary/10 py-3 rounded-xl border border-secondary/20">{error}</p>}
                     </div>
 
-                    <div className="pt-6 border-t border-black/5 flex flex-col items-center gap-8">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-zinc-400">
+                    <div className="pt-6 border-t border-border flex flex-col items-center gap-8">
+                        <p className="text-[11px] font-black uppercase tracking-widest text-muted-text">
                             {isLogin ? "New here?" : "Already have an account?"}{' '}
                             <button 
                                 onClick={() => setIsLogin(!isLogin)}
@@ -179,9 +179,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
                             </button>
                         </p>
 
-                        <p className="text-center text-[9px] text-zinc-400 font-bold uppercase tracking-[0.2em] leading-relaxed max-w-[300px] opacity-60 hover:opacity-100 transition-opacity">
+                        <p className="text-center text-[9px] text-muted-text font-bold uppercase tracking-[0.2em] leading-relaxed max-w-[300px] opacity-60 hover:opacity-100 transition-opacity">
                             By continuing, you accept our <br />
-                            <span className="text-black">Community Guidelines & Privacy Policy</span>
+                            <span className="text-foreground">Community Guidelines & Privacy Policy</span>
                         </p>
                     </div>
                 </div>

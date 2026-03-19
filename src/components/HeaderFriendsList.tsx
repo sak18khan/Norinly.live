@@ -60,12 +60,12 @@ export default function HeaderFriendsList() {
             >
                 <Users className="w-5 h-5" />
                 {totalNotifications > 0 && (
-                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-secondary rounded-full border-2 border-surface dark:border-slate-800" />
                 )}
             </button>
 
             {isOpen && (
-                <div className="absolute top-12 right-0 w-80 bg-white text-foreground border border-border rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[500px] animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute top-12 right-0 w-80 bg-premium-card text-foreground border border-border rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[500px] animate-in fade-in zoom-in-95 duration-200">
                     <div className="px-5 py-4 border-b border-border bg-surface font-bold text-sm text-foreground">
                         Social
                     </div>
@@ -78,8 +78,8 @@ export default function HeaderFriendsList() {
                                 {pendingRequests.map(req => (
                                     <div key={req.id} className="flex flex-col bg-surface border border-border rounded-xl p-3 space-y-3">
                                         <div className="flex items-center space-x-2">
-                                            <div className="w-8 h-8 rounded-full bg-white border border-border flex items-center justify-center shrink-0">
-                                                <User className="w-4 h-4 text-muted" />
+                                            <div className="w-8 h-8 rounded-full bg-surface border border-border flex items-center justify-center shrink-0">
+                                                <User className="w-4 h-4 text-muted-text" />
                                             </div>
                                             <span className="text-sm font-medium truncate flex-1">{req.fromUsername || 'Stranger'}</span>
                                         </div>
@@ -92,7 +92,7 @@ export default function HeaderFriendsList() {
                                             </button>
                                             <button 
                                                 onClick={() => handleDecline(req.fromUserId)}
-                                                className="flex-1 bg-white border border-border hover:bg-red-50 hover:text-red-500 text-secondary text-xs font-bold py-2 rounded-lg transition-colors flex justify-center items-center"
+                                                className="flex-1 bg-surface border border-border hover:bg-secondary/10 hover:text-secondary text-muted-text text-xs font-bold py-2 rounded-lg transition-colors flex justify-center items-center"
                                             >
                                                 <X className="w-3 h-3 mr-1" /> Decline
                                             </button>
@@ -113,9 +113,9 @@ export default function HeaderFriendsList() {
                                         <div className="flex items-center space-x-3">
                                             <div className="relative">
                                                 <div className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center shrink-0 overflow-hidden group-hover:border-accent/30 transition-colors">
-                                                    <User className="w-5 h-5 text-muted group-hover:text-accent transition-colors" />
+                                                    <User className="w-5 h-5 text-muted-text group-hover:text-accent transition-colors" />
                                                 </div>
-                                                <span className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-white rounded-full ${friend.status === 'online' ? 'bg-positive-accent' : 'bg-muted'}`}></span>
+                                                <span className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-surface dark:border-slate-800 rounded-full ${friend.status === 'online' ? 'bg-positive-accent' : 'bg-muted-text'}`}></span>
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-semibold text-foreground leading-none">{friend.username}</span>

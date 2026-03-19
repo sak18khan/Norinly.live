@@ -34,7 +34,7 @@ export default function Home() {
         <div className="flex flex-col items-center justify-center px-6 pt-28 md:pt-48 pb-16 max-w-7xl mx-auto w-full text-center space-y-10 md:space-y-16 animate-fade-in-up min-h-[90vh] md:min-h-screen relative">
           
           <div className="space-y-6 md:space-y-10 max-w-5xl w-full">
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white border border-black/5 text-primary text-[9px] font-black uppercase tracking-[0.2em] mb-2 shadow-premium backdrop-blur-md transition-soft hover:border-primary/20">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-surface dark:bg-slate-800 border border-black/5 dark:border-white/5 text-primary text-[9px] font-black uppercase tracking-[0.2em] mb-2 shadow-premium backdrop-blur-md transition-soft hover:border-primary/20">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-positive-accent opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-positive-accent shadow-[0_0_10px_rgba(16,185,129,0.3)]"></span>
@@ -68,11 +68,11 @@ export default function Home() {
                   <span className="relative z-10 leading-none uppercase tracking-tighter">Start Speaking Now</span>
                 </button>
                 <div className="flex flex-col items-center space-y-3 mt-2">
-                  <span className="text-[9px] md:text-[11px] font-black text-zinc-400 uppercase tracking-[0.4em] leading-none opacity-60">Connecting you in seconds</span>
+                  <span className="text-[9px] md:text-[11px] font-black text-muted-text uppercase tracking-[0.4em] leading-none opacity-60">Connecting you in seconds</span>
                   <div className="flex items-center gap-4 md:gap-6">
-                    <div className="h-px w-8 md:w-16 bg-zinc-200" />
+                    <div className="h-px w-8 md:w-16 bg-border" />
                     <span className="text-[9px] md:text-[11px] font-black text-accent uppercase tracking-widest leading-none">100% Human • Private & Secure</span>
-                    <div className="h-px w-8 md:w-16 bg-zinc-200" />
+                    <div className="h-px w-8 md:w-16 bg-border" />
                   </div>
                 </div>
               </div>
@@ -95,7 +95,7 @@ export default function Home() {
           >
             <div className="absolute top-0 right-0 w-64 h-64 -mr-24 -mt-24 bg-primary/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-all duration-700" />
             <div className="relative z-10 flex flex-col items-center md:items-start text-center md:text-left h-full">
-              <div className="w-32 h-32 rounded-3xl bg-white border border-border flex items-center justify-center shrink-0 overflow-hidden group-hover:scale-110 transition-transform duration-500 shadow-premium-xl mb-10">
+              <div className="w-32 h-32 rounded-3xl bg-surface dark:bg-slate-800 border border-border flex items-center justify-center shrink-0 overflow-hidden group-hover:scale-110 transition-transform duration-500 shadow-premium-xl mb-10">
                 <img src="/images/public_rooms.png" alt="Public Rooms" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 animate-float" />
               </div>
               <div className="flex-1 flex flex-col justify-between w-full">
@@ -128,7 +128,7 @@ export default function Home() {
           >
               <div className="absolute bottom-0 right-0 w-64 h-64 -mr-24 -mb-24 bg-secondary/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-all duration-700" />
               <div className="relative z-10 flex flex-col items-center md:items-start text-center md:text-left h-full">
-              <div className="w-32 h-32 rounded-3xl bg-white border border-border flex items-center justify-center shrink-0 overflow-hidden group-hover:scale-110 transition-transform duration-500 shadow-premium-xl mb-10">
+              <div className="w-32 h-32 rounded-3xl bg-surface dark:bg-slate-800 border border-border flex items-center justify-center shrink-0 overflow-hidden group-hover:scale-110 transition-transform duration-500 shadow-premium-xl mb-10">
                 <img src="/images/roleplay.png" alt="Roleplay" className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 animate-float" />
               </div>
               <div className="flex-1 flex flex-col justify-between w-full">
@@ -165,10 +165,10 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 w-full max-w-6xl">
-              <div className="group relative p-8 rounded-3xl bg-premium-card hover:bg-white transition-all duration-500 hover:shadow-premium-xl animate-fade-in-up [animation-delay:100ms] overflow-hidden">
+              <div className="group relative p-8 rounded-3xl bg-premium-card hover:bg-surface dark:hover:bg-slate-800/50 transition-all duration-500 hover:shadow-premium-xl animate-fade-in-up [animation-delay:100ms] overflow-hidden">
                 <div className="absolute inset-0 bg-primary/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10 space-y-6">
-                  <div className="w-12 h-12 rounded-xl bg-white border border-border flex items-center justify-center shadow-premium group-hover:scale-110 transition-transform duration-500">
+                  <div className="w-12 h-12 rounded-xl bg-surface dark:bg-slate-800 border border-border flex items-center justify-center shadow-premium group-hover:scale-110 transition-transform duration-500">
                     <Globe className="w-6 h-6 text-primary" />
                   </div>
                   <div className="space-y-2">
@@ -178,10 +178,10 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="group relative p-8 rounded-3xl bg-premium-card hover:bg-white transition-all duration-500 hover:shadow-premium-xl animate-fade-in-up [animation-delay:200ms] overflow-hidden">
+              <div className="group relative p-8 rounded-3xl bg-premium-card hover:bg-surface dark:hover:bg-slate-800/50 transition-all duration-500 hover:shadow-premium-xl animate-fade-in-up [animation-delay:200ms] overflow-hidden">
                 <div className="absolute inset-0 bg-secondary/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10 space-y-6">
-                  <div className="w-12 h-12 rounded-xl bg-white border border-border flex items-center justify-center shadow-premium group-hover:scale-110 transition-transform duration-500">
+                  <div className="w-12 h-12 rounded-xl bg-surface dark:bg-slate-800 border border-border flex items-center justify-center shadow-premium group-hover:scale-110 transition-transform duration-500">
                     <Shield className="w-6 h-6 text-secondary" />
                   </div>
                   <div className="space-y-2">
@@ -191,10 +191,10 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="group relative p-8 rounded-3xl bg-premium-card hover:bg-white transition-all duration-500 hover:shadow-premium-xl animate-fade-in-up [animation-delay:300ms] overflow-hidden">
+              <div className="group relative p-8 rounded-3xl bg-premium-card hover:bg-surface dark:hover:bg-slate-800/50 transition-all duration-500 hover:shadow-premium-xl animate-fade-in-up [animation-delay:300ms] overflow-hidden">
                 <div className="absolute inset-0 bg-positive-accent/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10 space-y-6">
-                  <div className="w-12 h-12 rounded-xl bg-white border border-border flex items-center justify-center shadow-premium group-hover:scale-110 transition-transform duration-500">
+                  <div className="w-12 h-12 rounded-xl bg-surface dark:bg-slate-800 border border-border flex items-center justify-center shadow-premium group-hover:scale-110 transition-transform duration-500">
                     <Zap className="w-6 h-6 text-positive-accent" />
                   </div>
                   <div className="space-y-2">
@@ -237,7 +237,7 @@ export default function Home() {
             
             <div className="hidden lg:block relative group">
                <div className="absolute -inset-4 bg-accent/10 rounded-[4rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-               <div className="w-80 h-80 bg-white rounded-[4rem] p-12 border border-border shadow-premium rotate-3 group-hover:rotate-0 transition-all duration-700 overflow-hidden relative z-10">
+               <div className="w-80 h-80 bg-surface dark:bg-slate-900 rounded-[4rem] p-12 border border-border shadow-premium rotate-3 group-hover:rotate-0 transition-all duration-700 overflow-hidden relative z-10">
                   <img src="/images/live_rooms.png" alt="Live Rooms" className="w-full h-full object-contain drop-shadow-xl" />
                </div>
             </div>
@@ -258,7 +258,7 @@ export default function Home() {
                 <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-primary/5 blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div>
-                  <div className="mb-6 w-12 h-12 bg-white border border-border rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-premium">
+                  <div className="mb-6 w-12 h-12 bg-surface dark:bg-slate-800 border border-border rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-premium">
                     <span className="transition-transform duration-500 group-hover:scale-110">{topic.icon}</span>
                   </div>
                   
@@ -290,7 +290,7 @@ export default function Home() {
                   <div className="flex items-center gap-3">
                     <div className="flex -space-x-3">
                       {[1, 2, 3].map(j => (
-                        <div key={j} className="w-8 h-8 rounded-lg bg-white border-2 border-white shadow-premium overflow-hidden group-hover:scale-105 transition-transform" style={{ transitionDelay: `${j * 50}ms` }}>
+                        <div key={j} className="w-8 h-8 rounded-lg bg-surface dark:bg-slate-800 border-2 border-surface dark:border-slate-800 shadow-premium overflow-hidden group-hover:scale-105 transition-transform" style={{ transitionDelay: `${j * 50}ms` }}>
                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=user${topic.id}${j}`} alt="" className="group-hover:rotate-3 transition-all duration-500" />
                         </div>
                       ))}
@@ -308,7 +308,7 @@ export default function Home() {
       </section>
 
       {/* Community Leaders Section */}
-      <section className="w-full py-32 bg-slate-50/50 relative overflow-hidden">
+      <section className="w-full py-32 bg-surface/50 dark:bg-slate-900/30 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[120px] animate-pulse-glow" />
           <div className="absolute top-0 left-0 w-full h-full bg-mesh opacity-20" />
@@ -318,7 +318,7 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
              <div className="lg:w-[50%] space-y-10 animate-fade-in">
                 <div className="flex flex-col sm:flex-row items-center gap-10 text-center sm:text-left">
-                    <div className="w-40 h-40 md:w-56 md:h-56 bg-white rounded-[3rem] p-8 md:p-12 shrink-0 border border-black/5 shadow-premium group overflow-hidden relative">
+                    <div className="w-40 h-40 md:w-56 md:h-56 bg-surface dark:bg-slate-800 rounded-[3rem] p-8 md:p-12 shrink-0 border border-black/5 dark:border-white/10 shadow-premium group overflow-hidden relative">
                         <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                         <img src="/images/leaderboard.png" alt="Leaderboard" className="w-full h-full object-contain relative z-10 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700" />
                     </div>
@@ -351,17 +351,17 @@ export default function Home() {
                 {topSpeakers.length > 0 ? (
                     <div className="flex flex-col gap-6 w-full">
                         {topSpeakers.map((speaker, idx) => (
-                            <div 
-                                key={speaker.id}
-                                onClick={() => router.push('/leaderboard')}
-                                style={{ animationDelay: `${idx * 150}ms` }}
-                                className={`group flex items-center gap-6 p-6 md:p-8 rounded-3xl bg-premium-card hover:bg-white transition-all duration-700 cursor-pointer animate-fade-in-up shadow-premium hover:shadow-premium-xl w-full relative overflow-hidden`}
-                            >
+                                <div 
+                                    key={speaker.id}
+                                    onClick={() => router.push('/leaderboard')}
+                                    style={{ animationDelay: `${idx * 150}ms` }}
+                                    className={`group flex items-center gap-6 p-6 md:p-8 rounded-3xl bg-premium-card hover:bg-surface dark:hover:bg-slate-800/50 transition-all duration-700 cursor-pointer animate-fade-in-up shadow-premium hover:shadow-premium-xl w-full relative overflow-hidden`}
+                                >
                                 <div className="absolute inset-0 bg-primary/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <div className="relative shrink-0">
                                     <img 
                                         src={speaker.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${speaker.username}`} 
-                                        className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border-2 border-white shadow-premium relative z-10 object-cover"
+                                        className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border-2 border-surface dark:border-slate-800 shadow-premium relative z-10 object-cover"
                                         alt=""
                                     />
                                     <div className={`absolute -bottom-2 -right-2 w-8 h-8 md:w-10 md:h-10 rounded-xl border-2 border-white flex items-center justify-center font-black text-xs md:text-sm shadow-premium z-20 ${
@@ -390,7 +390,7 @@ export default function Home() {
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white p-12 md:p-20 rounded-[5rem] border border-black/5 text-center w-full shadow-premium animate-fade-in-up group relative overflow-hidden">
+                    <div className="bg-surface dark:bg-slate-900/50 p-12 md:p-20 rounded-[5rem] border border-black/5 dark:border-white/5 text-center w-full shadow-premium animate-fade-in-up group relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 -mr-32 -mt-32 bg-accent/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="w-24 h-24 bg-accent/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-accent/10 animate-float shadow-premium relative z-10">
                             <Clock className="w-12 h-12 text-accent" />

@@ -92,31 +92,31 @@ export default function FriendRequestsList() {
             >
                 <Bell className={`w-5 h-5 ${requests.length > 0 ? 'animate-bell-ring' : ''} group-hover:scale-110 transition-transform`} />
                 {requests.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-surface dark:border-slate-800 shadow-sm">
                         {requests.length}
                     </span>
                 )}
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-3 w-80 bg-white border border-border rounded-2xl shadow-premium-xl z-[100] overflow-hidden animate-in slide-in-from-top-2 duration-200">
-                    <div className="p-4 border-b border-border bg-slate-50/50 flex items-center justify-between">
+                <div className="absolute right-0 mt-3 w-80 bg-premium-card border border-border rounded-2xl shadow-premium-xl z-[100] overflow-hidden animate-in slide-in-from-top-2 duration-200">
+                    <div className="p-4 border-b border-border bg-surface flex items-center justify-between">
                         <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Friend Requests</h3>
-                        <span className="text-[10px] font-bold text-muted bg-white border px-2 py-0.5 rounded-full">{requests.length} Pending</span>
+                        <span className="text-[10px] font-bold text-muted-text bg-surface border border-border px-2 py-0.5 rounded-full">{requests.length} Pending</span>
                     </div>
 
                     <div className="max-h-80 overflow-y-auto p-2 space-y-2 no-scrollbar">
                         {loading ? (
                             <div className="py-8 flex flex-col items-center justify-center gap-2">
                                 <Loader2 className="w-6 h-6 text-accent animate-spin" />
-                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Checking...</p>
+                                <p className="text-[10px] font-bold text-muted-text uppercase tracking-widest">Checking...</p>
                             </div>
                         ) : requests.length === 0 ? (
                             <div className="py-12 flex flex-col items-center justify-center gap-3 text-center px-6">
-                                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200">
+                                <div className="w-12 h-12 bg-surface rounded-2xl flex items-center justify-center text-muted-text">
                                     <Bell className="w-6 h-6" />
                                 </div>
-                                <p className="text-xs font-bold text-slate-400">No pending requests</p>
+                                <p className="text-xs font-bold text-muted-text/50">No pending requests</p>
                             </div>
                         ) : (
                             requests.map((req) => (
@@ -152,27 +152,27 @@ function FriendRequestCard({ request, onAccept, onReject }: { request: any, onAc
     }, [request.fromUserId]);
 
     return (
-        <div className="bg-white border border-border p-3 rounded-xl flex items-center justify-between group hover:border-accent/30 transition-all shadow-sm">
+        <div className="bg-surface border border-border p-3 rounded-xl flex items-center justify-between group hover:border-accent/30 transition-all shadow-sm">
             <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-accent/5 rounded-lg flex items-center justify-center">
                     <User className="w-4.5 h-4.5 text-accent" />
                 </div>
                 <div className="flex flex-col">
-                    <span className="text-[12px] font-bold text-slate-800 tracking-tight">{username}</span>
-                    <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Wants to be friends</span>
+                    <span className="text-[12px] font-bold text-foreground tracking-tight">{username}</span>
+                    <span className="text-[9px] font-medium text-muted-text uppercase tracking-widest">Wants to be friends</span>
                 </div>
             </div>
             <div className="flex items-center gap-2">
                 <button
                     onClick={onAccept}
-                    className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center border border-emerald-100 shadow-sm"
+                    className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all flex items-center justify-center border border-emerald-500/20 shadow-sm"
                     title="Accept"
                 >
                     <Check className="w-4 h-4" />
                 </button>
                 <button
                     onClick={onReject}
-                    className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all flex items-center justify-center border border-rose-100 shadow-sm"
+                    className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-all flex items-center justify-center border border-secondary/20 shadow-sm"
                     title="Decline"
                 >
                     <X className="w-4 h-4" />

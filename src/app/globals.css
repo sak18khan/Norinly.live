@@ -16,6 +16,27 @@
   --surface: #F8FAFC;
   --surface-alt: #F1F5F9;
   --border: rgba(15, 23, 42, 0.05); /* Softer slate border */
+  --header-bg: rgba(255, 255, 255, 0.7);
+  --card-bg: rgba(255, 255, 255, 0.8);
+}
+
+.dark {
+  --background: #020617; /* Deeper slate */
+  --foreground: #F8FAFC; /* slate-50 */
+  --secondary-text: #94A3B8; /* slate-400 */
+  --muted-text: #64748B; /* slate-500 */
+  
+  --primary: #818CF8; /* Indigo-400 */
+  --primary-glow: rgba(129, 140, 248, 0.15);
+  --secondary: #FB7185; /* Rose-400 */
+  --secondary-glow: rgba(251, 113, 133, 0.15);
+  --accent: #A78BFA; /* Violet-400 */
+  --success: #34D399; /* Emerald-400 */
+  --surface: #0F172A; /* slate-900 */
+  --surface-alt: #1E293B; /* slate-800 */
+  --border: rgba(255, 255, 255, 0.08); 
+  --header-bg: rgba(2, 6, 23, 0.8);
+  --card-bg: rgba(15, 23, 42, 0.8);
 }
 
 @theme inline {
@@ -33,7 +54,7 @@
   --color-surface-alt: var(--surface-alt);
   --color-border: var(--border);
   
-  /* Custom shadows - Refined for Light Mode */
+  /* Custom shadows - Refined for Light/Dark Mode */
   --shadow-premium: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   --shadow-premium-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
   --shadow-glow-accent: 0 0 20px -5px var(--primary-glow);
@@ -48,16 +69,19 @@
 
 @layer utilities {
   .bg-glass {
-    @apply bg-white/60 backdrop-blur-lg border border-white/40;
+    @apply bg-[var(--header-bg)] backdrop-blur-lg border border-white/20 dark:border-white/10;
   }
   .bg-premium-card {
-    @apply bg-white/70 backdrop-blur-2xl border border-white/50 shadow-premium;
+    @apply bg-[var(--card-bg)] backdrop-blur-2xl border border-white/30 dark:border-white/10 shadow-premium;
   }
   .text-brand-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
   }
   .shadow-premium {
     box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05);
+  }
+  .dark .shadow-premium {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
   }
   .shadow-glow-accent {
     box-shadow: 0 0 40px -10px rgba(79, 70, 229, 0.2);

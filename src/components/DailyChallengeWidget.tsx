@@ -44,7 +44,7 @@ export default function DailyChallengeWidget() {
   const isAllComplete = completedTasks === totalTasks && totalTasks > 0;
 
   return (
-     <div className="w-full max-w-sm bg-white border border-black/5 rounded-[2.5rem] p-8 shadow-premium hover:shadow-premium-xl transition-all duration-500 group relative overflow-hidden">
+     <div className="w-full max-w-sm bg-premium-card border border-border rounded-[2.5rem] p-8 shadow-premium hover:shadow-premium-xl transition-all duration-500 group relative overflow-hidden">
        {/* Background Glow */}
        <div className={`absolute top-0 right-0 -m-4 w-32 h-32 blur-3xl rounded-full transition-all duration-1000 ${isAllComplete ? 'bg-positive-accent/10 opacity-100' : 'bg-accent/5 opacity-50Group-hover:opacity-100'}`} />
        
@@ -52,19 +52,19 @@ export default function DailyChallengeWidget() {
          {/* Header */}
          <div className="flex items-center justify-between">
            <div className="space-y-1">
-             <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+             <h3 className="text-[10px] font-black text-muted-text uppercase tracking-widest flex items-center gap-2">
                <Zap className="w-3.5 h-3.5 text-accent" />
                Daily Goal
              </h3>
              <div className="flex items-baseline gap-2">
                <span className="text-3xl font-black text-foreground tracking-tighter">{completedTasks}/{totalTasks}</span>
-               <span className="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-1">Items</span>
+               <span className="text-[10px] font-black text-muted-text uppercase tracking-wider mb-1">Items</span>
              </div>
            </div>
            <div className="flex flex-col items-end">
              <div className="flex items-center gap-2 bg-accent/5 border border-accent/10 px-4 py-2 rounded-2xl group/streak hover:scale-105 transition-transform">
-               <Flame className={`w-5 h-5 transition-colors ${progress.streak > 0 ? 'text-accent' : 'text-zinc-300'}`} />
-               <span className={`text-xl font-black tracking-tighter ${progress.streak > 0 ? 'text-accent' : 'text-zinc-300'}`}>{progress.streak || 0}</span>
+               <Flame className={`w-5 h-5 transition-colors ${progress.streak > 0 ? 'text-accent' : 'text-muted'}`} />
+               <span className={`text-xl font-black tracking-tighter ${progress.streak > 0 ? 'text-accent' : 'text-muted'}`}>{progress.streak || 0}</span>
              </div>
              <span className="text-[9px] font-black text-accent/40 uppercase tracking-widest mt-1 mr-1">Hot Streak</span>
            </div>
@@ -72,15 +72,15 @@ export default function DailyChallengeWidget() {
  
          {/* Progress Bar */}
          <div className="space-y-4">
-           <div className="h-3 w-full bg-black/5 border border-black/5 rounded-full overflow-hidden p-0.5 shadow-inner">
+           <div className="h-3 w-full bg-surface border border-border rounded-full overflow-hidden p-0.5 shadow-inner">
              <div 
-               className={`h-full rounded-full transition-all duration-1000 ease-out relative ${isAllComplete ? 'bg-black shadow-premium' : 'bg-accent'}`}
+               className={`h-full rounded-full transition-all duration-1000 ease-out relative ${isAllComplete ? 'bg-foreground shadow-premium' : 'bg-accent'}`}
                style={{ width: `${progressPercentage}%` }}
              >
                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 animate-shimmer" />
              </div>
            </div>
-           <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-zinc-400">
+           <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-muted-text">
              <span>{Math.round(progressPercentage)}% Protocol</span>
              <span className={isAllComplete ? 'text-foreground' : ''}>
                {isAllComplete ? 'All Tasks Done' : `${totalTasks - completedTasks} Remaining`}
@@ -95,23 +95,23 @@ export default function DailyChallengeWidget() {
                key={task.id}
                className={`flex items-center justify-between p-4 rounded-3xl border transition-all duration-500 ${
                  task.completed 
-                 ? 'bg-black/5 border-black/5' 
-                 : 'bg-black/[0.02] border-black/5 hover:border-accent/30'
+                 ? 'bg-surface border-border' 
+                 : 'bg-surface/50 border-border hover:border-accent/30'
                }`}
              >
                <div className="flex items-center gap-4">
-                 <div className={`p-2 rounded-2xl transition-all duration-500 ${task.completed ? 'bg-white shadow-sm' : 'bg-white shadow-sm opacity-50'}`}>
+                 <div className={`p-2 rounded-2xl transition-all duration-500 ${task.completed ? 'bg-premium-card shadow-sm' : 'bg-premium-card shadow-sm opacity-50'}`}>
                    {task.completed ? (
-                     <CheckCircle2 className="w-5 h-5 text-black" />
+                     <CheckCircle2 className="w-5 h-5 text-foreground" />
                    ) : (
-                     <Circle className="w-5 h-5 text-zinc-300" />
+                     <Circle className="w-5 h-5 text-muted" />
                    )}
                  </div>
                  <div>
-                   <p className={`text-xs font-black uppercase tracking-tight ${task.completed ? 'text-foreground' : 'text-zinc-500'}`}>
+                   <p className={`text-xs font-black uppercase tracking-tight ${task.completed ? 'text-foreground' : 'text-muted-text'}`}>
                      {task.title}
                    </p>
-                   <p className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">
+                   <p className="text-[9px] font-black text-muted-text uppercase tracking-[0.2em]">
                      {task.current}/{task.target} • <span className="text-accent">{task.xp} XP</span>
                    </p>
                  </div>
@@ -126,22 +126,22 @@ export default function DailyChallengeWidget() {
          </div>
  
          {/* Footer info */}
-         <div className="pt-6 border-t border-black/5 flex items-center justify-between">
+         <div className="pt-6 border-t border-border flex items-center justify-between">
              <div className="flex items-center gap-3">
-                 <div className="p-2 bg-black/5 rounded-xl">
+                 <div className="p-2 bg-surface rounded-xl">
                      <Trophy className="w-4 h-4 text-foreground" />
                  </div>
                  <div>
-                     <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest leading-none mb-1">Total</p>
+                     <p className="text-[9px] font-black text-muted-text uppercase tracking-widest leading-none mb-1">Total</p>
                      <p className="text-sm font-black text-foreground tracking-tighter">{progress.xp || 0} XP</p>
                  </div>
              </div>
              <div className="flex items-center gap-3">
-                 <div className="p-2 bg-black/5 rounded-xl">
+                 <div className="p-2 bg-surface rounded-xl">
                      <TrendingUp className="w-4 h-4 text-foreground" />
                  </div>
                  <div>
-                     <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest leading-none mb-1">Weekly</p>
+                     <p className="text-[9px] font-black text-muted-text uppercase tracking-widest leading-none mb-1">Weekly</p>
                      <p className="text-sm font-black text-foreground tracking-tighter">{progress.weeklyXp || 0} XP</p>
                  </div>
              </div>

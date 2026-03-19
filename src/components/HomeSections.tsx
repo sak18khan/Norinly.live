@@ -56,7 +56,7 @@ export default function HomeSections() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {features.map((f, i) => (
-                        <div key={i} className="bg-premium-card p-10 rounded-3xl transition-all duration-500 group hover:shadow-premium-xl hover:-translate-y-2 hover:bg-white relative overflow-hidden cursor-default shadow-premium">
+                        <div key={i} className="bg-premium-card p-10 rounded-3xl transition-all duration-500 group hover:shadow-premium-xl hover:-translate-y-2 hover:bg-surface dark:hover:bg-slate-800/50 relative overflow-hidden cursor-default shadow-premium">
                             <div className="mb-8 bg-surface border border-border w-12 h-12 flex items-center justify-center rounded-xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
                                 {f.icon}
                             </div>
@@ -71,7 +71,7 @@ export default function HomeSections() {
 
             {/* SECTION 3 — THE MISSION */}
             <section className="max-w-7xl mx-auto px-6">
-                <div className="relative overflow-hidden bg-white border border-border p-12 md:p-24 rounded-3xl group shadow-premium hover:shadow-premium-xl transition-all duration-700">
+                <div className="relative overflow-hidden bg-surface dark:bg-slate-900/50 border border-border p-12 md:p-24 rounded-3xl group shadow-premium hover:shadow-premium-xl transition-all duration-700">
                     <div className="absolute top-0 right-0 -m-24 w-[500px] h-full bg-primary/5 blur-[120px] rounded-full group-hover:bg-primary/10 transition-all duration-1000" />
                     <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-16">
                         <div className="space-y-12 text-center lg:text-left flex-1">
@@ -116,7 +116,7 @@ export default function HomeSections() {
                                 { icon: <Flame className="w-5 h-5" />, title: 'SUPPORTIVE SPACE', desc: 'A safe community for learners of all levels to grow.' },
                                 { icon: <Globe className="w-5 h-5" />, title: 'WORLDWIDE REACH', desc: 'Active learners from 100+ nations online every day.' },
                             ].map((item, i) => (
-                                <div key={i} className="flex items-center gap-6 p-6 rounded-2xl bg-premium-card hover:bg-white transition-all duration-500 group shadow-premium">
+                                <div key={i} className="flex items-center gap-6 p-6 rounded-2xl bg-premium-card hover:bg-surface dark:hover:bg-slate-800/50 transition-all duration-500 group shadow-premium">
                                     <div className="bg-primary/5 p-4 rounded-xl text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
                                         {item.icon}
                                     </div>
@@ -150,7 +150,7 @@ export default function HomeSections() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {testimonials.map((t, i) => (
-                        <div key={i} className="bg-premium-card p-10 rounded-3xl relative h-full flex flex-col shadow-premium hover:shadow-premium-xl hover:bg-white transition-all duration-500 group cursor-default">
+                        <div key={i} className="bg-premium-card p-10 rounded-3xl relative h-full flex flex-col shadow-premium hover:shadow-premium-xl hover:bg-surface dark:hover:bg-slate-800/50 transition-all duration-500 group cursor-default">
                              <div className="flex items-center gap-1 mb-8 text-primary">
                                 {[...Array(t.rating)].map((_, i) => (
                                     <Star key={i} className="w-4 h-4 fill-current" />
@@ -176,14 +176,14 @@ export default function HomeSections() {
 
             {/* SECTION 6 — COMMON QUESTIONS (FAQ) */}
             <section className="max-w-7xl mx-auto px-6 pb-24">
-                <div className="bg-slate-50/50 p-12 md:p-24 rounded-[3rem] border border-black/5 relative overflow-hidden shadow-premium">
+                <div className="bg-surface/50 dark:bg-slate-900/30 p-12 md:p-24 rounded-[3rem] border border-black/5 dark:border-white/5 relative overflow-hidden shadow-premium">
                     <div className="absolute inset-0 bg-mesh opacity-10 pointer-events-none" />
                     <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/5 blur-[100px] rounded-full" />
                     <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary/5 blur-[100px] rounded-full" />
 
                     <div className="max-w-4xl mx-auto relative z-10">
                         <div className="text-center mb-20 space-y-6">
-                            <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-white border border-border text-primary text-[10px] font-black uppercase tracking-widest shadow-sm">
+                            <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-surface dark:bg-slate-800 border border-border text-primary text-[10px] font-black uppercase tracking-widest shadow-sm">
                                 <HelpCircle className="w-3.5 h-3.5" />
                                 <span>Support Center</span>
                             </div>
@@ -220,7 +220,7 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className={`bg-premium-card border transition-all duration-500 overflow-hidden ${isOpen ? 'border-primary/20 shadow-premium-xl bg-white scale-[1.02]' : 'border-transparent shadow-premium'}`}>
+        <div className={`bg-premium-card border transition-all duration-500 overflow-hidden ${isOpen ? 'border-primary/20 shadow-premium-xl bg-surface dark:bg-slate-800/50 scale-[1.02]' : 'border-transparent shadow-premium'}`}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-10 text-left group"

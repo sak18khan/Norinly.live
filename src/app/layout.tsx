@@ -4,6 +4,7 @@ import "./globals.css";
 import { ChatProvider } from "@/context/ChatContext";
 import ToastProvider from "@/components/ToastProvider";
 import ProfileSetupModalTrigger from "@/components/ProfileSetupModalTrigger";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,10 +32,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ToastProvider />
-        <ChatProvider>
-          {children}
-          <ProfileSetupModalTrigger />
-        </ChatProvider>
+        <ThemeProvider>
+          <ChatProvider>
+            {children}
+            <ProfileSetupModalTrigger />
+          </ChatProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

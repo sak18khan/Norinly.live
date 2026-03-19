@@ -9,6 +9,7 @@ import { auth } from '@/lib/firebase';
 import AuthModal from '@/components/AuthModal';
 import ProfileModal from '@/components/ProfileModal';
 import SocialDropdown from '@/components/SocialDropdown';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Header() {
   const router = useRouter();
@@ -62,7 +63,7 @@ export default function Header() {
     <>
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${isScrolled ? 'py-3' : 'py-6 md:py-10'}`}>
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className={`flex items-center justify-between px-4 md:px-10 py-3 md:py-4 rounded-[2rem] md:rounded-[2.5rem] transition-all duration-700 border group ${isScrolled ? 'bg-white/70 backdrop-blur-3xl border-black/5 shadow-premium-xl translate-y-[-4px]' : 'bg-white/50 backdrop-blur-xl border-white/20 shadow-premium-sm'}`}>
+            <div className={`flex items-center justify-between px-4 md:px-10 py-3 md:py-4 rounded-[2rem] md:rounded-[2.5rem] transition-all duration-700 border group ${isScrolled ? 'bg-surface/70 dark:bg-slate-900/70 backdrop-blur-3xl border-border shadow-premium-xl translate-y-[-4px]' : 'bg-surface/50 dark:bg-slate-900/50 backdrop-blur-xl border-white/20 dark:border-white/10 shadow-premium-sm'}`}>
             
             {/* Logo */}
             <div 
@@ -81,7 +82,7 @@ export default function Header() {
             <div className="hidden lg:flex items-center absolute left-1/2 -translate-x-1/2 space-x-4">
               <Link 
                 href="/connect" 
-                className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2.5 active:scale-95 shadow-sm border border-black/5 hover:border-black/10 hover:shadow-md ${pathname === '/connect' ? 'bg-primary text-white border-primary shadow-premium' : 'bg-white/80 backdrop-blur-md text-secondary-text hover:text-foreground'}`}
+                className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2.5 active:scale-95 shadow-sm border border-border hover:border-black/10 dark:hover:border-white/10 hover:shadow-md ${pathname === '/connect' ? 'bg-primary text-white border-primary shadow-premium' : 'bg-surface/80 dark:bg-slate-800/80 backdrop-blur-md text-secondary-text hover:text-foreground'}`}
               >
                 <Sparkles className="w-4 h-4" />
                 Start Speaking
@@ -89,7 +90,10 @@ export default function Header() {
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-2 md:space-x-4">
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="hidden sm:block">
+                <ThemeToggle />
+              </div>
               {/* Live Users Counter - Hidden on Mobile */}
               <div className="hidden md:flex items-center space-x-2 bg-primary/5 px-4 py-2.5 rounded-2xl group transition-all cursor-default border border-primary/10">
                 <span className="relative flex h-1.5 w-1.5">
@@ -106,7 +110,7 @@ export default function Header() {
                   <SocialDropdown />
                   <Link 
                     href="/history" 
-                    className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all shadow-sm group border ${pathname === '/history' ? 'bg-primary text-white border-primary shadow-premium' : 'bg-white border-black/5 text-secondary-text hover:bg-black/5 hover:text-foreground'}`}
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all shadow-sm group border ${pathname === '/history' ? 'bg-primary text-white border-primary shadow-premium' : 'bg-surface dark:bg-slate-800 border-border text-secondary-text hover:bg-surface/80 dark:hover:bg-slate-700/50 hover:text-foreground'}`}
                     title="History"
                   >
                     <History className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -120,12 +124,12 @@ export default function Header() {
                   <div className="relative" ref={dropdownRef}>
                     <button
                       onClick={() => setShowDropdown(!showDropdown)}
-                      className="relative group flex items-center justify-center w-11 h-11 rounded-2xl border border-black/5 overflow-hidden hover:border-accent/30 transition-all hover:scale-105 active:scale-95 shrink-0 shadow-premium"
+                      className="relative group flex items-center justify-center w-11 h-11 rounded-2xl border border-border overflow-hidden hover:border-accent/30 transition-all hover:scale-105 active:scale-95 shrink-0 shadow-premium"
                     >
                       {currentUser.photoURL ? (
                         <img src={currentUser.photoURL} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full bg-white flex items-center justify-center">
+                        <div className="w-full h-full bg-surface dark:bg-slate-800 flex items-center justify-center">
                           <User className="w-6 h-6 text-secondary-text group-hover:text-accent transition-colors" />
                         </div>
                       )}
@@ -133,18 +137,18 @@ export default function Header() {
 
                     {/* Dropdown Menu */}
                     {showDropdown && (
-                      <div className="absolute top-16 right-0 w-72 bg-white/90 backdrop-blur-3xl border border-black/5 rounded-[2rem] shadow-premium-xl py-4 z-50 animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-300">
-                        <div className="px-6 py-5 border-b border-black/5 mb-3">
+                      <div className="absolute top-16 right-0 w-72 bg-surface/90 dark:bg-slate-900/95 backdrop-blur-3xl border border-border rounded-[2rem] shadow-premium-xl py-4 z-50 animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-300">
+                        <div className="px-6 py-5 border-b border-border mb-3">
                           <p className="text-lg font-black text-foreground tracking-tight truncate leading-tight mb-1">{currentUser.displayName || 'Learner'}</p>
-                          <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest truncate">{currentUser.email}</p>
+                          <p className="text-[9px] font-black text-muted-text uppercase tracking-widest truncate">{currentUser.email}</p>
                         </div>
                         <div className="px-3 space-y-1">
                           <Link
                             href="/profile"
                             onClick={() => setShowDropdown(false)}
-                            className="w-full text-left px-5 py-4 text-xs font-black uppercase tracking-widest text-zinc-500 hover:bg-black/5 hover:text-foreground rounded-2xl transition-all flex items-center space-x-4 group"
+                            className="w-full text-left px-5 py-4 text-xs font-black uppercase tracking-widest text-secondary-text hover:bg-surface dark:hover:bg-slate-800/50 hover:text-foreground rounded-2xl transition-all flex items-center space-x-4 group"
                           >
-                            <div className="w-8 h-8 rounded-xl bg-black/5 flex items-center justify-center group-hover:bg-accent/10 group-hover:text-accent transition-colors">
+                            <div className="w-8 h-8 rounded-xl bg-surface dark:bg-slate-800 flex items-center justify-center group-hover:bg-accent/10 group-hover:text-accent transition-colors">
                               <User className="w-4 h-4" />
                             </div>
                             <span>My Profile</span>
@@ -185,12 +189,16 @@ export default function Header() {
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="md:hidden mt-3 bg-white/95 backdrop-blur-3xl border border-black/5 rounded-[2rem] p-4 shadow-premium-xl animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="md:hidden mt-3 bg-surface/95 dark:bg-slate-950/95 backdrop-blur-3xl border border-border dark:border-white/5 rounded-[2rem] p-4 shadow-premium-xl animate-in fade-in slide-in-from-top-4 duration-300">
               <div className="space-y-3">
+                <div className="flex items-center justify-between px-4 py-2 bg-surface dark:bg-white/5 rounded-2xl mb-2">
+                  <span className="text-[10px] font-black text-muted-text dark:text-zinc-400 uppercase tracking-widest">Theme</span>
+                  <ThemeToggle />
+                </div>
                 {/* Profile Section for Mobile if Logged In */}
                 {currentUser ? (
-                  <div className="px-2 py-4 mb-2 flex items-center gap-4 border-b border-black/5">
-                    <div className="w-12 h-12 rounded-2xl border border-black/5 overflow-hidden shadow-premium flex-shrink-0">
+                  <div className="px-2 py-4 mb-2 flex items-center gap-4 border-b border-border">
+                    <div className="w-12 h-12 rounded-2xl border border-border overflow-hidden shadow-premium flex-shrink-0">
                       {currentUser.photoURL ? (
                         <img src={currentUser.photoURL} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
@@ -201,7 +209,7 @@ export default function Header() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-black text-foreground truncate tracking-tight">{currentUser.displayName || 'Learner'}</p>
-                      <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest truncate">{currentUser.email}</p>
+                      <p className="text-[10px] font-black text-muted-text uppercase tracking-widest truncate">{currentUser.email}</p>
                     </div>
                   </div>
                 ) : (
@@ -218,7 +226,7 @@ export default function Header() {
 
                 <Link 
                   href="/connect" 
-                  className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-black/5 hover:bg-black/10 text-foreground font-black uppercase text-[10px] tracking-widest transition-all"
+                  className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-surface dark:bg-white/5 hover:bg-surface/80 dark:hover:bg-white/10 text-foreground font-black uppercase text-[10px] tracking-widest transition-all"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
@@ -231,7 +239,7 @@ export default function Header() {
                   <>
                     <Link 
                       href="/profile" 
-                      className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-black/5 hover:bg-black/10 text-foreground font-black uppercase text-[10px] tracking-widest transition-all"
+                      className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-surface dark:bg-white/5 hover:bg-surface/80 dark:hover:bg-white/10 text-foreground font-black uppercase text-[10px] tracking-widest transition-all"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -241,7 +249,7 @@ export default function Header() {
                     </Link>
                     <Link 
                       href="/history" 
-                      className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-black/5 hover:bg-black/10 text-foreground font-black uppercase text-[10px] tracking-widest transition-all"
+                      className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-surface dark:bg-white/5 hover:bg-surface/80 dark:hover:bg-white/10 text-foreground font-black uppercase text-[10px] tracking-widest transition-all"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
@@ -250,7 +258,7 @@ export default function Header() {
                       Session History
                     </Link>
                     
-                    <hr className="border-black/5 mx-2 my-2" />
+                    <hr className="border-border mx-2 my-2" />
                     
                     <button
                       onClick={handleLogout}

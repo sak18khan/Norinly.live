@@ -32,14 +32,14 @@ export default function InviteCard() {
                             <span className="text-brand-gradient not-italic">Unlock Rewards.</span>
                         </h2>
                         
-                        <p className="text-base md:text-xl text-secondary-text max-w-xl font-bold uppercase tracking-tight opacity-70">
+                        <p className="text-base md:text-xl text-muted-text max-w-xl font-bold uppercase tracking-tight opacity-70">
                             Share Norinly with friends and earn premium features like Country Filters and Extended Talk Time.
                         </p>
 
                         {/* Progress Bar */}
                         <div className="space-y-4 pt-4 max-w-md mx-auto lg:mx-0">
                             <div className="flex justify-between items-end">
-                                <span className="text-[9px] font-black uppercase tracking-widest text-secondary-text opacity-50">Reward Progress</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-muted-text opacity-50">Reward Progress</span>
                                 <span className="text-[10px] font-black text-primary uppercase tracking-widest">{inviteCount}/{totalNeeded} Joined</span>
                             </div>
                             <div className="h-2 w-full bg-foreground/5 rounded-full overflow-hidden relative">
@@ -55,8 +55,8 @@ export default function InviteCard() {
                                 { title: '+10m Talk Time', icon: <Zap className="w-4 h-4" />, unlocked: inviteCount >= 1 },
                                 { title: 'Country Filter', icon: <Globe className="w-4 h-4" />, unlocked: inviteCount >= 3 },
                              ].map((reward, i) => (
-                                <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${reward.unlocked ? 'bg-positive-accent/5 border-positive-accent/20 text-positive-accent' : 'bg-white border-border text-secondary-text opacity-50'}`}>
-                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${reward.unlocked ? 'bg-positive-accent/10' : 'bg-foreground/5'}`}>
+                                <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${reward.unlocked ? 'bg-positive-accent/5 border-positive-accent/20 text-positive-accent' : 'bg-surface border-border text-muted-text opacity-50'}`}>
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${reward.unlocked ? 'bg-positive-accent/10' : 'bg-surface'}`}>
                                         {reward.icon}
                                     </div>
                                     <span className="text-[10px] font-black uppercase tracking-widest">{reward.title}</span>
@@ -66,9 +66,9 @@ export default function InviteCard() {
                     </div>
 
                     <div className="w-full lg:w-auto shrink-0 flex flex-col gap-6">
-                        <div className="bg-white border border-border p-10 rounded-3xl flex flex-col gap-8 text-center shadow-premium-sm group-hover:shadow-premium transition-all duration-500">
+                        <div className="bg-surface border border-border p-10 rounded-3xl flex flex-col gap-8 text-center shadow-premium-sm group-hover:shadow-premium transition-all duration-500">
                             <div className="space-y-2">
-                                <div className="text-[9px] font-black uppercase tracking-widest text-secondary-text opacity-50">Share your unique link</div>
+                                <div className="text-[9px] font-black uppercase tracking-widest text-muted-text opacity-50">Share your unique link</div>
                                 <div className="text-[11px] font-bold text-foreground uppercase tracking-tight">Invite friends to join the fun</div>
                             </div>
                             
@@ -79,7 +79,7 @@ export default function InviteCard() {
                                     className="p-2 hover:bg-primary/10 rounded-lg transition-all active:scale-90 group/btn"
                                     title="Copy Link"
                                 >
-                                    <Copy className="w-4 h-4 text-secondary-text group-hover/btn:text-primary" />
+                                    <Copy className="w-4 h-4 text-muted-text group-hover/btn:text-primary" />
                                 </button>
                             </div>
                             
