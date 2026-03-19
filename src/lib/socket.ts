@@ -6,11 +6,11 @@ const SOCKET_URL = "https://norinlylive-production.up.railway.app";
 
 /**
  * Singleton socket instance configured for production deployment.
- * Forced to use 'websocket' ONLY to bypass CORS/polling issues.
+ * Uses hybrid transport (polling -> websocket) for maximum reliability across environments.
  */
 export const socket: Socket = io(SOCKET_URL, {
-  transports: ["websocket"],
-  upgrade: false,
+  transports: ["polling", "websocket"],
+  upgrade: true,
   secure: true,
   autoConnect: false,
   reconnection: true,

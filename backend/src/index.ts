@@ -24,13 +24,16 @@ app.get('/', (req, res) => {
   res.send('Norinly Server is running');
 });
 
-// Socket.io initialization with forced WebSocket and permissive CORS
+// Socket.io initialization with hybrid transport and reliable CORS for Vercel/Railway
 const io = new Server(server, {
+  path: "/socket.io",
   cors: {
-    origin: "*", // allow all for testing
-    methods: ["GET", "POST"]
+    origin: ["https://norinly.live", "http://localhost:3000"],
+    methods: ["GET", "POST"],
+    credentials: true
   },
-  transports: ["websocket"],
+  transports: ["polling", "websocket"],
+  allowEIO3: true
 });
 
 // Diagnostic logging for connections
