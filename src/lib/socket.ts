@@ -2,15 +2,16 @@ import { io, Socket } from "socket.io-client";
 
 // The single source of truth for the socket configuration
 // NEXT_PUBLIC_SOCKET_URL should be https://norinlylive-production.up.railway.app in production
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://norinlylive-production.up.railway.app";
+const SOCKET_URL = "https://norinlylive-production.up.railway.app";
 
 /**
  * Singleton socket instance configured for production deployment.
- * Forced to use 'websocket' transport to avoid common issues with Vercel and Railway.
+ * Forced to use 'websocket' ONLY to bypass CORS/polling issues.
  */
 export const socket: Socket = io(SOCKET_URL, {
-  transports: ["polling", "websocket"],
-  secure: SOCKET_URL.startsWith('https'),
+  transports: ["websocket"],
+  upgrade: false,
+  secure: true,
   autoConnect: false,
   reconnection: true,
   reconnectionAttempts: 10,
@@ -21,14 +22,11 @@ export const socket: Socket = io(SOCKET_URL, {
 // Production Debugging and Monitoring
 if (typeof window !== "undefined") {
   socket.on("connect", () => {
-    console.log("%c[Socket] Connected successfully:", "color: #10b981; font-weight: bold;", socket.id);
+    console.log("✅ Connected:", socket.id);
   });
 
   socket.on("connect_error", (err) => {
-    console.error("%c[Socket] Connection error:", "color: #ef4444; font-weight: bold;", err.message);
-    
-    // In case of error, we can log the URL being attempted (useful for debugging misconfigured env vars)
-    console.debug("[Socket] Attempting URL:", SOCKET_URL);
+    console.error("❌ Connection error:", err.message);
   });
 
   socket.on("disconnect", (reason) => {

@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
 
 const io = new Server(server, {
   cors: corsOptions,
-  transports: ['polling', 'websocket'],
+  transports: ['websocket'],
   pingInterval: 25000,
   pingTimeout: 60000 
 });
