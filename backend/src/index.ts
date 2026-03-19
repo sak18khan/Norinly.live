@@ -12,10 +12,8 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// CORS configuration
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN;
 const corsOptions = {
-  origin: "*", // Allow all origins for production testing as requested
+  origin: true, // Echoes back the request origin - required for credentials: true
   methods: ["GET", "POST"],
   credentials: true
 };
@@ -33,10 +31,17 @@ app.get('/', (req, res) => {
 
 // Socket.io setup
 const io = new Server(server, {
-  cors: corsOptions,
-  transports: ['polling', 'websocket'], // Allow polling for debugging connection issues
+  cors: {
+    origin: (origin, callback) => {
+      // Allow all origins in production for testing
+      callback(null, true);
+    },
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['polling', 'websocket'],
   pingInterval: 25000,
-  pingTimeout: 7500 // Slightly more relaxed timeout for handshake
+  pingTimeout: 20000 // Very relaxed timeout for debugging
 });
 
 setupSocketHandlers(io);
