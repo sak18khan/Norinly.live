@@ -15,13 +15,7 @@ const server = http.createServer(app);
 // CORS configuration
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN;
 const corsOptions = {
-  origin: [
-    "https://norinly.live",
-    "https://Norinly.live",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    ...(ALLOWED_ORIGIN ? [ALLOWED_ORIGIN] : [])
-  ],
+  origin: "*", // Allow all origins for production testing as requested
   methods: ["GET", "POST"],
   credentials: true
 };
@@ -34,14 +28,15 @@ app.use(rateLimiter);
 app.use('/health', healthRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Norinly Backend API is running');
+  res.send('Server is running');
 });
 
 // Socket.io setup
 const io = new Server(server, {
   cors: corsOptions,
-  transports: ['websocket', 'polling'],
-  pingInterval: 10000,
+  transports: ['websocket'], // Force websocket as requested for production reliability
+  allowEIO3: true,
+  pingInterval: 25000,
   pingTimeout: 5000
 });
 
