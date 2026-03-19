@@ -28,16 +28,16 @@ app.get('/', (req, res) => {
   res.send('Server is running');
 });
 
-// Socket.io setup
 const io = new Server(server, {
+  path: "/socket.io", // Explicitly match frontend path without trailing slash
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
     credentials: false
   },
-  transports: ['polling', 'websocket'],
+  transports: ['websocket'], // Force websocket on backend too
   pingInterval: 25000,
-  pingTimeout: 30000 // Even more relaxed
+  pingTimeout: 30000 
 });
 
 setupSocketHandlers(io);
