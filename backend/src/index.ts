@@ -5,41 +5,30 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import healthRoutes from './routes/healthRoutes';
 import { setupSocketHandlers } from './sockets/socketHandler';
-import { rateLimiter } from './middleware/rateLimiter';
 
 dotenv.config();
+
+console.log("🚀 Starting Norinly backend server...");
 
 const app = express();
 const server = http.createServer(app);
 
-const corsOptions = {
-  origin: [
-    "https://norinly.live",
-    "http://localhost:3000"
-  ],
-  methods: ["GET", "POST"],
-  credentials: true
-};
-
-app.use(cors(corsOptions));
+// Basic middleware
+app.use(cors());
 app.use(express.json());
-// app.use(rateLimiter); // Temporarily disabled to rule out socket connection interference
 
 // Routes
 app.use('/health', healthRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Server is running');
+  res.send('Norinly Server is running');
 });
 
+// Socket.io initialization with forced WebSocket and permissive CORS
 const io = new Server(server, {
   cors: {
-    origin: [
-      "https://norinly.live",
-      "http://localhost:3000"
-    ],
-    methods: ["GET", "POST"],
-    credentials: true
+    origin: "*", // allow all for testing
+    methods: ["GET", "POST"]
   },
   transports: ["websocket"],
 });
@@ -48,19 +37,28 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("✅ User connected:", socket.id);
   
-  socket.on('disconnect', (reason) => {
-    console.log(`[Socket] Disconnected: ${socket.id} | Reason: ${reason}`);
+  socket.on('disconnect', () => {
+    console.log("❌ User disconnected:", socket.id);
   });
 });
 
 // CRITICAL: Handle WebSocket upgrade requests
 server.on("upgrade", (req, socket, head) => {
-  console.log("🔄 Upgrade request received:", req.url);
+  console.log("🔥 Upgrade request received:", req.url);
+});
+
+// Crash protection
+process.on("uncaughtException", (err) => {
+  console.error("❌ Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("❌ Unhandled Rejection:", err);
 });
 
 setupSocketHandlers(io);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
