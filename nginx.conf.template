@@ -45,19 +45,6 @@ http {
             # Increase timeouts for WebSockets
             proxy_read_timeout 3600;
             proxy_send_timeout 3600;
-
-            # CORS headers at Nginx level
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
-            add_header 'Access-Control-Allow-Headers' '*' always;
-            
-            if ($request_method = 'OPTIONS') {
-                add_header 'Access-Control-Allow-Origin' '*' always;
-                add_header 'Access-Control-Max-Age' 1728000;
-                add_header 'Content-Type' 'text/plain; charset=utf-8';
-                add_header 'Content-Length' 0;
-                return 204;
-            }
         }
 
         # Next.js Frontend

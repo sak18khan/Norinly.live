@@ -13,11 +13,12 @@ const app = express();
 const server = http.createServer(app);
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "https://norinly.live"],
+  origin: true, // Echo origin for credentials support
   methods: ["GET", "POST"],
   credentials: true
 };
 
+app.use(cors(corsOptions)); // Re-enable for initial polling requests
 app.use(express.json());
 // app.use(rateLimiter); // Temporarily disabled to rule out socket connection interference
 
