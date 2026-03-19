@@ -33,29 +33,37 @@ app.get('/', (req, res) => {
 });
 
 const io = new Server(server, {
-  cors: corsOptions,
-  transports: ['websocket'],
-  pingInterval: 25000,
-  pingTimeout: 60000 
+  cors: {
+    origin: [
+      "https://norinly.live",
+      "http://localhost:3000"
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ["websocket"],
 });
 
 // Diagnostic logging for connections
-io.on('connection', (socket) => {
-  const origin = socket.handshake.headers.origin || 'unknown';
-  const transport = socket.conn.transport.name;
-  console.log(`[Socket] New connection: ${socket.id} | Origin: ${origin} | Transport: ${transport}`);
+io.on("connection", (socket) => {
+  console.log("✅ User connected:", socket.id);
   
   socket.on('disconnect', (reason) => {
     console.log(`[Socket] Disconnected: ${socket.id} | Reason: ${reason}`);
   });
 });
 
+// CRITICAL: Handle WebSocket upgrade requests
+server.on("upgrade", (req, socket, head) => {
+  console.log("🔄 Upgrade request received:", req.url);
+});
+
 setupSocketHandlers(io);
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(Number(PORT), '0.0.0.0', () => {
-  console.log(`[Server] Norinly backend running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
 
 export { app, io };
