@@ -320,7 +320,7 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row items-center gap-10 text-center sm:text-left">
                     <div className="w-40 h-40 md:w-56 md:h-56 bg-surface dark:bg-slate-800 rounded-[3rem] p-8 md:p-12 shrink-0 border border-black/5 dark:border-white/10 shadow-premium group overflow-hidden relative">
                         <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <img src="/images/leaderboard.png" alt="Leaderboard" className="w-full h-full object-contain relative z-10 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700" />
+                        <img src="/images/leaderboard_new.png" alt="Leaderboard" className="w-full h-full object-contain relative z-10 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700" />
                     </div>
                     <div className="space-y-6">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/5 border border-accent/10 text-accent text-[10px] font-black uppercase tracking-widest shadow-sm">
@@ -337,7 +337,7 @@ export default function Home() {
                 <div className="pt-4 flex justify-center sm:justify-start">
                     <button 
                         onClick={() => router.push('/leaderboard')}
-                        className="flex items-center gap-6 group px-10 py-5 rounded-2xl bg-foreground text-white hover:bg-primary transition-all w-fit shadow-premium active:scale-95"
+                        className="flex items-center gap-6 group px-10 py-5 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white transition-all w-fit shadow-premium active:scale-95"
                     >
                         <span className="font-black uppercase tracking-widest text-[10px] italic">View Rankings</span>
                         <div className="w-8 h-8 rounded-lg bg-white/10 group-hover:bg-white group-hover:text-primary flex items-center justify-center transition-all">

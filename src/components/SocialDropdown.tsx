@@ -58,7 +58,7 @@ export default function SocialDropdown() {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all shadow-premium relative group active:scale-95 border ${isOpen ? 'bg-accent border-accent text-white shadow-premium' : 'bg-white border-black/5 text-secondary-text hover:border-accent/30 hover:text-foreground'}`}
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all shadow-premium relative group active:scale-95 border ${isOpen ? 'bg-accent border-accent text-white shadow-premium' : 'bg-surface border-border text-secondary-text hover:border-accent/30 hover:text-foreground'}`}
             >
                 <User className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 {totalNotifications > 0 && (
