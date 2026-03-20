@@ -48,10 +48,10 @@ export default function TalkToStrangers() {
                 <section className="relative pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden text-center px-6">
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/20 via-background to-background -z-10" />
                     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                        <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-white leading-tight">
+                        <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-foreground leading-tight">
                             Talk to Strangers <br /> <span className="text-accent">Online Instantly</span>
                         </h1>
-                        <p className="text-lg md:text-2xl text-zinc-400 max-w-2xl mx-auto font-light">
+                        <p className="text-lg md:text-2xl text-secondary-text max-w-2xl mx-auto font-light">
                             Norinly allows people to instantly connect with strangers through anonymous voice chat. 
                             Start conversations with people from around the world without sharing personal information.
                         </p>
@@ -70,8 +70,8 @@ export default function TalkToStrangers() {
                 <section className="max-w-6xl mx-auto px-6 py-16 md:py-24">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                         <div className="space-y-6">
-                            <h2 className="text-3xl md:text-4xl font-bold text-white">Why Talk to Strangers Online?</h2>
-                            <p className="text-zinc-400 text-lg font-light leading-relaxed">
+                            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Why Talk to Strangers Online?</h2>
+                            <p className="text-secondary-text text-lg font-light leading-relaxed">
                                 Conversations with strangers offer a unique perspective and the freedom to express yourself 
                                 without the constraints of social expectations. Whether you're looking for a quick chat, 
                                 wanting to practice a language, or simply curious about other cultures, Norinly provides 
@@ -80,33 +80,33 @@ export default function TalkToStrangers() {
                             <ul className="space-y-4 pt-4">
                                 <li className="flex items-start space-x-3">
                                     <div className="mt-1 bg-accent/20 p-1 rounded-full"><Zap className="w-4 h-4 text-accent" /></div>
-                                    <span className="text-zinc-300">Break out of your social bubble</span>
+                                    <span className="text-secondary-text">Break out of your social bubble</span>
                                 </li>
                                 <li className="flex items-start space-x-3">
                                     <div className="mt-1 bg-accent/20 p-1 rounded-full"><MessageCircle className="w-4 h-4 text-accent" /></div>
-                                    <span className="text-zinc-300">Spontaneous and real-time interactions</span>
+                                    <span className="text-secondary-text">Spontaneous and real-time interactions</span>
                                 </li>
                                 <li className="flex items-start space-x-3">
                                     <div className="mt-1 bg-accent/20 p-1 rounded-full"><Shield className="w-4 h-4 text-accent" /></div>
-                                    <span className="text-zinc-300">Privacy-focused anonymous environment</span>
+                                    <span className="text-secondary-text">Privacy-focused anonymous environment</span>
                                 </li>
                             </ul>
                         </div>
                         <div className="bg-surface/30 border border-border p-8 rounded-[2.5rem] relative group">
                             <div className="absolute inset-0 bg-accent/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <h3 className="text-2xl font-bold text-white mb-6">How Norinly Works</h3>
+                            <h3 className="text-2xl font-bold text-foreground mb-6">How Norinly Works</h3>
                             <div className="space-y-8">
                                 <div className="flex items-center space-x-4">
                                     <div className="text-2xl font-black text-accent/50 w-8">01</div>
-                                    <p className="text-zinc-200 font-medium">Click the Start Button</p>
+                                    <p className="text-foreground font-medium">Click the Start Button</p>
                                 </div>
                                 <div className="flex items-center space-x-4">
                                     <div className="text-2xl font-black text-accent/50 w-8">02</div>
-                                    <p className="text-zinc-200 font-medium">Wait seconds to be matched</p>
+                                    <p className="text-foreground font-medium">Wait seconds to be matched</p>
                                 </div>
                                 <div className="flex items-center space-x-4">
                                     <div className="text-2xl font-black text-accent/50 w-8">03</div>
-                                    <p className="text-zinc-200 font-medium">Start your voice conversation</p>
+                                    <p className="text-foreground font-medium">Start your voice conversation</p>
                                 </div>
                             </div>
                         </div>
@@ -117,15 +117,15 @@ export default function TalkToStrangers() {
                 <section className="bg-surface/20 border-y border-border py-16 md:py-24">
                     <div className="max-w-6xl mx-auto px-6">
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-5xl font-bold text-white">Feature Highlights</h2>
-                            <p className="text-zinc-400 mt-4 max-w-2xl mx-auto">Everything you need for a comfortable anonymous experience.</p>
+                            <h2 className="text-3xl md:text-5xl font-bold text-foreground">Feature Highlights</h2>
+                            <p className="text-muted-text mt-4 max-w-2xl mx-auto">Everything you need for a comfortable anonymous experience.</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {features.map((f, i) => (
                                 <div key={i} className="bg-surface/40 border border-border p-8 rounded-3xl hover:border-accent/40 transition-colors">
                                     <div className="mb-4">{f.icon}</div>
-                                    <h4 className="text-xl font-bold text-white mb-2">{f.title}</h4>
-                                    <p className="text-zinc-400 text-sm font-light">{f.desc}</p>
+                                    <h4 className="text-xl font-bold text-foreground mb-2">{f.title}</h4>
+                                    <p className="text-muted-text text-sm font-light">{f.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -134,7 +134,7 @@ export default function TalkToStrangers() {
 
                 {/* FAQ Section */}
                 <section className="max-w-3xl mx-auto px-6 py-16 md:py-24">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-white">Common Questions</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-foreground">Common Questions</h2>
                     <div className="space-y-4">
                         {faqs.map((faq, i) => (
                             <FAQItem key={i} question={faq.q} answer={faq.a} />
@@ -151,7 +151,7 @@ export default function TalkToStrangers() {
                         </p>
                         <button
                             onClick={handleCTAClick}
-                            className="px-10 py-5 bg-white text-accent hover:bg-zinc-100 rounded-full font-bold text-xl transition-all hover:scale-105 active:scale-95 shadow-xl"
+                            className="px-10 py-5 bg-background text-accent hover:bg-surface-alt rounded-full font-bold text-xl transition-all hover:scale-105 active:scale-95 shadow-xl"
                         >
                             Connect Now
                         </button>
@@ -173,11 +173,11 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-6 text-left"
             >
-                <span className="text-lg font-bold text-white">{question}</span>
+                <span className="text-lg font-bold text-foreground">{question}</span>
                 <HelpCircle className={`w-5 h-5 text-accent transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-48 opacity-100 p-6 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                <p className="text-zinc-400 font-light leading-relaxed">
+                <p className="text-secondary-text font-light leading-relaxed">
                     {answer}
                 </p>
             </div>

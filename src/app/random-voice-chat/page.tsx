@@ -48,10 +48,10 @@ export default function RandomVoiceChat() {
                 <section className="relative pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden text-center px-6">
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/20 via-background to-background -z-10" />
                     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                        <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-white leading-tight">
+                        <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-foreground leading-tight">
                             Random Voice Chat <br /> <span className="text-accent">with Real People</span>
                         </h1>
-                        <p className="text-lg md:text-2xl text-zinc-400 max-w-2xl mx-auto font-light">
+                        <p className="text-lg md:text-2xl text-secondary-text max-w-2xl mx-auto font-light">
                             Norinly connects you randomly for voice conversations with people globally. 
                             Experience spontaneous and authentic connections without any setup.
                         </p>
@@ -82,8 +82,8 @@ export default function RandomVoiceChat() {
                             </div>
                         </div>
                         <div className="order-1 md:order-2 space-y-6">
-                            <h2 className="text-3xl md:text-4xl font-bold text-white">The Magic of Random Conversations</h2>
-                            <p className="text-zinc-400 text-lg font-light leading-relaxed">
+                            <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Magic of Random Conversations</h2>
+                            <p className="text-secondary-text text-lg font-light leading-relaxed">
                                 What is random voice chat? It's the thrill of meeting someone completely new with no 
                                 preconceived notions. Voice conversations feel more natural than text because you 
                                 can hear the nuances of a person's voice—their laughter, their hesitation, and their 
@@ -93,15 +93,15 @@ export default function RandomVoiceChat() {
                                 <div className="bg-surface/40 p-5 rounded-2xl border border-border flex items-start space-x-4">
                                     <Globe className="w-6 h-6 text-accent mt-1" />
                                     <div>
-                                        <h4 className="text-white font-bold">Meet people from around the world</h4>
-                                        <p className="text-zinc-400 text-sm">Expand your horizons by chatting with users from different continents and cultures.</p>
+                                        <h4 className="text-foreground font-bold">Meet people from around the world</h4>
+                                        <p className="text-muted-text text-sm">Expand your horizons by chatting with users from different continents and cultures.</p>
                                     </div>
                                 </div>
                                 <div className="bg-surface/40 p-5 rounded-2xl border border-border flex items-start space-x-4">
                                     <FastForward className="w-6 h-6 text-accent mt-1" />
                                     <div>
-                                        <h4 className="text-white font-bold">Skip and connect anytime</h4>
-                                        <p className="text-zinc-400 text-sm">You're always one click away from a brand new experience. Keep searching until you find a great talk.</p>
+                                        <h4 className="text-foreground font-bold">Skip and connect anytime</h4>
+                                        <p className="text-muted-text text-sm">You're always one click away from a brand new experience. Keep searching until you find a great talk.</p>
                                     </div>
                                 </div>
                             </div>
@@ -113,15 +113,15 @@ export default function RandomVoiceChat() {
                 <section className="bg-surface/20 border-y border-border py-16 md:py-24">
                     <div className="max-w-6xl mx-auto px-6">
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-5xl font-bold text-white">Everything is Instant</h2>
-                            <p className="text-zinc-400 mt-4 max-w-2xl mx-auto">Designed for the fastest connection possible.</p>
+                            <h2 className="text-3xl md:text-5xl font-bold text-foreground">Everything is Instant</h2>
+                            <p className="text-muted-text mt-4 max-w-2xl mx-auto">Designed for the fastest connection possible.</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {features.map((f, i) => (
                                 <div key={i} className="bg-surface/40 border border-border p-8 rounded-3xl group hover:-translate-y-1 transition-all">
                                     <div className="mb-4 bg-accent/10 w-fit p-3 rounded-2xl group-hover:bg-accent group-hover:text-white transition-colors">{f.icon}</div>
-                                    <h4 className="text-xl font-bold text-white mb-2">{f.title}</h4>
-                                    <p className="text-zinc-400 text-sm font-light">{f.desc}</p>
+                                    <h4 className="text-xl font-bold text-foreground mb-2">{f.title}</h4>
+                                    <p className="text-muted-text text-sm font-light">{f.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -130,7 +130,7 @@ export default function RandomVoiceChat() {
 
                 {/* FAQ Section */}
                 <section className="max-w-3xl mx-auto px-6 py-16 md:py-24">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-white">Random Chat FAQs</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-foreground">Random Chat FAQs</h2>
                     <div className="space-y-4">
                         {faqs.map((faq, i) => (
                             <FAQItem key={i} question={faq.q} answer={faq.a} />
@@ -147,7 +147,7 @@ export default function RandomVoiceChat() {
                         </p>
                         <button
                             onClick={handleCTAClick}
-                            className="px-10 py-5 bg-white text-accent hover:bg-zinc-100 rounded-full font-bold text-xl transition-all hover:scale-105 active:scale-95 shadow-xl"
+                            className="px-10 py-5 bg-background text-accent hover:bg-surface-alt rounded-full font-bold text-xl transition-all hover:scale-105 active:scale-95 shadow-xl"
                         >
                             Start Random Chat
                         </button>
@@ -169,11 +169,11 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-6 text-left"
             >
-                <span className="text-lg font-bold text-white">{question}</span>
+                <span className="text-lg font-bold text-foreground">{question}</span>
                 <HelpCircle className={`w-5 h-5 text-accent transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-48 opacity-100 p-6 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                <p className="text-zinc-400 font-light leading-relaxed">
+                <p className="text-secondary-text font-light leading-relaxed">
                     {answer}
                 </p>
             </div>

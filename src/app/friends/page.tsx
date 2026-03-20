@@ -112,17 +112,17 @@ export default function FriendsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0A0A0B] flex flex-col font-sans selection:bg-accent/30 selection:text-white">
+        <div className="min-h-screen bg-background flex flex-col font-sans selection:bg-accent/30 selection:text-white">
             <header className="w-full px-6 py-6 border-b border-white/5 bg-black/40 backdrop-blur-3xl sticky top-0 z-50">
                 <div className="max-w-5xl mx-auto flex justify-between items-center">
                     <div className="flex items-center space-x-6">
                         <button
                             onClick={() => router.push('/')}
-                            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-zinc-400 hover:text-white transition-all border border-white/5 active:scale-95"
+                            className="p-2.5 bg-surface-alt hover:bg-surface rounded-xl text-muted-text hover:text-foreground transition-all border border-border active:scale-95"
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </button>
-                        <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white uppercase italic">
+                        <h1 className="text-2xl md:text-3xl font-black tracking-tight text-foreground uppercase italic">
                             Friends<span className="text-accent">.</span>
                         </h1>
                     </div>
@@ -130,7 +130,7 @@ export default function FriendsPage() {
                         <HeaderFriendsList />
                         <button
                             onClick={logout}
-                            className="text-[10px] font-black uppercase tracking-widest text-secondary hover:text-accent transition-colors py-2 px-4 bg-white/5 border border-white/5 rounded-xl"
+                            className="text-[10px] font-black uppercase tracking-widest text-secondary-text hover:text-accent transition-colors py-2 px-4 bg-surface-alt border border-border rounded-xl"
                         >
                             Sign Out
                         </button>
@@ -158,15 +158,15 @@ export default function FriendsPage() {
                             </div>
                         </div>
                         <div className="mt-8 text-center">
-                          <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">{username || 'Anonymous Learner'}</h2>
+                          <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">{username || 'Anonymous Learner'}</h2>
                           <div className="flex items-center justify-center gap-2 mt-2">
                              <div className="w-2 h-2 rounded-full bg-positive-accent animate-pulse" />
-                             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">{currentUser.email}</span>
+                             <span className="text-[10px] font-black text-muted-text uppercase tracking-[0.2em]">{currentUser.email}</span>
                           </div>
                         </div>
                     </div>
 
-                    <div className="lg:col-span-2 space-y-6 bg-white/[0.02] border border-white/5 p-8 md:p-10 rounded-[3rem] backdrop-blur-xl shadow-premium relative overflow-hidden">
+                    <div className="lg:col-span-2 space-y-6 bg-surface-alt/50 border border-border p-8 md:p-10 rounded-[3rem] backdrop-blur-xl shadow-premium relative overflow-hidden">
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-accent/10 blur-[80px] rounded-full" />
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
                             <div className="space-y-2">
@@ -176,7 +176,7 @@ export default function FriendsPage() {
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     placeholder="Enter username"
-                                    className="w-full bg-black/40 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-accent/50 focus:bg-black/60 transition-all font-medium shadow-inner"
+                                    className="w-full bg-surface border border-border rounded-2xl px-6 py-4 text-sm text-foreground focus:outline-none focus:border-accent/50 focus:bg-surface-alt transition-all font-medium shadow-inner"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -188,7 +188,7 @@ export default function FriendsPage() {
                                         value={country}
                                         onChange={(e) => setCountry(e.target.value)}
                                         placeholder="United States"
-                                        className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-sm text-white focus:outline-none focus:border-accent/50 focus:bg-black/60 transition-all font-medium shadow-inner"
+                                        className="w-full bg-surface border border-border rounded-2xl pl-12 pr-6 py-4 text-sm text-foreground focus:outline-none focus:border-accent/50 focus:bg-surface-alt transition-all font-medium shadow-inner"
                                     />
                                 </div>
                             </div>
@@ -200,7 +200,7 @@ export default function FriendsPage() {
                                 onChange={(e) => setBio(e.target.value)}
                                 placeholder="Tell friends about yourself..."
                                 rows={2}
-                                className="w-full bg-black/40 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-accent/50 focus:bg-black/60 transition-all font-medium resize-none shadow-inner"
+                                className="w-full bg-surface border border-border rounded-2xl px-6 py-4 text-sm text-foreground focus:outline-none focus:border-accent/50 focus:bg-surface-alt transition-all font-medium resize-none shadow-inner"
                             />
                         </div>
                         <button
@@ -223,8 +223,8 @@ export default function FriendsPage() {
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest mb-6">
                            <Share2 className="w-3.5 h-3.5" /> Instant Direct Link
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-4">Invite to <span className="text-accent underline decoration-accent/20 decoration-8 underline-offset-4">Private Chat</span></h2>
-                        <p className="text-zinc-400 text-lg mb-8 font-medium max-w-xl leading-relaxed">Want to talk to a specific friend? Generate a private link and share it with them. You'll bypass matchmaking and connect directly in a secure room.</p>
+                        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-4">Invite to <span className="text-white underline decoration-white/20 decoration-8 underline-offset-4">Private Chat</span></h2>
+                        <p className="text-white/80 text-lg mb-8 font-medium max-w-xl leading-relaxed">Want to talk to a specific friend? Generate a private link and share it with them. You'll bypass matchmaking and connect directly in a secure room.</p>
 
                         {!inviteLink ? (
                             <button
@@ -268,8 +268,8 @@ export default function FriendsPage() {
                         <div className="w-20 h-20 bg-zinc-900 border border-white/5 rounded-[1.8rem] flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform shadow-premium">
                             <UserPlus className="w-8 h-8 text-zinc-600 group-hover:text-accent transition-colors" />
                         </div>
-                        <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Your library is empty</h3>
-                        <p className="text-zinc-500 text-sm font-medium mb-10 max-w-xs mx-auto leading-relaxed">Start exploring live rooms and use the heart button to add people to your network.</p>
+                        <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-tight">Your library is empty</h3>
+                        <p className="text-secondary-text text-sm font-medium mb-10 max-w-xs mx-auto leading-relaxed">Start exploring live rooms and use the heart button to add people to your network.</p>
                         <button
                             onClick={() => router.push('/')}
                             className="bg-accent/10 border border-accent/20 text-accent px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-accent hover:text-white transition-all shadow-glow-accent/20"
@@ -296,10 +296,10 @@ export default function FriendsPage() {
                                             <div className={`absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full border-[3px] border-[#121214] ${friend.status === 'online' ? 'bg-positive-accent shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-zinc-600'}`} />
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-lg font-black text-white group-hover:text-accent transition-colors tracking-tight">
+                                            <span className="text-lg font-black text-foreground group-hover:text-accent transition-colors tracking-tight">
                                                 {friend.username}
                                             </span>
-                                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center">
+                                            <span className="text-[10px] font-black text-muted-text uppercase tracking-widest flex items-center">
                                                 {friend.status === 'online' ? (
                                                     <span className="text-positive-accent">Ready to chat</span>
                                                 ) : (

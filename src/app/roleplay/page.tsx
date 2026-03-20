@@ -30,7 +30,7 @@ export default function RoleplaySelectionPage() {
                         Practice Real <br />
                         <span className="text-accent underline decoration-accent/10 underline-offset-8">Conversations</span>
                     </h1>
-                    <p className="text-secondary text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-secondary-text text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
                         Choose a scenario and get matched with a real person. 
                         We'll provide roles and prompts to help you practice your English naturally.
                     </p>
@@ -40,7 +40,7 @@ export default function RoleplaySelectionPage() {
                     {SCENARIOS.map((scenario) => (
                         <div 
                             key={scenario.id}
-                            className="group bg-white border border-border p-8 rounded-[2.5rem] flex flex-col hover:border-accent/40 hover:shadow-premium transition-all duration-500 relative overflow-hidden"
+                            className="group bg-surface border border-border p-8 rounded-[2.5rem] flex flex-col hover:border-accent/40 hover:shadow-premium transition-all duration-500 relative overflow-hidden"
                         >
                             <div className="mb-8 w-16 h-16 bg-surface border border-border rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-sm text-3xl">
                                 {scenario.icon}
@@ -50,7 +50,7 @@ export default function RoleplaySelectionPage() {
                                 <h3 className="text-2xl font-black text-foreground group-hover:text-accent transition-colors leading-tight">
                                     {scenario.title}
                                 </h3>
-                                <p className="text-secondary text-sm font-medium leading-relaxed">
+                                <p className="text-secondary-text text-sm font-medium leading-relaxed">
                                     {scenario.description}
                                 </p>
                             </div>
@@ -58,7 +58,7 @@ export default function RoleplaySelectionPage() {
                             <div className="space-y-4 pt-6 border-t border-border/50">
                                 <div className="flex items-center justify-between">
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-muted uppercase tracking-widest mb-1">Roles</span>
+                                        <span className="text-[10px] font-black text-muted-text uppercase tracking-widest mb-1">Roles</span>
                                         <span className="text-xs font-bold text-foreground">
                                             {scenario.roles.A} vs {scenario.roles.B}
                                         </span>
@@ -70,7 +70,7 @@ export default function RoleplaySelectionPage() {
 
                                 <button 
                                     onClick={() => handleStartRoleplay(scenario.id)}
-                                    className="w-full py-4 rounded-2xl bg-slate-900 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-accent transition-all group/btn"
+                                    className="w-full py-4 rounded-2xl bg-foreground text-background font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-accent hover:text-white transition-all group/btn"
                                 >
                                     Start Roleplay
                                     <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -85,7 +85,7 @@ export default function RoleplaySelectionPage() {
 
                 <div className="mt-24 p-8 rounded-[3rem] bg-accent/5 border border-accent/10 max-w-3xl w-full text-center space-y-4 animate-fade-in-up [animation-delay:400ms]">
                     <h4 className="text-lg font-black text-foreground uppercase tracking-tight">How it works?</h4>
-                    <p className="text-secondary text-sm font-medium leading-relaxed">
+                    <p className="text-secondary-text text-sm font-medium leading-relaxed">
                         Wait for a partner to join the same scenario. Once matched, you'll be assigned a role and given specific talking points to guide your conversation. Each session lasts 3-5 minutes.
                     </p>
                 </div>

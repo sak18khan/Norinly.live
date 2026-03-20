@@ -261,7 +261,7 @@ export default function ChatPage() {
     }, [status, router]);
 
     return (
-        <div className="min-h-screen h-screen flex flex-col bg-slate-50 selection:bg-accent/10 selection:text-accent overflow-hidden">
+        <div className="min-h-screen h-screen flex flex-col bg-background selection:bg-accent/10 selection:text-accent overflow-hidden">
             {/* Top Navigation Bar */}
             <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
@@ -285,7 +285,7 @@ export default function ChatPage() {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-positive-accent opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-positive-accent"></span>
                                 </span>
-                                <span className="text-[10px] font-black text-muted uppercase tracking-widest">
+                                <span className="text-[10px] font-black text-muted-text uppercase tracking-widest">
                                     {liveUsers.toLocaleString()} <span className="hidden sm:inline">Online</span>
                                 </span>
                             </div>
@@ -302,7 +302,7 @@ export default function ChatPage() {
                             ) : (
                                 <button
                                     onClick={() => setShowAuthModal(true)}
-                                    className="px-4 py-1.5 bg-foreground text-white font-black rounded-lg transition-all hover:bg-slate-800 active:scale-95 text-[11px] shadow-sm uppercase tracking-wider"
+                                    className="px-4 py-1.5 bg-foreground text-background font-black rounded-lg transition-all hover:opacity-90 active:scale-95 text-[11px] shadow-sm uppercase tracking-wider"
                                 >
                                     Log In
                                 </button>
@@ -314,7 +314,7 @@ export default function ChatPage() {
 
             {/* Compact Session Header (Point 6) */}
             <div className="pt-20 md:pt-24 px-4 flex-shrink-0">
-                <div className="max-w-4xl mx-auto border-b border-slate-100 pb-4">
+                <div className="max-w-4xl mx-auto border-b border-border pb-4">
                     {micDenied ? (
                         <div className="bg-red-50/50 border border-red-100/50 rounded-xl p-3 flex items-center gap-3 text-red-600 text-[10px] font-black uppercase tracking-widest shadow-sm">
                             <XSquare className="w-4 h-4" />
@@ -331,12 +331,12 @@ export default function ChatPage() {
                                         </div>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-1.5 line-height-1">
-                                                <span className={`${!partnerDisplayName ? 'animate-pulse text-slate-400' : 'text-slate-800'} text-[11px] font-black uppercase tracking-widest truncate max-w-[120px]`}>
+                                                <span className={`${!partnerDisplayName ? 'animate-pulse text-muted-text' : 'text-foreground'} text-[11px] font-black uppercase tracking-widest truncate max-w-[120px]`}>
                                                     {partnerDisplayName || 'Searching...'}
                                                 </span>
                                                 <span className="text-sm leading-none">{getFlagEmoji(partnerCountry?.countryCode || null)}</span>
                                             </div>
-                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest -mt-0.5">
+                                            <span className="text-[8px] font-bold text-muted-text uppercase tracking-widest -mt-0.5">
                                                 {partnerCountry?.countryName || 'GLOBAL MATCH'}
                                             </span>
                                         </div>
@@ -404,7 +404,7 @@ export default function ChatPage() {
 
                 {/* Chat Container */}
                 <div className={`flex-1 w-full max-w-4xl flex flex-col px-4 md:px-6 relative mb-2 transition-soft ${isSwitching ? 'opacity-0 scale-[0.98] translate-y-2 blur-sm' : 'opacity-100 scale-100 translate-y-0'}`}>
-                    <div className="flex-1 bg-white border border-slate-100/80 rounded-[1.5rem] flex flex-col overflow-hidden relative shadow-premium-sm">
+                    <div className="flex-1 bg-surface border border-border rounded-[1.5rem] flex flex-col overflow-hidden relative shadow-premium-sm">
                         
                         {/* Improved Empty State */}
                         {status === 'connected' && messages.length === 0 && (
@@ -412,8 +412,8 @@ export default function ChatPage() {
                                 <div className="w-16 h-16 bg-accent/5 rounded-2xl flex items-center justify-center mb-4 transition-transform hover:scale-110">
                                     <Sparkles className="w-8 h-8 text-accent animate-pulse" />
                                 </div>
-                                <h3 className="text-sm font-black text-slate-800 uppercase tracking-[0.2em] mb-2">Practice Started!</h3>
-                                <p className="text-xs text-slate-500 font-medium max-w-[240px] leading-relaxed">
+                                <h3 className="text-sm font-black text-foreground uppercase tracking-[0.2em] mb-2">Practice Started!</h3>
+                                <p className="text-xs text-secondary-text font-medium max-w-[240px] leading-relaxed">
                                     You&apos;re now connected 🎉 <br />
                                     <span className="text-accent/80">Start by saying hi!</span>
                                 </p>
@@ -441,13 +441,13 @@ export default function ChatPage() {
                             {/* Lightweight Topic Suggestion */}
                             {status === 'connected' && currentPrompt && !isSessionFinished && (
                                 <div className="mb-6 animate-fade-in-up duration-700 max-w-2xl mx-auto">
-                                    <div className="bg-slate-50 border border-slate-100/50 p-3.5 rounded-2xl flex items-center gap-3.5 shadow-sm transition-all hover:border-accent/30 group">
+                                    <div className="bg-surface-alt border border-border p-3.5 rounded-2xl flex items-center gap-3.5 shadow-sm transition-all hover:border-accent/30 group">
                                         <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                                             <Sparkles className="w-4 h-4 text-accent" />
                                         </div>
                                         <div className="flex-1">
                                             <div className="text-[8px] font-black text-accent uppercase tracking-widest leading-none mb-1">Topic Suggestion</div>
-                                            <div className="text-[12px] font-semibold text-slate-600 leading-tight">{currentPrompt}</div>
+                                            <div className="text-[12px] font-semibold text-secondary-text leading-tight">{currentPrompt}</div>
                                         </div>
                                         <button
                                             onClick={handleNextPrompt}
@@ -467,15 +467,15 @@ export default function ChatPage() {
                                 >
                                     <div
                                         className={`max-w-[85%] px-5 py-3 rounded-2xl text-[14px] font-medium leading-relaxed shadow-sm transition-all duration-300 ${msg.sender === 'me'
-                                            ? 'bg-slate-900 text-white rounded-tr-none'
+                                            ? 'bg-foreground text-background rounded-tr-none'
                                             : msg.text.startsWith('[SYSTEM]:')
                                                 ? 'bg-accent/5 text-accent border border-accent/10 rounded-xl mx-auto !max-w-[90%] py-2 px-6 text-center text-[10px] font-black uppercase tracking-widest shadow-none'
-                                                : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
+                                                : 'bg-surface-alt text-foreground border border-border rounded-tl-none'
                                             }`}
                                     >
                                         {msg.text.replace('[SYSTEM]:', '').trim()}
                                     </div>
-                                    <span className={`mt-1.5 px-2 text-[9px] font-black uppercase tracking-widest ${msg.sender === 'me' ? 'text-accent' : 'text-slate-400'}`}>
+                                    <span className={`mt-1.5 px-2 text-[9px] font-black uppercase tracking-widest ${msg.sender === 'me' ? 'text-accent' : 'text-muted-text'}`}>
                                         {msg.sender === 'me' ? (myDisplayName || 'You') : (partnerDisplayName || 'Partner')}
                                     </span>
                                 </div>
@@ -541,7 +541,7 @@ export default function ChatPage() {
                                                 onChange={handleInputChange}
                                                 onKeyDown={handleKeyDown}
                                                 placeholder="Type a message..."
-                                                className="w-full bg-slate-50 border border-slate-100/80 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent/20 transition-soft shadow-sm group-hover:bg-white"
+                                                className="w-full bg-surface-alt border border-border rounded-2xl px-5 py-4 text-sm font-medium text-foreground placeholder:text-muted-text focus:outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent/20 transition-soft shadow-sm group-hover:bg-surface"
                                             />
                                             {isStrangerTyping && (
                                                 <div className="absolute -top-7 left-1 flex items-center gap-1.5 animate-fade-in">
@@ -557,7 +557,7 @@ export default function ChatPage() {
                                         <button
                                             type="submit"
                                             disabled={!inputText.trim()}
-                                            className="w-12 h-12 md:w-14 md:h-14 bg-slate-900 hover:bg-accent text-white rounded-2xl flex items-center justify-center transition-soft active:scale-95 disabled:opacity-30 shadow-premium-lg hover:shadow-glow-accent-lg group/send"
+                                            className="w-12 h-12 md:w-14 md:h-14 bg-foreground hover:bg-accent text-background rounded-2xl flex items-center justify-center transition-soft active:scale-95 disabled:opacity-30 shadow-premium-lg hover:shadow-glow-accent-lg group/send"
                                         >
                                             <Send className="w-5 h-5 md:w-5.5 md:h-5.5 group-hover/send:translate-x-0.5 group-hover/send:-translate-y-0.5 transition-soft" />
                                         </button>
@@ -597,8 +597,8 @@ export default function ChatPage() {
                                 <XSquare className="w-8 h-8" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-slate-800 mb-2">Partner Left</h3>
-                                <p className="text-slate-500 text-sm">The conversation has ended. Start a new one?</p>
+                                <h3 className="text-xl font-bold text-foreground mb-2">Partner Left</h3>
+                                <p className="text-secondary-text text-sm">The conversation has ended. Start a new one?</p>
                             </div>
                             <button
                                 onClick={handleReconnect}
@@ -614,7 +614,7 @@ export default function ChatPage() {
 
             {/* Symmetrical Bottom Control Bar */}
             <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-8 md:pb-10 flex justify-center pointer-events-none">
-                <div className="w-full max-w-4xl flex items-center justify-between pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-100 rounded-[2rem] px-6 py-3.5 shadow-premium-xl transition-all duration-500 hover:shadow-premium group/dock">
+                <div className="w-full max-w-4xl flex items-center justify-between pointer-events-auto bg-surface/95 backdrop-blur-md border border-border rounded-[2rem] px-6 py-3.5 shadow-premium-xl transition-all duration-500 hover:shadow-premium group/dock">
                     
                     {/* Left: Device Controls */}
                     <div className="flex items-center gap-3 flex-1">
@@ -637,7 +637,7 @@ export default function ChatPage() {
                             >
                                 <XSquare className="w-4.5 h-4.5" />
                             </button>
-                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Exit</span>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-muted-text">Exit</span>
                         </div>
                     </div>
 
@@ -667,7 +667,7 @@ export default function ChatPage() {
                             >
                                 <UserPlus className="w-4.5 h-4.5" />
                             </button>
-                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Add Friend</span>
+                            <span className="text-[8px] font-black uppercase tracking-widest text-muted-text">Add Friend</span>
                         </div>
                     </div>
                 </div>
@@ -697,7 +697,7 @@ export default function ChatPage() {
                             <LogOut className="w-10 h-10 text-accent" />
                         </div>
                         <h3 className="text-2xl font-bold text-foreground mb-3">Leaving already?</h3>
-                        <p className="text-secondary mb-8">Want to try one more conversation before you go?</p>
+                        <p className="text-secondary-text mb-8">Want to try one more conversation before you go?</p>
                         <div className="space-y-3">
                             <button
                                 onClick={() => setShowExitDialog(false)}
@@ -707,7 +707,7 @@ export default function ChatPage() {
                             </button>
                             <button
                                 onClick={confirmEnd}
-                                className="w-full py-4 bg-white border border-border text-muted font-bold rounded-2xl hover:bg-slate-50 transition-all"
+                                className="w-full py-4 bg-surface border border-border text-muted-text font-bold rounded-2xl hover:bg-surface-alt transition-all"
                             >
                                 Exit now
                             </button>

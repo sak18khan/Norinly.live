@@ -40,7 +40,7 @@ export default function BlogPostPage() {
                     {/* Back Button */}
                     <button 
                         onClick={() => router.push('/blog')}
-                        className="group inline-flex items-center space-x-3 text-muted hover:text-accent font-black uppercase tracking-widest text-[10px] mb-12 transition-colors"
+                        className="group inline-flex items-center space-x-3 text-muted-text hover:text-accent font-black uppercase tracking-widest text-[10px] mb-12 transition-colors"
                     >
                         <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                         <span>Back to Insights</span>
@@ -52,7 +52,7 @@ export default function BlogPostPage() {
                             <span className="px-4 py-2 bg-accent/5 border border-accent/10 text-accent rounded-xl text-[10px] font-black uppercase tracking-widest">
                                 {post.category}
                             </span>
-                            <div className="flex items-center space-x-4 text-muted text-[10px] font-black uppercase tracking-widest">
+                            <div className="flex items-center space-x-4 text-muted-text text-[10px] font-black uppercase tracking-widest">
                                 <div className="flex items-center space-x-2">
                                     <Calendar className="w-3.5 h-3.5" />
                                     <span>{post.date}</span>
@@ -66,7 +66,7 @@ export default function BlogPostPage() {
                         <h1 className="text-4xl md:text-7xl font-bold text-foreground leading-[1.1] tracking-tight">
                             {post.title}
                         </h1>
-                        <p className="text-xl md:text-2xl text-secondary leading-relaxed font-normal">
+                        <p className="text-xl md:text-2xl text-secondary-text leading-relaxed font-normal">
                             {post.description}
                         </p>
                     </div>
@@ -117,7 +117,7 @@ export default function BlogPostPage() {
 
                     {/* Social Share */}
                     <div className="flex flex-col md:flex-row items-center justify-between py-12 border-y border-border mb-24 gap-8">
-                        <span className="text-xs font-black uppercase tracking-[0.3em] text-muted">Share this Insight</span>
+                        <span className="text-xs font-black uppercase tracking-[0.3em] text-muted-text">Share this Insight</span>
                         <div className="flex items-center space-x-4">
                             {[
                                 { icon: <Facebook className="w-5 h-5" />, label: 'Facebook' },
@@ -140,7 +140,7 @@ export default function BlogPostPage() {
                             <p className="text-white/80 text-lg md:text-xl font-normal">Connect with an English speaker right now and start your journey.</p>
                             <Link 
                                 href="/connect"
-                                className="inline-flex px-10 py-5 bg-white text-accent font-black uppercase tracking-widest text-sm rounded-2xl hover:scale-105 transition-transform shadow-xl"
+                                className="inline-flex px-10 py-5 bg-background text-accent font-black uppercase tracking-widest text-sm rounded-2xl hover:scale-105 transition-transform shadow-xl"
                             >
                                 Start Chatting Free
                             </Link>
@@ -153,13 +153,13 @@ export default function BlogPostPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {relatedPosts.map((p, i) => (
                                 <Link key={i} href={`/blog/${p.slug}`} className="group block">
-                                    <div className="bg-white border border-border rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 h-full flex flex-col">
+                                    <div className="bg-surface border border-border rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 h-full flex flex-col">
                                         <div className="relative aspect-video overflow-hidden">
                                             <img src={p.image} alt={p.title} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" />
                                         </div>
                                         <div className="p-8 space-y-4">
                                             <h4 className="text-lg font-bold text-foreground group-hover:text-accent transition-colors leading-tight">{p.title}</h4>
-                                            <p className="text-secondary text-xs line-clamp-2">{p.description}</p>
+                                            <p className="text-secondary-text text-xs line-clamp-2">{p.description}</p>
                                         </div>
                                     </div>
                                 </Link>

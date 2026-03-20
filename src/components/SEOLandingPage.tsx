@@ -90,7 +90,7 @@ export default function SEOLandingPage({
             <main className="flex-grow">
                 {/* Hero Section */}
                 <section className="relative pt-24 pb-20 md:pt-32 md:pb-40 overflow-hidden text-center px-6">
-                    <div className="absolute inset-0 bg-white -z-10" />
+                    <div className="absolute inset-0 bg-background -z-10" />
                     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                         <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-accent/5 border border-accent/10 text-accent text-[10px] md:text-xs font-bold uppercase tracking-widest">
                             <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
@@ -139,8 +139,8 @@ export default function SEOLandingPage({
                         </div>
                         <div className="relative">
                             <div className="absolute -inset-10 bg-accent/5 blur-[100px] rounded-full opacity-50" />
-                            <div className="relative bg-white border border-border p-8 md:p-12 rounded-[3rem] shadow-sm">
-                                <h3 className="text-xl font-bold text-foreground mb-10 uppercase tracking-widest text-muted">How It Works</h3>
+                            <div className="relative bg-surface border border-border p-8 md:p-12 rounded-[3rem] shadow-sm">
+                                <h3 className="text-xl font-bold text-foreground mb-10 uppercase tracking-widest text-muted-text">How It Works</h3>
                                 <div className="space-y-12">
                                     {[
                                         { step: '01', text: 'Select "Casual" or "Debate" practice mode' },
@@ -160,7 +160,7 @@ export default function SEOLandingPage({
                 </section>
 
                 {/* Features Section */}
-                <section className="bg-white border-y border-border py-24 md:py-40">
+                <section className="bg-background border-y border-border py-24 md:py-40">
                     <div className="max-w-7xl mx-auto px-6">
                         <div className="text-center mb-16 md:mb-24">
                             <h2 className="text-3xl md:text-7xl font-bold text-foreground leading-tight">Why Choose Norinly?</h2>
@@ -171,7 +171,7 @@ export default function SEOLandingPage({
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             {features.map((f, i) => (
                                 <div key={i} className="bg-surface border border-border p-10 rounded-[2.5rem] hover:shadow-xl transition-all duration-300 group">
-                                    <div className="mb-8 p-4 bg-white shadow-sm w-fit rounded-2xl group-hover:scale-110 transition-transform">{f.icon}</div>
+                                    <div className="mb-8 p-4 bg-surface-alt shadow-sm w-fit rounded-2xl group-hover:scale-110 transition-transform">{f.icon}</div>
                                     <h4 className="text-xl font-bold text-foreground mb-4">{f.title}</h4>
                                     <p className="text-secondary text-base font-normal leading-relaxed">{f.desc}</p>
                                 </div>
@@ -212,14 +212,14 @@ export default function SEOLandingPage({
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {blogPosts.slice(0, 3).map((post, i) => (
                                 <Link key={i} href={`/blog/${post.slug}`} className="group block">
-                                    <div className="bg-white border border-border rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
+                                    <div className="bg-surface border border-border rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
                                         <div className="relative aspect-video overflow-hidden">
                                             <img 
                                                 src={post.image} 
                                                 alt={post.title}
                                                 className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" 
                                             />
-                                            <div className="absolute top-4 left-4 px-4 py-2 bg-white/90 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest text-accent">
+                                            <div className="absolute top-4 left-4 px-4 py-2 bg-surface/90 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest text-accent">
                                                 {post.category}
                                             </div>
                                         </div>
@@ -232,8 +232,8 @@ export default function SEOLandingPage({
                                             </p>
                                         </div>
                                         <div className="px-8 pb-8 pt-4 flex items-center justify-between border-t border-border/50 mx-8">
-                                            <span className="text-[10px] font-black text-muted uppercase tracking-widest">{post.date}</span>
-                                            <span className="text-[10px] font-black text-muted uppercase tracking-widest">{post.readTime}</span>
+                                            <span className="text-[10px] font-black text-muted-text uppercase tracking-widest">{post.date}</span>
+                                            <span className="text-[10px] font-black text-muted-text uppercase tracking-widest">{post.readTime}</span>
                                         </div>
                                     </div>
                                 </Link>
@@ -253,7 +253,7 @@ export default function SEOLandingPage({
                             </p>
                             <button
                                 onClick={handleCTAClick}
-                                className="px-12 py-6 bg-white text-accent hover:bg-surface rounded-2xl font-bold text-2xl transition-all hover:scale-105 shadow-xl"
+                                className="px-12 py-6 bg-background text-accent hover:bg-surface-alt rounded-2xl font-bold text-2xl transition-all hover:scale-105 shadow-xl"
                             >
                                 Practice Now — It's Free
                             </button>
@@ -271,7 +271,7 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="bg-white border border-border rounded-[2.5rem] overflow-hidden transition-all hover:shadow-md">
+        <div className="bg-surface border border-border rounded-[2.5rem] overflow-hidden transition-all hover:shadow-md">
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-8 md:p-10 text-left group"

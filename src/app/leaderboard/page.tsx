@@ -94,10 +94,10 @@ export default function LeaderboardPage() {
                             {topThree[1] && (
                                 <div className="order-2 md:order-1 flex flex-col items-center space-y-6 md:pb-8 group cursor-pointer" onClick={() => router.push(`/profile/${topThree[1].id}`)}>
                                     <div className="relative">
-                                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl border-2 border-slate-200 overflow-hidden shadow-premium group-hover:scale-105 transition-all duration-500 bg-white">
+                                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl border-2 border-border overflow-hidden shadow-premium group-hover:scale-105 transition-all duration-500 bg-surface">
                                             <img src={topThree[1].avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${topThree[1].username}`} className="w-full h-full object-cover" alt="" />
                                         </div>
-                                        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-slate-200 text-slate-600 w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl shadow-lg">2</div>
+                                        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-surface text-secondary-text w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl shadow-lg border border-border">2</div>
                                     </div>
                                     <div className="text-center">
                                         <h3 className="text-xl font-black text-foreground truncate max-w-[150px] uppercase italic tracking-tight">{topThree[1].username || 'Learner'}</h3>
@@ -111,7 +111,7 @@ export default function LeaderboardPage() {
                                 <div className="order-1 md:order-2 flex flex-col items-center space-y-8 md:pb-16 group cursor-pointer" onClick={() => router.push(`/profile/${topThree[0].id}`)}>
                                     <div className="relative">
                                         <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full" />
-                                        <div className="w-32 h-32 md:w-48 md:h-48 rounded-[3rem] border-4 border-primary overflow-hidden shadow-glow-accent relative z-10 group-hover:scale-105 transition-all duration-700 bg-white">
+                                        <div className="w-32 h-32 md:w-48 md:h-48 rounded-[3rem] border-4 border-primary overflow-hidden shadow-glow-accent relative z-10 group-hover:scale-105 transition-all duration-700 bg-surface">
                                             <img src={topThree[0].avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${topThree[0].username}`} className="w-full h-full object-cover" alt="" />
                                         </div>
                                         <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-primary text-white w-14 h-14 rounded-2xl flex items-center justify-center font-black text-3xl shadow-glow relative z-20">1</div>
@@ -134,10 +134,10 @@ export default function LeaderboardPage() {
                             {topThree[2] && (
                                 <div className="order-3 md:order-3 flex flex-col items-center space-y-6 md:pb-4 group cursor-pointer" onClick={() => router.push(`/profile/${topThree[2].id}`)}>
                                     <div className="relative">
-                                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl border-2 border-orange-200 overflow-hidden shadow-premium group-hover:scale-105 transition-all duration-500 bg-white">
+                                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl border-2 border-orange-200/50 overflow-hidden shadow-premium group-hover:scale-105 transition-all duration-500 bg-surface">
                                             <img src={topThree[2].avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${topThree[2].username}`} className="w-full h-full object-cover" alt="" />
                                         </div>
-                                        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-orange-100 text-orange-600 w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl shadow-lg border border-orange-200">3</div>
+                                        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-orange-100 text-orange-600 w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl shadow-lg border border-orange-200/50">3</div>
                                     </div>
                                     <div className="text-center">
                                         <h3 className="text-xl font-black text-foreground truncate max-w-[150px] uppercase italic tracking-tight">{topThree[2].username || 'Speaker'}</h3>
@@ -196,10 +196,10 @@ export default function LeaderboardPage() {
                             
                             {/* Current User Fixed Rank if not in list */}
                             {currentUserRank && currentUserRank > 50 && (
-                                <div className="p-8 border-t border-border bg-slate-900 text-white flex items-center justify-between rounded-b-[2.5rem]">
+                                <div className="p-8 border-t border-border bg-foreground text-background flex items-center justify-between rounded-b-[2.5rem]">
                                     <div className="flex items-center gap-6">
                                         <div className="w-8 text-center font-black text-accent">{currentUserRank}</div>
-                                        <img src={auth?.currentUser?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${auth?.currentUser?.displayName}`} className="w-12 h-12 rounded-2xl border border-white/10" alt="" />
+                                        <img src={auth?.currentUser?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${auth?.currentUser?.displayName}`} className="w-12 h-12 rounded-2xl border border-background/20" alt="" />
                                         <div>
                                             <h5 className="font-black">Your Progress</h5>
                                             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Keep speaking to climb higher</p>

@@ -61,7 +61,7 @@ export default function Home() {
               <div className="flex flex-col items-center gap-8 w-full md:w-auto">
                 <button
                   onClick={() => router.push('/connect')}
-                  className="group w-full md:w-auto px-10 py-5 md:px-16 md:py-9 font-black text-white transition-all duration-500 bg-foreground hover:bg-primary shadow-premium-xl hover:shadow-glow-accent scale-100 hover:scale-[1.03] active:scale-95 text-xl md:text-3xl rounded-3xl md:rounded-[2.5rem] cursor-pointer flex items-center justify-center gap-4 overflow-hidden relative"
+                  className="group w-full md:w-auto px-10 py-5 md:px-16 md:py-9 font-black text-background transition-all duration-500 bg-foreground hover:bg-primary hover:text-white shadow-premium-xl hover:shadow-glow-accent scale-100 hover:scale-[1.03] active:scale-95 text-xl md:text-3xl rounded-3xl md:rounded-[2.5rem] cursor-pointer flex items-center justify-center gap-4 overflow-hidden relative"
                 >
                   <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
                   <Mic className="w-8 h-8 md:w-11 md:h-11 relative z-10" />
@@ -226,7 +226,7 @@ export default function Home() {
                 </p>
                 <button 
                   onClick={() => router.push('/speak-rooms')}
-                  className="flex items-center gap-6 group px-8 py-4 rounded-2xl bg-foreground text-white hover:bg-primary transition-all w-fit active:scale-95 shadow-premium overflow-hidden"
+                  className="flex items-center gap-6 group px-8 py-4 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white transition-all w-fit active:scale-95 shadow-premium overflow-hidden"
                 >
                   <span className="z-10 font-black uppercase tracking-widest text-[9px] italic">Explore Rooms</span>
                   <div className="z-10 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-primary transition-all">
@@ -399,7 +399,7 @@ export default function Home() {
                         <p className="text-zinc-400 font-bold text-sm mb-12 max-w-md mx-auto relative z-10 leading-relaxed uppercase tracking-tight opacity-60">The leaderboard resets every Monday at 00:00 UTC. Join a room now to be the first on the list!</p>
                         <button 
                             onClick={() => router.push('/connect')}
-                            className="px-14 py-6 bg-black text-white font-black rounded-[2.5rem] shadow-premium hover:shadow-glow-accent transition-all hover:scale-105 active:scale-95 text-[11px] uppercase tracking-[0.4em] relative z-10 italic"
+                            className="px-14 py-6 bg-foreground text-background font-black rounded-[2.5rem] shadow-premium hover:shadow-glow-accent transition-all hover:scale-105 active:scale-95 text-[11px] uppercase tracking-[0.4em] relative z-10 italic"
                         >
                             Start Practicing Now
                         </button>

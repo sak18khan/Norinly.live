@@ -85,7 +85,7 @@ export default function HistoryPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0A0A0B] text-white flex flex-col font-sans selection:bg-accent/30 selection:text-white overflow-x-hidden">
+        <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-accent/30 selection:text-white overflow-x-hidden">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-accent/5 blur-[120px] rounded-full pointer-events-none -z-10" />
             
             <div className="max-w-5xl mx-auto flex-1 w-full px-6 md:p-12">
@@ -94,18 +94,18 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-6">
                         <button
                             onClick={() => router.push('/')}
-                            className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all group active:scale-95 shadow-premium"
+                            className="p-3 bg-surface-alt border border-border rounded-2xl hover:bg-surface transition-all group active:scale-95 shadow-premium"
                         >
-                            <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
+                            <ArrowLeft className="w-5 h-5 text-muted-text group-hover:text-foreground transition-colors" />
                         </button>
                         <div>
                             <div className="flex items-center gap-3 mb-1">
                                 <History className="w-5 h-5 md:w-6 md:h-6 text-accent animate-pulse" />
-                                <h1 className="text-3xl md:text-5xl font-black tracking-tight uppercase italic leading-none">
+                                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground uppercase italic leading-none">
                                     History<span className="text-accent">.</span>
                                 </h1>
                             </div>
-                            <p className="text-zinc-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] pl-1">Preserving your best encounters</p>
+                            <p className="text-muted-text text-[10px] md:text-xs font-black uppercase tracking-[0.2em] pl-1">Preserving your best encounters</p>
                         </div>
                     </div>
                     {user && (
@@ -119,7 +119,7 @@ export default function HistoryPage() {
                                         toast.success('History cleared successfully');
                                     }
                                 }}
-                                className="px-6 py-2.5 bg-secondary/10 hover:bg-secondary/20 border border-secondary/20 rounded-xl text-secondary text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                                className="px-6 py-2.5 bg-secondary-accent/10 hover:bg-secondary-accent/20 border border-secondary-accent/20 rounded-xl text-secondary-accent text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
                             >
                                 Wipe Data
                             </button>
@@ -128,12 +128,12 @@ export default function HistoryPage() {
                 </header>
 
                 {!user ? (
-                    <div className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-16 text-center shadow-premium-xl backdrop-blur-xl group">
-                        <div className="w-24 h-24 bg-zinc-900 border border-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-premium group-hover:scale-110 transition-transform">
-                            <User className="w-10 h-10 text-zinc-700" />
+                    <div className="bg-surface-alt/50 border border-border rounded-[3rem] p-16 text-center shadow-premium-xl backdrop-blur-xl group">
+                        <div className="w-24 h-24 bg-surface border border-border rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-premium group-hover:scale-110 transition-transform">
+                            <User className="w-10 h-10 text-muted-text" />
                         </div>
-                        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-4">Identity Required</h2>
-                        <p className="text-zinc-500 font-medium mb-12 max-w-sm mx-auto leading-relaxed">Chat history and persistent connections are reserved for registered English learners.</p>
+                        <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight mb-4">Identity Required</h2>
+                        <p className="text-secondary-text font-medium mb-12 max-w-sm mx-auto leading-relaxed">Chat history and persistent connections are reserved for registered English learners.</p>
                         <button
                             onClick={() => router.push('/')}
                             className="px-12 py-5 bg-accent text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-glow-accent transition-all hover:scale-105 active:scale-95"
@@ -144,22 +144,22 @@ export default function HistoryPage() {
                 ) : loading ? (
                     <div className="flex flex-col items-center justify-center py-32 gap-6">
                         <div className="w-16 h-16 border-4 border-accent/10 border-t-accent rounded-full animate-spin shadow-glow-accent" />
-                        <p className="text-zinc-600 font-black tracking-[0.4em] uppercase text-[11px] animate-pulse">Retrieving Archives</p>
+                        <p className="text-muted-text font-black tracking-[0.4em] uppercase text-[11px] animate-pulse">Retrieving Archives</p>
                     </div>
                 ) : history.length === 0 ? (
-                    <div className="bg-white/[0.01] border-2 border-dashed border-white/5 rounded-[4rem] p-24 text-center">
-                        <div className="w-20 h-20 bg-zinc-900 border border-white/5 rounded-3xl flex items-center justify-center mx-auto mb-8">
-                            <Clock className="w-8 h-8 text-zinc-700" />
+                    <div className="bg-surface-alt/20 border-2 border-dashed border-border rounded-[4rem] p-24 text-center">
+                        <div className="w-20 h-20 bg-surface border border-border rounded-3xl flex items-center justify-center mx-auto mb-8">
+                            <Clock className="w-8 h-8 text-muted-text" />
                         </div>
-                        <h2 className="text-2xl font-black uppercase tracking-tight mb-4 grayscale opacity-50">Empty Archives</h2>
-                        <p className="text-zinc-500 font-medium">Only deep conversations (1m+) are logged in your history.</p>
+                        <h2 className="text-2xl font-black text-foreground uppercase tracking-tight mb-4 grayscale opacity-50">Empty Archives</h2>
+                        <p className="text-secondary-text font-medium">Only deep conversations (1m+) are logged in your history.</p>
                     </div>
                 ) : (
                     <div className="grid gap-6 pb-20">
                         {history.map((entry) => (
                             <div
                                 key={entry.id}
-                                className="bg-[#121214] border-2 border-white/5 rounded-[2.5rem] p-6 md:p-10 flex flex-col md:flex-row items-center justify-between hover:border-accent/40 hover:bg-[#161618] transition-all group relative overflow-hidden shadow-premium"
+                                className="bg-surface border border-border rounded-[2.5rem] p-6 md:p-10 flex flex-col md:flex-row items-center justify-between hover:border-accent/40 hover:bg-surface-alt transition-all group relative overflow-hidden shadow-premium"
                             >
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <div className="flex items-center gap-8 relative z-10 w-full md:w-auto">
@@ -168,13 +168,13 @@ export default function HistoryPage() {
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-3">
-                                            <h3 className="text-xl md:text-2xl font-black text-white group-hover:text-accent transition-colors truncate">
+                                            <h3 className="text-xl md:text-2xl font-black text-foreground group-hover:text-accent transition-colors truncate">
                                                 {entry.partnerUsername || 'Anonymous Stranger'}
                                             </h3>
-                                            <span className="text-[9px] bg-white/5 text-zinc-600 px-3 py-1 rounded-full uppercase tracking-widest font-black border border-white/5">Stranger</span>
+                                            <span className="text-[9px] bg-surface-alt text-muted-text px-3 py-1 rounded-full uppercase tracking-widest font-black border border-border">Stranger</span>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-                                            <div className="flex items-center gap-2.5 text-zinc-500 font-medium">
+                                            <div className="flex items-center gap-2.5 text-secondary-text font-medium">
                                                 <Calendar className="w-4 h-4 opacity-50" />
                                                 <span className="text-xs">{formatDate(entry.startTime)}</span>
                                             </div>

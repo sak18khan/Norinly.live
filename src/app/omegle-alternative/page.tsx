@@ -52,10 +52,10 @@ export default function OmegleAlternative() {
                             <Award className="w-4 h-4" />
                             <span>Top Rated Alternative</span>
                         </div>
-                        <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-white leading-tight">
+                        <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-foreground leading-tight">
                             Best Omegle Alternative <br /> <span className="text-accent">for Voice Chat</span>
                         </h1>
-                        <p className="text-lg md:text-2xl text-zinc-400 max-w-2xl mx-auto font-light">
+                        <p className="text-lg md:text-2xl text-secondary-text max-w-2xl mx-auto font-light">
                             Norinly offers a modern alternative to traditional random chat platforms with voice-first communication. 
                             Skip the video and connect instantly through pure conversation.
                         </p>
@@ -75,8 +75,8 @@ export default function OmegleAlternative() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                         <div className="space-y-8">
                             <div>
-                                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Why People Choose Norinly</h2>
-                                <p className="text-zinc-400 text-lg font-light leading-relaxed">
+                                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Why People Choose Norinly</h2>
+                                <p className="text-secondary-text text-lg font-light leading-relaxed">
                                     Many users look for Omegle alternatives because they want a simpler, more focused experience. 
                                     Norinly provides exactly that by specializing in voice communication.
                                 </p>
@@ -87,8 +87,8 @@ export default function OmegleAlternative() {
                                         <Shield className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="text-white font-bold">Better Privacy and Simplicity</h4>
-                                        <p className="text-zinc-400 text-sm">No cameras, no complicated setup. Just your voice and a world of strangers to meet.</p>
+                                        <h4 className="text-foreground font-bold">Better Privacy and Simplicity</h4>
+                                        <p className="text-muted-text text-sm">No cameras, no complicated setup. Just your voice and a world of strangers to meet.</p>
                                     </div>
                                 </div>
                                 <div className="flex space-x-4">
@@ -96,8 +96,8 @@ export default function OmegleAlternative() {
                                         <Mic className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="text-white font-bold">Advantages of Voice-Only</h4>
-                                        <p className="text-zinc-400 text-sm">Voice eliminates the awkwardness of video while providing more depth than simple text chat.</p>
+                                        <h4 className="text-foreground font-bold">Advantages of Voice-Only</h4>
+                                        <p className="text-muted-text text-sm">Voice eliminates the awkwardness of video while providing more depth than simple text chat.</p>
                                     </div>
                                 </div>
                                 <div className="flex space-x-4">
@@ -105,8 +105,8 @@ export default function OmegleAlternative() {
                                         <Zap className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="text-white font-bold">Connect Instantly Without Video</h4>
-                                        <p className="text-zinc-400 text-sm">Our platform is built for speed. Get matched and start talking in less than 5 seconds.</p>
+                                        <h4 className="text-foreground font-bold">Connect Instantly Without Video</h4>
+                                        <p className="text-muted-text text-sm">Our platform is built for speed. Get matched and start talking in less than 5 seconds.</p>
                                     </div>
                                 </div>
                             </div>
@@ -118,8 +118,8 @@ export default function OmegleAlternative() {
                                     <Mic className="w-16 h-16 text-white" />
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="text-2xl font-black text-white uppercase tracking-tighter">Voice First Chat</p>
-                                    <p className="text-zinc-500 font-medium">The Future of Meeting Strangers</p>
+                                    <p className="text-2xl font-black text-foreground uppercase tracking-tighter">Voice First Chat</p>
+                                    <p className="text-muted-text font-medium">The Future of Meeting Strangers</p>
                                 </div>
                             </div>
                         </div>
@@ -133,8 +133,8 @@ export default function OmegleAlternative() {
                             {features.map((f, i) => (
                                 <div key={i} className="bg-surface/40 border border-border p-8 rounded-3xl hover:bg-surface/60 transition-all text-center">
                                     <div className="mb-4 bg-accent/10 w-fit p-3 rounded-2xl mx-auto">{f.icon}</div>
-                                    <h4 className="text-xl font-bold text-white mb-2">{f.title}</h4>
-                                    <p className="text-zinc-400 text-sm font-light">{f.desc}</p>
+                                    <h4 className="text-xl font-bold text-foreground mb-2">{f.title}</h4>
+                                    <p className="text-muted-text text-sm font-light">{f.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -143,7 +143,7 @@ export default function OmegleAlternative() {
 
                 {/* FAQ Section */}
                 <section className="max-w-3xl mx-auto px-6 py-16 md:py-24">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-white">Platform FAQs</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-foreground">Platform FAQs</h2>
                     <div className="space-y-4">
                         {faqs.map((faq, i) => (
                             <FAQItem key={i} question={faq.q} answer={faq.a} />
@@ -153,7 +153,7 @@ export default function OmegleAlternative() {
 
                 {/* Final CTA Section */}
                 <section className="max-w-5xl mx-auto px-6 pb-20 md:pb-32 text-center">
-                    <h2 className="text-3xl md:text-6xl font-black text-white mb-10 leading-tight">The Best Alternative <br /> is Just One Click Away</h2>
+                    <h2 className="text-3xl md:text-6xl font-black text-foreground mb-10 leading-tight">The Best Alternative <br /> is Just One Click Away</h2>
                     <button
                         onClick={handleCTAClick}
                         className="group relative px-12 py-6 bg-accent text-white hover:bg-accent-hover rounded-full font-black text-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl overflow-hidden"
@@ -161,7 +161,7 @@ export default function OmegleAlternative() {
                         <span className="relative z-10">Try Norinly Now</span>
                         <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                     </button>
-                    <p className="text-zinc-500 mt-8 font-medium">No credit card. No download. No nonsense.</p>
+                    <p className="text-muted-text mt-8 font-medium">No credit card. No download. No nonsense.</p>
                 </section>
             </main>
 
@@ -179,11 +179,11 @@ function FAQItem({ question, answer }: { question: string, answer: string }) {
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-6 text-left"
             >
-                <span className="text-lg font-bold text-white">{question}</span>
+                <span className="text-lg font-bold text-foreground">{question}</span>
                 <HelpCircle className={`w-5 h-5 text-accent transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-48 opacity-100 p-6 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                <p className="text-zinc-400 font-light leading-relaxed">
+                <p className="text-secondary-text font-light leading-relaxed">
                     {answer}
                 </p>
             </div>

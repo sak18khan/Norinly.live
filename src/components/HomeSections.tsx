@@ -201,7 +201,7 @@ export default function HomeSections() {
                             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-8">Still have questions?</p>
                             <button
                                 onClick={() => router.push('/connect')}
-                                className="inline-flex items-center gap-6 group px-10 py-5 rounded-2xl bg-foreground text-white hover:bg-primary transition-all shadow-premium active:scale-95"
+                                className="inline-flex items-center gap-6 group px-10 py-5 rounded-2xl bg-foreground text-background hover:bg-primary hover:text-white transition-all shadow-premium active:scale-95"
                             >
                                 <span className="font-black uppercase tracking-widest text-[10px] italic">Speak with a human now</span>
                                 <div className="w-8 h-8 rounded-lg bg-white/10 group-hover:bg-white group-hover:text-primary flex items-center justify-center transition-all">

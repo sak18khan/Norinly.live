@@ -236,7 +236,7 @@ export default function SpeakRooms() {
 
     if (roomData) {
     return (
-      <div className="min-h-screen bg-[#0A0A0B] text-white flex flex-col md:flex-row overflow-hidden font-sans selection:bg-accent/30">
+      <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row overflow-hidden font-sans selection:bg-accent/30">
         {/* Main Content: Grid */}
         <div className="flex-1 flex flex-col p-4 md:p-8 overflow-y-auto no-scrollbar relative max-h-screen md:max-h-none">
           <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.05),transparent_70%)] pointer-events-none" />
@@ -245,9 +245,9 @@ export default function SpeakRooms() {
             <div className="flex items-center gap-4 md:gap-6">
               <button 
                 onClick={handleLeave} 
-                className="group p-2.5 md:p-3 hover:bg-white/5 rounded-2xl transition-all border border-transparent hover:border-white/10"
+                className="group p-2.5 md:p-3 hover:bg-surface-alt rounded-2xl transition-all border border-transparent hover:border-border"
               >
-                <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-zinc-400 group-hover:text-white group-hover:-translate-x-1 transition-all" />
+                <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-muted-text group-hover:text-foreground group-hover:-translate-x-1 transition-all" />
               </button>
               <div>
                 <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-1">
@@ -256,25 +256,25 @@ export default function SpeakRooms() {
                     {selectedTopic?.difficulty}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-zinc-500 text-[10px] md:text-xs font-bold uppercase tracking-widest">
-                  <span className="bg-white/5 px-2 py-0.5 rounded">ID: {roomData.id.split('_').pop()}</span>
-                  <span className="hidden md:block h-1 w-1 rounded-full bg-zinc-700" />
+                <div className="flex items-center gap-2 text-muted-text text-[10px] md:text-xs font-bold uppercase tracking-widest">
+                  <span className="bg-surface-alt px-2 py-0.5 rounded">ID: {roomData.id.split('_').pop()}</span>
+                  <span className="hidden md:block h-1 w-1 rounded-full bg-border" />
                   <span className="hidden md:block">Practice Session</span>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center justify-between md:justify-end gap-4 bg-white/5 border border-white/10 px-4 md:px-6 py-2.5 md:py-3 rounded-2xl md:rounded-[1.5rem] backdrop-blur-xl">
+            <div className="flex items-center justify-between md:justify-end gap-4 bg-surface border border-border px-4 md:px-6 py-2.5 md:py-3 rounded-2xl md:rounded-[1.5rem] backdrop-blur-xl">
                <div className="flex items-center gap-3">
                   <div className="flex -space-x-2 md:-space-x-2.5">
                     {roomData.users.filter((u: any) => !u.isSpectator).map((u: any) => (
-                      <img key={u.socketId} src={u.avatar} className="w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-[#121214]" alt={u.username} />
+                      <img key={u.socketId} src={u.avatar} className="w-7 h-7 md:w-9 md:h-9 rounded-full border-2 border-background" alt={u.username} />
                     ))}
                   </div>
                   <div className="h-4 md:h-6 w-px bg-white/10 mx-1 md:mx-2" />
                   <div className="flex flex-col">
-                    <span className="text-sm md:text-base font-black text-white">{roomData.users.filter((u: any) => !u.isSpectator).length}/4</span>
-                    <span className="text-[8px] md:text-[9px] font-black text-zinc-500 uppercase tracking-widest leading-none">Inside</span>
+                    <span className="text-sm md:text-base font-black text-foreground">{roomData.users.filter((u: any) => !u.isSpectator).length}/4</span>
+                    <span className="text-[8px] md:text-[9px] font-black text-muted-text uppercase tracking-widest leading-none">Inside</span>
                   </div>
                </div>
                
@@ -299,8 +299,8 @@ export default function SpeakRooms() {
                   key={idx} 
                   className={`relative group rounded-[2rem] md:rounded-[3rem] border-2 transition-all duration-500 overflow-hidden min-h-[160px] md:min-h-[280px] flex flex-col items-center justify-center p-4 md:p-8 ${
                     user 
-                      ? 'bg-surface/50 border-white/5 shadow-2xl backdrop-blur-xl' 
-                      : 'bg-white/[0.02] border-dashed border-white/5 hover:bg-white/[0.04]'
+                      ? 'bg-surface/50 border-border shadow-premium backdrop-blur-xl' 
+                      : 'bg-surface-alt/50 border-dashed border-border hover:bg-surface-alt'
                   } ${user?.isTyping && (!isCurrentUser || !isSelfMuted) ? 'border-accent ring-[6px] md:ring-[10px] ring-accent/5' : ''} ${isMuted ? 'opacity-60' : ''}`}
                 >
                   {user ? (
@@ -310,7 +310,7 @@ export default function SpeakRooms() {
                         <button 
                           onClick={() => toggleMuteUser(user.socketId)}
                           className={`absolute top-0 right-0 p-2 md:p-3 rounded-full transition-all duration-300 z-20 ${
-                            isMuted ? 'bg-secondary/20 text-secondary' : 'bg-white/5 text-zinc-500 hover:bg-white/10 hover:text-white'
+                            isMuted ? 'bg-secondary/20 text-secondary' : 'bg-surface-alt text-muted-text hover:bg-surface'
                           }`}
                           title={isMuted ? 'Unmute' : 'Mute'}
                         >
@@ -335,8 +335,8 @@ export default function SpeakRooms() {
                         <div className={`absolute inset-0 rounded-full blur-2xl transition-all duration-500 ${user.isTyping && (!isCurrentUser || !isSelfMuted) ? 'bg-accent/30 scale-125' : 'bg-transparent'}`} />
                         <img 
                           src={user.avatar} 
-                          className={`relative w-14 h-14 md:w-36 md:h-36 rounded-full object-cover border-2 md:border-4 transition-all duration-500 shadow-2xl ${
-                            user.isTyping && (!isCurrentUser || !isSelfMuted) ? 'border-accent scale-105' : 'border-white/10 group-hover:border-white/20'
+                          className={`relative w-14 h-14 md:w-36 md:h-36 rounded-full object-cover border-2 md:border-4 transition-all duration-500 shadow-premium ${
+                            user.isTyping && (!isCurrentUser || !isSelfMuted) ? 'border-accent scale-105' : 'border-border group-hover:border-accent/40'
                           } ${isMuted ? 'grayscale' : ''}`}
                           alt={user.username} 
                         />
@@ -348,28 +348,28 @@ export default function SpeakRooms() {
                           </div>
                         )}
                         {isSelfMuted && isCurrentUser && (
-                          <div className="absolute top-0 right-0 bg-secondary p-1.5 rounded-full border-2 border-[#121214] drop-shadow-lg">
+                          <div className="absolute top-0 right-0 bg-secondary-accent p-1.5 rounded-full border-2 border-background drop-shadow-lg">
                             <MicOff className="w-3 h-3 md:w-4 md:h-4 text-white" />
                           </div>
                         )}
                       </div>
                       <div className="text-center space-y-0.5 md:space-y-1">
-                        <h3 className="text-sm md:text-2xl font-black tracking-tight text-white flex items-center justify-center gap-2 md:gap-3 truncate max-w-full">
-                          <span className={`${isMuted ? 'text-zinc-500' : ''} truncate`}>{user.username}</span>
+                        <h3 className="text-sm md:text-2xl font-black tracking-tight text-foreground flex items-center justify-center gap-2 md:gap-3 truncate max-w-full">
+                          <span className={`${isMuted ? 'text-muted-text' : ''} truncate`}>{user.username}</span>
                           {isCurrentUser && (
                             <span className="hidden md:inline-block text-[8px] md:text-[9px] bg-accent/20 text-accent px-2 py-0.5 rounded-full border border-accent/20 font-black tracking-widest uppercase">You</span>
                           )}
                         </h3>
-                        <p className="text-zinc-600 text-[9px] md:text-sm font-bold uppercase tracking-widest md:opacity-60 truncate">Active Learner</p>
+                        <p className="text-secondary-text text-[9px] md:text-sm font-bold uppercase tracking-widest md:opacity-60 truncate">Active Learner</p>
                       </div>
                       
                       {/* Active Indicator */}
                       <div className={`mt-3 md:mt-6 flex items-center gap-1.5 md:gap-2.5 px-3 md:px-4 py-1 md:py-1.5 rounded-full border transition-all duration-500 ${
                         user.isTyping && (!isCurrentUser || !isSelfMuted)
                           ? 'bg-accent text-white shadow-glow border-accent' 
-                          : 'bg-white/5 border-white/10 text-zinc-500'
+                          : 'bg-surface-alt border-border text-muted-text'
                       }`}>
-                         <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${user.isTyping && (!isCurrentUser || !isSelfMuted) ? 'bg-white animate-pulse' : (isMuted ? 'bg-zinc-700' : 'bg-positive-accent')}`} />
+                         <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${user.isTyping && (!isCurrentUser || !isSelfMuted) ? 'bg-white animate-pulse' : (isMuted ? 'bg-border' : 'bg-positive-accent')}`} />
                          <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">
                            {isCurrentUser && isSelfMuted ? 'Muted' : (user.isTyping ? (window.innerWidth < 768 ? 'Live' : 'Speaking Now') : 'Listening')}
                          </span>
@@ -377,17 +377,17 @@ export default function SpeakRooms() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center p-2 md:p-8 text-center group/empty">
-                      <div className="w-12 h-12 md:w-20 md:h-20 rounded-[1.2rem] md:rounded-[2rem] bg-white/[0.03] border border-white/5 flex items-center justify-center mb-3 md:mb-6 group-hover/empty:scale-110 group-hover/empty:bg-white/[0.05] transition-all duration-500">
+                      <div className="w-12 h-12 md:w-20 md:h-20 rounded-[1.2rem] md:rounded-[2rem] bg-surface-alt/50 border border-border flex items-center justify-center mb-3 md:mb-6 group-hover/empty:scale-110 group-hover/empty:bg-surface-alt transition-all duration-500">
                         {roomData.queue.length > 0 ? (
                            <div className="relative w-6 h-6 md:w-10 md:h-10">
                               <Loader2 className="w-6 h-6 md:w-10 md:h-10 text-accent/30 animate-spin" />
                               <Eye className="w-3 h-3 md:w-5 md:h-5 text-accent absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                            </div>
                         ) : (
-                          <Users className="w-6 h-6 md:w-10 md:h-10 text-zinc-800 group-hover/empty:text-zinc-600 transition-colors" />
+                          <Users className="w-6 h-6 md:w-10 md:h-10 text-border group-hover/empty:text-muted-text transition-colors" />
                         )}
                       </div>
-                      <p className="text-[9px] md:text-xs font-black text-zinc-800 uppercase tracking-widest group-hover/empty:text-zinc-600 transition-colors">Available Slot</p>
+                      <p className="text-[9px] md:text-xs font-black text-border uppercase tracking-widest group-hover/empty:text-muted-text transition-colors">Available Slot</p>
                     </div>
                   )}
                 </div>
@@ -415,17 +415,17 @@ export default function SpeakRooms() {
         </div>
 
         {/* Chat Panel: Right side on Desktop */}
-        <div className="w-full md:w-[450px] md:h-screen border-l border-white/5 bg-[#0F0F10] flex flex-col shadow-[-20px_0_50px_-20px_rgba(0,0,0,0.5)] relative z-20 overflow-hidden shrink-0">
-          <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between bg-gradient-to-b from-white/[0.02] to-transparent">
+        <div className="w-full md:w-[450px] md:h-screen border-l border-border bg-surface flex flex-col shadow-premium relative z-20 overflow-hidden shrink-0">
+          <div className="p-6 md:p-8 border-b border-border flex items-center justify-between bg-gradient-to-b from-surface-alt/50 to-transparent">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
                  <MessageSquare className="w-5 h-5 text-accent" />
               </div>
               <div>
-                <h2 className="font-black text-base md:text-lg uppercase tracking-tight">Conversation</h2>
+                <h2 className="font-black text-base md:text-lg uppercase tracking-tight text-foreground">Conversation</h2>
                 <div className="flex items-center gap-1.5">
                    <div className="w-1.5 h-1.5 rounded-full bg-positive-accent animate-pulse" />
-                   <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">Secure Room</span>
+                   <span className="text-[9px] font-black text-muted-text uppercase tracking-widest whitespace-nowrap">Secure Room</span>
                 </div>
               </div>
             </div>
@@ -435,7 +435,7 @@ export default function SpeakRooms() {
                   navigator.clipboard.writeText(roomData.id.split('_').pop() || '');
                   toast.success('Room ID copied!');
                 }}
-                className="p-2.5 hover:bg-white/5 rounded-xl transition-all text-zinc-600 hover:text-white"
+                className="p-2.5 hover:bg-surface-alt rounded-xl transition-all text-muted-text hover:text-foreground"
                 title="Copy Room ID"
               >
                 <ChevronRight className="w-5 h-5 rotate-180" />
@@ -443,22 +443,22 @@ export default function SpeakRooms() {
               <button 
                 onClick={toggleMuteAll}
                 className={`p-2.5 rounded-xl transition-all ${
-                  mutedUsers.size > 0 ? 'bg-secondary/10 text-secondary' : 'hover:bg-white/5 text-zinc-600'
+                  mutedUsers.size > 0 ? 'bg-secondary-accent/10 text-secondary-accent' : 'hover:bg-surface-alt text-muted-text'
                 }`}
                 title="Toggle Mute All"
               >
                 {mutedUsers.size > 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
               </button>
-              <button className="p-2.5 hover:bg-white/5 rounded-xl transition-all"><MoreVertical className="w-5 h-5 text-zinc-600" /></button>
+              <button className="p-2.5 hover:bg-surface-alt rounded-xl transition-all"><MoreVertical className="w-5 h-5 text-muted-text" /></button>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex px-6 md:px-8 border-b border-white/5 bg-white/[0.01]">
+          <div className="flex px-6 md:px-8 border-b border-border bg-surface-alt/20">
             <button 
               onClick={() => setActiveTab('chat')}
               className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${
-                activeTab === 'chat' ? 'text-accent' : 'text-zinc-500 hover:text-zinc-300'
+                activeTab === 'chat' ? 'text-accent' : 'text-muted-text hover:text-foreground'
               }`}
             >
               Chat
@@ -467,7 +467,7 @@ export default function SpeakRooms() {
             <button 
               onClick={() => setActiveTab('participants')}
               className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${
-                activeTab === 'participants' ? 'text-accent' : 'text-zinc-500 hover:text-zinc-300'
+                activeTab === 'participants' ? 'text-accent' : 'text-muted-text hover:text-foreground'
               }`}
             >
               Participants ({roomData.users.length})
@@ -480,11 +480,11 @@ export default function SpeakRooms() {
               <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8 custom-scrollbar min-h-[300px] md:min-h-0">
                 {messages.length === 0 && (
                   <div className="h-full flex flex-col items-center justify-center text-center opacity-30 px-6 md:px-12 py-10">
-                    <div className="w-16 h-16 md:w-24 md:h-24 rounded-[1.5rem] md:rounded-[2.5rem] bg-white/[0.03] border border-white/5 flex items-center justify-center mb-6 md:mb-8">
+                    <div className="w-16 h-16 md:w-24 md:h-24 rounded-[1.5rem] md:rounded-[2.5rem] bg-surface-alt border border-border flex items-center justify-center mb-6 md:mb-8">
                        <Sparkles className="w-8 h-8 md:w-12 md:h-12 text-accent" />
                     </div>
-                    <h3 className="text-lg md:text-xl font-black text-white mb-3">Break the ice!</h3>
-                    <p className="text-xs md:text-sm font-medium leading-relaxed">People here are friendly and ready to practice English with you.</p>
+                    <h3 className="text-lg md:text-xl font-black text-foreground mb-3">Break the ice!</h3>
+                    <p className="text-xs md:text-sm font-medium leading-relaxed text-secondary-text">People here are friendly and ready to practice English with you.</p>
                   </div>
                 )}
                 {messages.map((msg) => {
@@ -493,7 +493,7 @@ export default function SpeakRooms() {
                   
                   if (isMuted) return (
                     <div key={msg.id} className="flex justify-center opacity-40">
-                      <span className="text-[10px] font-black uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">Message from muted user</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest bg-surface-alt px-3 py-1 rounded-full border border-border">Message from muted user</span>
                     </div>
                   );
 
@@ -502,15 +502,15 @@ export default function SpeakRooms() {
                       <img src={msg.avatar} className="w-9 h-9 md:w-11 md:h-11 rounded-[1.2rem] object-cover shrink-0 border-2 border-white/10 shadow-lg" alt="" />
                       <div className={`flex-1 min-w-0 flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                         <div className="flex items-center gap-2 mb-1.5 px-1">
-                          <span className="font-black text-[10px] md:text-[11px] text-zinc-400 uppercase tracking-widest">{msg.username}</span>
-                          <span className="text-[9px] md:text-[10px] text-zinc-700 font-black uppercase">
+                          <span className="font-black text-[10px] md:text-[11px] text-muted-text uppercase tracking-widest">{msg.username}</span>
+                          <span className="text-[9px] md:text-[10px] text-muted-text/60 font-black uppercase">
                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                         <div className={`px-4 md:px-5 py-3 md:py-4 rounded-[1.2rem] md:rounded-[1.5rem] border text-sm md:text-base leading-relaxed break-words shadow-sm transition-all hover:shadow-md ${
                           isMe 
                             ? 'bg-gradient-to-br from-accent to-accent/80 border-accent/20 text-white rounded-tr-none shadow-glow-accent' 
-                            : 'bg-white/[0.03] border-white/5 text-zinc-200 rounded-tl-none hover:bg-white/[0.05]'
+                            : 'bg-surface-alt border-border text-foreground rounded-tl-none hover:bg-surface'
                         }`}>
                           {msg.text}
                         </div>
@@ -527,7 +527,7 @@ export default function SpeakRooms() {
                       <button 
                         key={i} 
                         onClick={() => handleSendMessage({ preventDefault: () => {}, target: { value: s } } as any)} 
-                        className="whitespace-nowrap px-4 md:px-5 py-2 md:py-2.5 rounded-xl md:rounded-2xl bg-white/[0.03] border border-white/10 text-[9px] md:text-[11px] font-black uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-accent hover:border-accent transition-all duration-300 active:scale-95"
+                        className="whitespace-nowrap px-4 md:px-5 py-2 md:py-2.5 rounded-xl md:rounded-2xl bg-surface-alt border border-border text-[9px] md:text-[11px] font-black uppercase tracking-widest text-muted-text hover:text-foreground hover:bg-surface hover:border-accent transition-all duration-300 active:scale-95"
                       >
                         {s}
                       </button>
@@ -541,7 +541,7 @@ export default function SpeakRooms() {
                    <button 
                     onClick={() => setShowCorrectMe(!showCorrectMe)}
                     className={`flex items-center gap-2 md:gap-3 px-4 md:px-5 py-2 md:py-2.5 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] transition-all border duration-300 ${
-                      showCorrectMe ? 'bg-positive-accent border-positive-accent text-white shadow-glow' : 'bg-white/5 border-white/5 text-zinc-600 hover:text-zinc-400'
+                      showCorrectMe ? 'bg-positive-accent border-positive-accent text-white shadow-glow' : 'bg-surface-alt border-border text-muted-text hover:text-foreground'
                     }`}
                    >
                      <ShieldCheck className={`w-3.5 h-3.5 md:w-4 md:h-4 ${showCorrectMe ? 'animate-pulse' : ''}`} />
@@ -558,7 +558,7 @@ export default function SpeakRooms() {
                     value={inputText}
                     onChange={(e) => handleTyping(e.target.value)}
                     placeholder="Type a message..."
-                    className="w-full bg-[#1A1A1C] border-2 border-white/5 rounded-2xl md:rounded-[2rem] px-6 md:px-8 py-4 md:py-5 pr-16 md:pr-20 text-sm md:text-base font-medium focus:border-accent focus:bg-[#1f1f22] transition-all outline-none shadow-inner"
+                    className="w-full bg-surface-alt border-2 border-border rounded-2xl md:rounded-[2rem] px-6 md:px-8 py-4 md:py-5 pr-16 md:pr-20 text-sm md:text-base font-medium text-foreground focus:border-accent focus:bg-surface transition-all outline-none shadow-inner"
                   />
                   <button 
                     type="submit" 
@@ -574,18 +574,18 @@ export default function SpeakRooms() {
             <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-2 custom-scrollbar">
               <div className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Inside Room</div>
               {roomData.users.filter((u: any) => !u.isSpectator).map((u: any) => (
-                <div key={u.socketId} className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div key={u.socketId} className="flex items-center justify-between p-3 rounded-2xl bg-surface-alt/50 border border-border">
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <img src={u.avatar} className="w-10 h-10 rounded-xl object-cover" alt="" />
                       <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-[#121214] ${u.isTyping ? 'bg-accent animate-pulse' : 'bg-positive-accent'}`} />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-white flex items-center gap-2">
+                      <div className="text-sm font-bold text-foreground flex items-center gap-2">
                         {u.username}
                         {u.socketId === socketRef.current?.id && <span className="text-[8px] bg-accent/20 text-accent px-1.5 py-0.5 rounded font-black uppercase">You</span>}
                       </div>
-                      <div className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Active Learner</div>
+                      <div className="text-[9px] font-black text-muted-text uppercase tracking-widest">Active Learner</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -605,7 +605,7 @@ export default function SpeakRooms() {
                 <>
                   <div className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mt-8 mb-4">Spectating</div>
                   {roomData.users.filter((u: any) => u.isSpectator).map((u: any) => (
-                    <div key={u.socketId} className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.01] border border-white/[0.02]">
+                    <div key={u.socketId} className="flex items-center justify-between p-3 rounded-2xl bg-surface-alt/20 border border-border/50">
                        <div className="flex items-center gap-3">
                         <img src={u.avatar} className="w-10 h-10 rounded-xl opacity-50" alt="" />
                         <div>
@@ -638,7 +638,7 @@ export default function SpeakRooms() {
              <h1 className="text-4xl md:text-7xl font-black tracking-tight leading-loose md:leading-tight uppercase italic">
                Join Live <br /><span className="text-accent underline decoration-accent/10 underline-offset-[20px] not-italic">Conversations.</span>
              </h1>
-             <p className="text-zinc-600 text-lg md:text-xl font-bold leading-relaxed max-w-xl uppercase tracking-tight">
+             <p className="text-secondary-text text-lg md:text-xl font-bold leading-relaxed max-w-xl uppercase tracking-tight">
                Practice English naturally by joining themed discussions with learners worldwide. Fast, anonymous, and fun.
              </p>
           </div>
@@ -659,7 +659,7 @@ export default function SpeakRooms() {
             <div 
               key={topic.id}
               onClick={() => handleJoinTopic(topic)}
-              className="group relative bg-white border border-border p-8 rounded-[2.5rem] cursor-pointer hover:border-accent/40 hover:shadow-premium hover:-translate-y-2 hover:shadow-glow-accent transition-all duration-500 overflow-hidden animate-in fade-in slide-in-from-bottom-8"
+              className="group relative bg-surface border border-border p-8 rounded-[2.5rem] cursor-pointer hover:border-accent/40 hover:shadow-premium hover:-translate-y-2 hover:shadow-glow-accent transition-all duration-500 overflow-hidden animate-in fade-in slide-in-from-bottom-8"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
               <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500">
@@ -686,7 +686,7 @@ export default function SpeakRooms() {
                 <h3 className="text-2xl font-black text-foreground group-hover:text-accent transition-colors leading-tight">
                   {topic.title}
                 </h3>
-                <p className="text-zinc-500 text-sm font-bold uppercase tracking-tight opacity-70 group-hover:opacity-100 transition-opacity">
+                <p className="text-secondary-text text-sm font-bold uppercase tracking-tight opacity-70 group-hover:opacity-100 transition-opacity">
                   {topic.desc}
                 </p>
               </div>
@@ -698,7 +698,7 @@ export default function SpeakRooms() {
                          <div key={j} className="w-6 h-6 rounded-full bg-zinc-100 border-2 border-white" />
                        ))}
                     </div>
-                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">3/4 Active</span>
+                    <span className="text-[10px] font-bold text-muted-text uppercase tracking-widest">3/4 Active</span>
                  </div>
                  <button className="text-accent font-black text-xs uppercase tracking-widest group-hover:underline">Join Now</button>
               </div>

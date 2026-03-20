@@ -82,7 +82,7 @@ function ConnectContent() {
             <header className="absolute top-0 left-0 w-full p-8 z-20">
                 <button
                     onClick={() => router.push('/')}
-                    className="flex items-center space-x-3 group px-5 py-3 rounded-2xl bg-white/50 backdrop-blur-md border border-border hover:bg-white hover:border-accent/30 transition-all shadow-sm"
+                    className="flex items-center space-x-3 group px-5 py-3 rounded-2xl bg-surface-alt/80 backdrop-blur-md border border-border hover:bg-surface hover:border-accent/30 transition-all shadow-sm"
                 >
                     <ArrowLeft className="w-5 h-5 text-accent group-hover:-translate-x-1 transition-transform" />
                     <span className="font-black text-foreground text-sm uppercase tracking-widest">Back</span>
@@ -90,13 +90,13 @@ function ConnectContent() {
             </header>
 
             {isPreferencesOpen ? (
-                <div className="w-full max-w-2xl bg-white border border-border rounded-[3.5rem] p-10 md:p-14 shadow-premium relative animate-fade-in-up">
+                <div className="w-full max-w-2xl bg-surface border border-border rounded-[3.5rem] p-10 md:p-14 shadow-premium relative animate-fade-in-up">
                     <div className="space-y-4 mb-10">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/5 border border-accent/10 text-accent text-xs font-black uppercase tracking-wider">
                             <Sparkles className="w-4 h-4" /> Smart Matching
                         </div>
                         <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tight leading-tight uppercase italic">Find Your <br /><span className="text-accent underline decoration-accent/10 underline-offset-4 not-italic">Practice Partner.</span></h2>
-                        <p className="text-zinc-600 text-lg font-bold leading-relaxed uppercase tracking-tight">
+                        <p className="text-secondary-text text-lg font-bold leading-relaxed uppercase tracking-tight">
                             Our smart algorithm pairs you with the best speaker for your goals.
                         </p>
                     </div>
@@ -110,21 +110,21 @@ function ConnectContent() {
                             <button
                                 key={option.id}
                                 onClick={() => !option.locked && handleStartSearch(option.id as 'casual' | 'debate' | 'interview' | 'pronunciation')}
-                                className={`flex items-center gap-6 p-6 rounded-3xl bg-surface border border-transparent transition-all text-left group relative overflow-hidden ${option.locked ? 'opacity-70 grayscale-[0.5] cursor-not-allowed' : 'hover:border-accent/30 hover:bg-white hover:shadow-premium'}`}
+                                className={`flex items-center gap-6 p-6 rounded-3xl bg-surface-alt border border-transparent transition-all text-left group relative overflow-hidden ${option.locked ? 'opacity-70 grayscale-[0.5] cursor-not-allowed' : 'hover:border-accent/30 hover:bg-surface hover:shadow-premium'}`}
                             >
-                                <div className={`w-14 h-14 rounded-2xl bg-white border border-border flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm ${option.color}`}>
+                                <div className={`w-14 h-14 rounded-2xl bg-surface border border-border flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm ${option.color}`}>
                                     {option.icon}
                                 </div>
                                 <div className="flex-1">
                                     <h3 className="text-lg font-black text-foreground group-hover:text-accent transition-colors flex items-center gap-2">
                                         {option.title}
                                     </h3>
-                                    <p className="text-sm font-medium text-secondary">{option.desc}</p>
+                                    <p className="text-sm font-medium text-secondary-text">{option.desc}</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {option.locked ? (
                                         <div className="flex flex-col items-end gap-1">
-                                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                            <div className="w-8 h-8 rounded-full bg-surface-alt flex items-center justify-center text-muted-text">
                                                 <X className="w-4 h-4" />
                                             </div>
                                             <span className="text-[8px] font-black text-accent uppercase tracking-widest whitespace-nowrap">Upgrade to unlock</span>
@@ -139,7 +139,7 @@ function ConnectContent() {
                         ))}
                     </div>
 
-                    <div className="flex items-center justify-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest border-t border-border pt-8">
+                    <div className="flex items-center justify-center gap-2 text-[10px] font-black text-muted-text uppercase tracking-widest border-t border-border pt-8">
                         <Shield className="w-3 h-3 text-positive-accent" /> Secure & Anonymous Voice Matching
                     </div>
                 </div>
@@ -147,7 +147,7 @@ function ConnectContent() {
                 <div className="flex flex-col items-center space-y-12 animate-fade-in-up">
                     <div className="relative">
                         <div className="absolute inset-0 rounded-full blur-[100px] bg-accent/30 animate-pulse-glow" />
-                        <div className="relative w-56 h-56 bg-white rounded-full border border-border shadow-premium flex items-center justify-center overflow-hidden animate-pulse-subtle">
+                        <div className="relative w-56 h-56 bg-surface rounded-full border border-border shadow-premium flex items-center justify-center overflow-hidden animate-pulse-subtle">
                             <div className="absolute inset-4 border-2 border-dashed border-accent/20 rounded-full animate-spin [animation-duration:15s]" />
                             <div className="absolute inset-8 border border-accent/10 rounded-full animate-spin [animation-duration:8s] reverse" />
                             <div className="flex items-end gap-1.5 h-12 relative z-10">
@@ -172,7 +172,7 @@ function ConnectContent() {
                             {status === 'idle' && 'Ready to go'}
                         </h1>
                         <div className="min-h-[3rem] px-4">
-                            <p className="text-secondary font-medium text-lg leading-relaxed">
+                            <p className="text-secondary-text font-medium text-lg leading-relaxed">
                                 {!window.isSecureContext && (
                                     <span className="text-red-500 font-black block mb-2">HTTPS required for Mic access</span>
                                 )}

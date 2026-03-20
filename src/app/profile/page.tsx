@@ -146,17 +146,17 @@ export default function ProfilePage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
                 <Loader2 className="w-10 h-10 text-accent animate-spin mb-4" />
-                <p className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] animate-pulse">Loading Norinly Profile...</p>
+                <p className="text-sm font-black text-muted-text uppercase tracking-[0.2em] animate-pulse">Loading Norinly Profile...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20">
+        <div className="min-h-screen bg-background pb-20 text-foreground">
             {/* Header / Nav */}
-            <div className="bg-white border-b border-slate-100 sticky top-0 z-30">
+            <div className="bg-surface border-b border-border sticky top-0 z-30 backdrop-blur-md">
                 <div className="max-w-4xl mx-auto px-4 h-16 md:h-20 flex items-center justify-between">
                     <button 
                         onClick={() => router.back()}
@@ -166,10 +166,10 @@ export default function ProfilePage() {
                         <span className="text-xs font-black uppercase tracking-widest hidden sm:inline">Back</span>
                     </button>
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-accent/5 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center">
                             <User className="w-4 h-4 text-accent" />
                         </div>
-                        <h1 className="text-sm font-black text-slate-800 uppercase tracking-[0.2em]">Account Settings</h1>
+                        <h1 className="text-sm font-black text-foreground uppercase tracking-[0.2em]">Account Settings</h1>
                     </div>
                     <div className="w-10" /> {/* Spacer */}
                 </div>
@@ -177,7 +177,7 @@ export default function ProfilePage() {
 
             <main className="max-w-4xl mx-auto px-4 pt-8 md:pt-12 space-y-8">
                 {/* Hero Section */}
-                <section className="bg-white border border-slate-100 rounded-[2.5rem] p-8 md:p-12 shadow-premium-sm relative overflow-hidden group">
+                <section className="bg-surface border border-border rounded-[2.5rem] p-8 md:p-12 shadow-premium relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full -mr-20 -mt-20 blur-3xl transition-all group-hover:bg-accent/10" />
                     <div className="relative flex flex-col md:flex-row items-center gap-8 md:gap-12">
                         {/* Avatar */}
@@ -196,13 +196,13 @@ export default function ProfilePage() {
 
                         {/* Basic Info */}
                         <div className="flex-1 text-center md:text-left space-y-2">
-                            <h2 className="text-3xl font-black text-slate-900 tracking-tight">{name || 'Norinly Learner'}</h2>
+                            <h2 className="text-3xl font-black text-foreground tracking-tight">{name || 'Norinly Learner'}</h2>
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                                <div className="flex items-center gap-2 text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                <div className="flex items-center gap-2 text-muted-text font-bold uppercase tracking-widest text-[10px]">
                                     <AtSign className="w-3.5 h-3.5" />
                                     <span>{username || 'no-username'}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                <div className="flex items-center gap-2 text-muted-text font-bold uppercase tracking-widest text-[10px]">
                                     <Globe className="w-3.5 h-3.5" />
                                     <span>{country || 'Global Citizen'}</span>
                                 </div>
@@ -249,9 +249,9 @@ export default function ProfilePage() {
                 </section>
 
                 {/* User Info Form (Section 2) */}
-                <section className="bg-white border border-slate-100 rounded-[2.5rem] shadow-premium-sm overflow-hidden">
-                    <div className="px-8 py-6 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Profile Details</h3>
+                <section className="bg-surface border border-border rounded-[2.5rem] shadow-premium overflow-hidden">
+                    <div className="px-8 py-6 border-b border-border bg-surface-alt/50 flex items-center justify-between">
+                        <h3 className="text-xs font-black text-muted-text uppercase tracking-[0.2em]">Profile Details</h3>
                     </div>
                     <form onSubmit={handleSave} className="p-8 md:p-10 space-y-8">
                         <div className="grid md:grid-cols-2 gap-8">
@@ -277,11 +277,11 @@ export default function ProfilePage() {
                                 placeholder="Brazil, Japan, etc." 
                             />
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                                <label className="text-[10px] font-black text-muted-text uppercase tracking-[0.2em] ml-1">
                                     English Level
                                 </label>
                                 <select 
-                                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent/20 transition-all appearance-none"
+                                    className="w-full bg-surface-alt border border-border rounded-2xl px-5 py-4 text-sm font-bold text-foreground focus:outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent/20 transition-all appearance-none"
                                     value={englishLevel}
                                     onChange={(e) => setEnglishLevel(e.target.value)}
                                 >
@@ -296,11 +296,11 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                            <label className="text-[10px] font-black text-muted-text uppercase tracking-[0.2em] ml-1">
                                 Learning Goals
                             </label>
                             <textarea 
-                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 min-h-[120px] focus:outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent/20 transition-all resize-none"
+                                className="w-full bg-surface-alt border border-border rounded-2xl px-5 py-4 text-sm font-medium text-foreground min-h-[120px] focus:outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent/20 transition-all resize-none"
                                 placeholder="What do you want to achieve with Norinly? (e.g. Prepare for IELTS, improve fluency...)"
                                 value={goals}
                                 onChange={(e) => setGoals(e.target.value)}
@@ -309,7 +309,7 @@ export default function ProfilePage() {
 
                         <button 
                             disabled={saving}
-                            className="w-full bg-accent hover:bg-accent-hover disabled:bg-slate-100 text-white font-black py-5 rounded-2xl shadow-glow-accent transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                            className="w-full bg-accent hover:bg-accent-hover disabled:bg-surface-alt disabled:text-muted-text text-white font-black py-5 rounded-2xl shadow-glow-accent transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                         >
                             {saving ? (
                                 <>
@@ -332,14 +332,14 @@ export default function ProfilePage() {
 
 function StatCard({ icon, label, value, color }: { icon: any, label: string, value: any, color: string }) {
     return (
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-premium-sm hover:shadow-premium transition-all hover:-translate-y-1 group">
+        <div className="bg-surface border border-border rounded-3xl p-6 shadow-premium hover:shadow-premium-xl transition-all hover:-translate-y-1 group">
             <div className={`w-10 h-10 ${color} bg-opacity-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                 <div className={`${color.replace('bg-', 'text-')}`}>
                     {icon}
                 </div>
             </div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{label}</p>
-            <p className="text-2xl font-black text-slate-900 tracking-tight">{value}</p>
+            <p className="text-[10px] font-black text-muted-text uppercase tracking-[0.2em] mb-1">{label}</p>
+            <p className="text-2xl font-black text-foreground tracking-tight">{value}</p>
         </div>
     );
 }
@@ -347,11 +347,11 @@ function StatCard({ icon, label, value, color }: { icon: any, label: string, val
 function FormInput({ label, value, onChange, icon, placeholder, disabled = false }: any) {
     return (
         <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+            <label className="text-[10px] font-black text-muted-text uppercase tracking-[0.2em] ml-1">
                 {label}
             </label>
             <div className="relative group/input">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/input:text-accent transition-colors">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-text/40 group-focus-within/input:text-accent transition-colors">
                     {icon}
                 </div>
                 <input 
@@ -360,7 +360,7 @@ function FormInput({ label, value, onChange, icon, placeholder, disabled = false
                     onChange={(e) => onChange(e.target.value)}
                     disabled={disabled}
                     placeholder={placeholder}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-5 py-4 text-sm font-bold text-slate-700 placeholder:text-slate-300 placeholder:font-medium focus:outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent/20 transition-all"
+                    className="w-full bg-surface-alt border border-border rounded-2xl pl-12 pr-5 py-4 text-sm font-bold text-foreground placeholder:text-muted-text/40 placeholder:font-medium focus:outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent/20 transition-all"
                 />
             </div>
         </div>
