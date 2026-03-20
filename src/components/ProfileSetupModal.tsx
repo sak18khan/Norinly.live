@@ -65,16 +65,16 @@ export default function ProfileSetupModal({ isOpen, onClose }: ProfileSetupModal
     };
 
     return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-white/80 backdrop-blur-xl animate-in fade-in duration-500">
-            <div className="w-full max-w-lg bg-white/90 backdrop-blur-2xl border border-black/5 rounded-[3.5rem] shadow-premium-xl overflow-hidden animate-in zoom-in-95 duration-500 relative">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-in fade-in duration-500">
+            <div className="w-full max-w-lg bg-premium-card/90 backdrop-blur-2xl border border-border rounded-[3.5rem] shadow-premium-xl overflow-hidden animate-in zoom-in-95 duration-500 relative">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-accent/5 blur-[100px] rounded-full" />
                 
-                <div className="p-10 border-b border-black/5 flex justify-between items-center bg-black/[0.02] relative z-10">
+                <div className="p-10 border-b border-border flex justify-between items-center bg-surface relative z-10">
                     <div>
                         <h2 className="text-3xl font-black text-foreground uppercase tracking-tighter italic">Initial Setup<span className="text-accent">.</span></h2>
-                        <p className="text-zinc-400 text-xs font-black uppercase tracking-widest mt-2 opacity-60">Define your presence in the network.</p>
+                        <p className="text-muted-text text-xs font-black uppercase tracking-widest mt-2 opacity-60">Define your presence in the network.</p>
                     </div>
-                    <button onClick={onClose} className="p-3 bg-black/5 border border-black/5 hover:bg-black/10 rounded-[1.25rem] text-zinc-400 hover:text-black transition-all active:scale-90 shadow-sm">
+                    <button onClick={onClose} className="p-3 bg-surface border border-border hover:bg-foreground/5 rounded-[1.25rem] text-muted-text hover:text-foreground transition-all active:scale-90 shadow-sm">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
@@ -82,76 +82,76 @@ export default function ProfileSetupModal({ isOpen, onClose }: ProfileSetupModal
                 <div className="p-10 space-y-10 max-h-[80vh] overflow-y-auto no-scrollbar relative z-10">
                     <div className="flex flex-col items-center space-y-6">
                         <div className="relative group">
-                            <div className="w-32 h-32 rounded-full border-4 border-white shadow-premium overflow-hidden bg-black/5">
+                            <div className="w-32 h-32 rounded-full border-4 border-surface shadow-premium overflow-hidden bg-surface">
                                 <img src={avatar} alt="Avatar" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             </div>
                             <button
                                 onClick={generateNewAvatar}
-                                className="absolute bottom-1 right-1 p-3 bg-black rounded-full text-white hover:bg-accent transition-all shadow-premium active:scale-95"
+                                className="absolute bottom-1 right-1 p-3 bg-foreground rounded-full text-background hover:bg-accent hover:text-white transition-all shadow-premium active:scale-95"
                             >
                                 <Camera className="w-5 h-5" />
                             </button>
                         </div>
-                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] opacity-60">Visual Identity</span>
+                        <span className="text-[10px] font-black text-muted-text uppercase tracking-[0.2em] opacity-60">Visual Identity</span>
                     </div>
 
                     <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Username */}
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Network Handle</label>
+                            <label className="text-[9px] font-black text-muted-text uppercase tracking-[0.25em] ml-2">Network Handle</label>
                             <div className="relative group/input">
-                                <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within/input:text-accent transition-colors" />
+                                <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-text group-focus-within/input:text-accent transition-colors" />
                                 <input
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     placeholder="your_username"
-                                    className="w-full bg-black/5 border border-black/5 rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black lowercase text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-zinc-300 shadow-sm"
+                                    className="w-full bg-surface border-border rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black lowercase text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-muted-text shadow-sm"
                                 />
                             </div>
                         </div>
 
                         {/* Age */}
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Maturity Level</label>
+                            <label className="text-[9px] font-black text-muted-text uppercase tracking-[0.25em] ml-2">Maturity Level</label>
                             <div className="relative group/input">
-                                <Hash className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within/input:text-accent transition-colors" />
+                                <Hash className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-text group-focus-within/input:text-accent transition-colors" />
                                 <input
                                     type="number"
                                     value={age}
                                     onChange={(e) => setAge(e.target.value)}
                                     placeholder="Age"
-                                    className="w-full bg-black/5 border border-black/5 rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black uppercase tracking-widest text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-zinc-300 shadow-sm"
+                                    className="w-full bg-surface border-border rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black uppercase tracking-widest text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-muted-text shadow-sm"
                                 />
                             </div>
                         </div>
 
                         {/* Country */}
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Point of Origin</label>
+                            <label className="text-[9px] font-black text-muted-text uppercase tracking-[0.25em] ml-2">Point of Origin</label>
                             <div className="relative group/input">
-                                <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within/input:text-accent transition-colors" />
+                                <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-text group-focus-within/input:text-accent transition-colors" />
                                 <input
                                     type="text"
                                     value={country}
                                     onChange={(e) => setCountry(e.target.value)}
                                     placeholder="Country"
-                                    className="w-full bg-black/5 border border-black/5 rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black uppercase tracking-widest text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-zinc-300 shadow-sm"
+                                    className="w-full bg-surface border-border rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black uppercase tracking-widest text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-muted-text shadow-sm"
                                 />
                             </div>
                         </div>
 
                         {/* Interests */}
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Core Affinities</label>
+                            <label className="text-[9px] font-black text-muted-text uppercase tracking-[0.25em] ml-2">Core Affinities</label>
                             <div className="relative group/input">
-                                <Heart className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400 group-focus-within/input:text-accent transition-colors" />
+                                <Heart className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-text group-focus-within/input:text-accent transition-colors" />
                                 <input
                                     type="text"
                                     value={interests}
                                     onChange={(e) => setInterests(e.target.value)}
                                     placeholder="Music, Tech..."
-                                    className="w-full bg-black/5 border border-black/5 rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black uppercase tracking-widest text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-zinc-300 shadow-sm"
+                                    className="w-full bg-surface border-border rounded-[1.5rem] pl-14 pr-6 py-4.5 text-xs font-black uppercase tracking-widest text-foreground focus:outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent/30 transition-all placeholder:text-muted-text shadow-sm"
                                 />
                             </div>
                         </div>
@@ -159,8 +159,8 @@ export default function ProfileSetupModal({ isOpen, onClose }: ProfileSetupModal
                         {/* English Level */}
                         <div className="md:col-span-2 space-y-6 pt-6 border-t border-black/5">
                             <div className="space-y-1">
-                                <label className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.25em] ml-2">Proficiency Tier</label>
-                                <p className="text-[10px] font-black text-zinc-400/60 uppercase tracking-widest ml-2">Matchmaking Optimization</p>
+                                <label className="text-[9px] font-black text-muted-text uppercase tracking-[0.25em] ml-2">Proficiency Tier</label>
+                                <p className="text-[10px] font-black text-muted-text/60 uppercase tracking-widest ml-2">Matchmaking Optimization</p>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 {[
@@ -181,10 +181,10 @@ export default function ProfileSetupModal({ isOpen, onClose }: ProfileSetupModal
                                             {level.icon}
                                         </div>
                                         <div>
-                                            <div className={`font-black uppercase tracking-tighter text-base ${englishLevel === level.id ? 'text-foreground' : 'text-zinc-400'}`}>
+                                            <div className={`font-black uppercase tracking-tighter text-base ${englishLevel === level.id ? 'text-foreground' : 'text-muted-text'}`}>
                                                 {level.title}
                                             </div>
-                                            <div className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-1 opacity-60 leading-none">
+                                            <div className="text-[9px] font-black text-muted-text uppercase tracking-widest mt-1 opacity-60 leading-none">
                                                 {level.desc}
                                             </div>
                                         </div>
@@ -204,14 +204,14 @@ export default function ProfileSetupModal({ isOpen, onClose }: ProfileSetupModal
                             <button
                                 type="button"
                                 onClick={handleSkip}
-                                className="flex-1 py-5 px-6 rounded-[1.5rem] border border-black/5 text-zinc-400 font-black uppercase tracking-widest text-[10px] hover:bg-black/5 transition-all shadow-sm"
+                                className="flex-1 py-5 px-6 rounded-[1.5rem] border border-border text-muted-text font-black uppercase tracking-widest text-[10px] hover:bg-surface transition-all shadow-sm"
                             >
                                 Bypassing
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading || success}
-                                className={`flex-[2] py-5 px-6 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center space-x-3 shadow-premium group relative overflow-hidden ${success ? 'bg-positive-accent text-white shadow-premium' : 'bg-black text-white hover:bg-accent'
+                                className={`flex-[2] py-5 px-6 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center space-x-3 shadow-premium group relative overflow-hidden ${success ? 'bg-positive-accent text-white shadow-premium' : 'bg-foreground text-background hover:bg-accent hover:text-white'
                                     }`}
                             >
                                 <span className="relative z-10 flex items-center gap-3">

@@ -21,10 +21,10 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm group border border-black/5 dark:border-white/5 hover:scale-110 active:scale-95 ${
+      className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm group border border-border hover:scale-110 active:scale-95 ${
         theme === 'dark' 
-          ? 'bg-slate-900 text-primary border-white/10' 
-          : 'bg-white text-secondary-text hover:bg-black/5 hover:text-foreground'
+          ? 'bg-surface text-primary' 
+          : 'bg-surface text-muted-text hover:text-foreground'
       }`}
       title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >

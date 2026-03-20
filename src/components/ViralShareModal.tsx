@@ -49,9 +49,9 @@ export default function ViralShareModal({
     const shareMessage = getSharingMessage(countryName);
 
     return (
-        <div className={`fixed inset-0 z-[120] flex items-end md:items-center justify-center p-0 md:p-6 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className={`fixed inset-0 z-[120] flex items-end md:items-center justify-center p-0 md:p-6 bg-slate-950/40 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <div 
-                className={`w-full max-w-lg bg-white rounded-t-[2.5rem] md:rounded-[3rem] p-8 md:p-10 shadow-2xl transition-all duration-500 transform ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full md:translate-y-10 opacity-0'}`}
+                className={`w-full max-w-lg bg-premium-card rounded-t-[2.5rem] md:rounded-[3rem] p-8 md:p-10 shadow-2xl transition-all duration-500 transform ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full md:translate-y-10 opacity-0'} border border-border`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header Actions */}
@@ -61,9 +61,9 @@ export default function ViralShareModal({
                     </div>
                     <button 
                         onClick={onClose}
-                        className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                        className="p-2 hover:bg-surface rounded-full transition-colors"
                     >
-                        <X className="w-6 h-6 text-muted" />
+                        <X className="w-6 h-6 text-muted-text" />
                     </button>
                 </div>
 
@@ -82,9 +82,9 @@ export default function ViralShareModal({
                     ) : stats ? (
                         <div className="space-y-2">
                             <div className="flex justify-center gap-4 mb-4">
-                                <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 text-center min-w-[100px]">
-                                    <div className="text-2xl font-black text-orange-600">{stats.minutes}m</div>
-                                    <div className="text-[10px] font-black uppercase tracking-widest text-orange-400">Practiced</div>
+                                <div className="p-4 bg-orange-500/10 rounded-2xl border border-orange-500/20 text-center min-w-[100px]">
+                                    <div className="text-2xl font-black text-orange-500">{stats.minutes}m</div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-orange-500/60">Practiced</div>
                                 </div>
                                 <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 text-center min-w-[100px]">
                                     <div className="text-2xl font-black text-accent">{stats.peopleMet}</div>
@@ -112,7 +112,7 @@ export default function ViralShareModal({
                             </div>
                             <div className="relative z-10 text-left">
                                 <h4 className="text-sm font-black uppercase tracking-widest text-secondary mb-1">Want to reconnect?</h4>
-                                <p className="text-xs text-muted leading-relaxed">Share this unique link to find this person again later.</p>
+                                <p className="text-xs text-muted-text leading-relaxed">Share this unique link to find this person again later.</p>
                             </div>
                         </div>
                     )}
@@ -138,7 +138,7 @@ export default function ViralShareModal({
                             
                             <button 
                                 onClick={() => copyToClipboard('https://norinly.live')}
-                                className="flex items-center justify-center gap-3 w-full py-4 bg-slate-100 text-secondary font-bold rounded-2xl hover:bg-slate-200 active:scale-[0.98] transition-all"
+                                className="flex items-center justify-center gap-3 w-full py-4 bg-surface text-secondary font-bold rounded-2xl hover:bg-surface/80 active:scale-[0.98] transition-all border border-border"
                             >
                                 <Copy className="w-5 h-5" />
                                 Copy Link
@@ -148,7 +148,7 @@ export default function ViralShareModal({
 
                     <button 
                         onClick={onClose}
-                        className="text-xs font-black uppercase tracking-widest text-muted hover:text-accent transition-colors pt-4"
+                        className="text-xs font-black uppercase tracking-widest text-muted-text hover:text-accent transition-colors pt-4"
                     >
                         Maybe later
                     </button>
