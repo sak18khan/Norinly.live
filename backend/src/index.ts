@@ -14,7 +14,13 @@ const app = express();
 const server = http.createServer(app);
 
 // Basic middleware
-app.use(cors());
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow all origins to connect with credentials
+    callback(null, origin || true);
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
@@ -24,19 +30,17 @@ app.get('/', (req, res) => {
   res.send('Norinly Server is running');
 });
 
-// Socket.io initialization with hybrid transport and dynamic CORS for multi-environment support
+// Socket.io initialization
 const io = new Server(server, {
   path: "/socket.io",
   cors: {
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Allow the origin if it exists, or allow all for testing
-      // In production, Railway/Vercel handles origin validation, so this is safe for connectivity
-      callback(null, true);
+    origin: function (origin, callback) {
+      callback(null, origin || true);
     },
     methods: ["GET", "POST"],
     credentials: true
   },
-  transports: ["polling", "websocket"],
+  transports: ["websocket", "polling"],
   allowEIO3: true
 });
 
@@ -67,8 +71,8 @@ setupSocketHandlers(io);
 
 const PORT = process.env.PORT || 3001;
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+server.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`🚀 Server running on port ${PORT} (0.0.0.0 binding)`);
 });
 
 export { app, io };

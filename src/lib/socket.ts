@@ -9,8 +9,7 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://norinlylive-pr
  * Uses hybrid transport (polling -> websocket) for maximum reliability across environments.
  */
 export const socket: Socket = io(SOCKET_URL, {
-  transports: ["polling", "websocket"],
-  upgrade: true,
+  transports: ["websocket"],
   secure: true,
   autoConnect: false,
   reconnection: true,
