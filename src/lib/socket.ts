@@ -2,7 +2,24 @@ import { io, Socket } from "socket.io-client";
 
 // The single source of truth for the socket configuration
 // NEXT_PUBLIC_SOCKET_URL should be set in .env files (e.g., http://localhost:5000 for local, production URL for live)
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://norinlylive-production.up.railway.app";
+const getSocketUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
+  
+  // If the env variable is set and is valid (not a placeholder or the deprecated railway URL)
+  if (envUrl && envUrl !== "PLACEHOLDER_SOCKET_URL" && !envUrl.includes("railway.app")) {
+    return envUrl;
+  }
+  
+  // In the browser, default to connecting to the same origin (handled by Nginx reverse proxy)
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+  
+  // Fallback for SSR/Server side
+  return "http://localhost:5000";
+};
+
+const SOCKET_URL = getSocketUrl();
 
 /**
  * Singleton socket instance configured for production deployment.
